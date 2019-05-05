@@ -162,13 +162,15 @@ git config [--global] alias.ALIAS SOURCE
 git config --bool core.bare true
 git config [--global] core.autocrlf true|input|false
 git config [--global] core.editor EDITOR
+git config [--global] core.quotepath false
 git config [--global] user.name NAME
 git config [--global] user.email EMAIL
 git config [--global] pull.rebase true
 ```
 
-* core.autocrlf：为true则checkout时转换为CRLF，commit时转换为LF；为input则checkout时不做转换，commit时转换为LF；为false则checkout和commit时都不做转换。
 * alias：如果SOURCE是外部命令，则需在前面加!。
+* core.autocrlf：为true则checkout时转换为CRLF，commit时转换为LF；为input则checkout时不做转换，commit时转换为LF；为false则checkout和commit时都不做转换。
+* core.quotepath：是否将文件路径中0x80以上的字符转义为八进制。
 
 ## git commit
 
