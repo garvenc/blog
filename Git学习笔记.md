@@ -1,4 +1,4 @@
-本文更新于2019-05-05，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2019-05-28，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -40,7 +40,7 @@ Windows配置文件读取顺序：
 	* **匹配任意中间目录。
 * 以/开头指定在工作目录中的相对路径，并忽略跟踪。
 * 以/结尾指定目录，并忽略跟踪。
-* 在模式前加!，可只跟踪该模式，忽略模式以外的文件。
+* 在模式前加!，可强制跟踪该模式，即使该模式被其他模式指定为忽略跟踪。
 
 # 命令
 
@@ -220,6 +220,14 @@ git fetch [REMOTE]
 git fetch --all
 ```
 
+## git gui
+
+打开图形用户界面：
+
+```shell
+git gui
+```
+
 ## git help
 
 查看帮助：
@@ -334,7 +342,7 @@ git pull --allow-unrelated-histories [REMOTE [BRANCH]]
 推送到远程仓库。并不会推送标签。如使用--force，则强制推送，可能会导致远程仓库已有的提交丢失：
 
 ```shell
-git push [REMOTE] [BRANCH|LOCALBRANCH:REMOTEBRANCH] [--force]
+git push [REMOTE] [[LOCALBRANCH:]REMOTEBRANCH] [--force]
 ```
 
 如出现如下错误，则在远程仓库执行`git config --bool core.bare true`。
@@ -344,10 +352,16 @@ remote: error: refusing to update checked out branch: refs/heads/master
 remote: error: By default, updating the current branch in a non-bare repository
 ```
 
+推送的时候同时在远程仓库创建分支：
+
+```shell
+git push --set-upstream REMOTE REMOTEBRANCH
+```
+
 删除远程分支：
 
 ```shell
-git push REMOTE --delete BRANCH
+git push REMOTE --delete REMOTEBRANCH
 ```
 
 推送标签到远程仓库：
@@ -365,7 +379,7 @@ git push REMOTE --tags
 删除远程仓库的标签：
 
 ```shell
-git push origin :refs/tags/TAG
+git push REMOTE :refs/tags/TAG
 ```
 
 ## git rebase

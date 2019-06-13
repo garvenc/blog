@@ -1,4 +1,4 @@
-本文更新于2019-04-18。
+本文更新于2019-06-11。
 
 [TOC]
 
@@ -6,9 +6,27 @@
 
 # 磁盘与分区
 
+## blkid
+
+查看块设备属性。
+
+```shell
+blkid
+```
+
+## blockdev
+
+查看/设置块设备设置。
+
+```
+blockdev --report
+```
+
+* --report：查看块设备设置。
+
 ## df
 
-列出文件系统的磁盘使用量。
+列出文件系统的磁盘使用量，包括各分区的磁盘使用量。
 
 ```shell
 df [-ahHikmT] [NAME]
@@ -40,6 +58,14 @@ du [-ahkmsS] NAME
 * -S：列出所有目录，目录的计算方式为只汇总文件，不汇总子目录。
 
 当不使用-a、-s、-S时，列出所有目录，目录的计算方式为汇总其子目录和文件。
+
+## lsblk
+
+以树形结构查看块设备。
+
+```shell
+lsblk
+```
 
 # 文件与目录
 
@@ -111,6 +137,19 @@ chown [-R] [GROUP:]OWNER NAME[ ...]
 ```
 
 * -R：递归更改子目录和文件。
+
+## dd
+
+复制文件/设备。
+
+```shell
+dd [if=INPUTFILE] [of=OUTPUTFILE] [bs=BLOCKSIZE] [count=COUNT]
+```
+
+* bs：块大小，默认为512字节（一个扇区的大小）。可使用K/M/G格式。
+* count：块数量。
+* if：输入文件，可以为设备。
+* of：输出文件，可以为设备。
 
 ## file
 
@@ -206,6 +245,69 @@ rmdir [-p] DIR
 
 * -p：递归删除空的父目录，如`rm a/b/c`可递归删除a。
 
+## test
+
+检测文件和比较值。
+
+```shell
+test OPTEST
+[ OPTEST ]
+```
+
+若为真，则命令执行返回码为0；否则为1。注意，上述两种表示是等价的，第二种`[`和`]`间必须有空格。OPTEST中的变量和常量建议使用`""`引起，OPTEST如下设置：
+
+检测文件或目录，如`test OP NAME`：
+
+* -b：检测是否存在且为块设备。
+* -c：检测是否存在且为字符设备。
+* -d：检测是否存在且为目录。
+* -e：检测是否存在。
+* -f：检测是否存在且为文件。
+* -L：检测是否存在且为连接文件。
+* -s：检测是否存在且大小不为0。
+* -S：检测是否存在且为套接字（Socket）文件。
+* -p：检测是否存在且为管道（FIFO）文件。
+
+检测文件或目录权限（但root用户常有例外），如`test OP NAME`：
+
+* -g：检测是否存在且有SGID属性。
+* -k：检测是否存在且有SBIT属性。
+* -r：检测是否存在且有读权限。
+* -u：检测是否存在且有SUID属性。
+* -w：检测是否存在且有写权限。
+* -x：检测是否存在且有执行权限。
+
+文件或目录比较，如`test NAME1 OP NAME2`：
+
+* -ef：比较是否同一个文件。可用于检测硬连接，如指向同一个inode则为同一个文件。
+* -nt：比较NAME1是否比NAME2新。
+* -ot：比较NAME1是否比NAME2老。
+
+整数比较，如`test N1 OP N2`：
+
+* -eq：比较是否相等。
+* -ge：比较N1是否大于等于N2。
+* -gt：比较N1是否大于N2。
+* -le：比较N1是否小于等于N2。
+* -lt：比较N1是否小于N2。
+* -ne：比较是否不等。
+
+字符串比较，如`test OP STR`：
+
+* -n：比较字符串是否不为空串。`-n`也可省略。
+* -z：比较字符串是否为空串。
+
+或：
+
+* test STR1 = STR2：比较字符串是否相等。`=`也可为`==`。
+* test STR1 != STR2：比较字符串是否不等。
+
+也可以对`test`进行多重判定：
+
+* !：取反，如`test ! OPTEST`。
+* -a：两个条件同时成立，如`test OPTEST1 -a OPTEST2`。
+* -o：任意一个条件成立，如`test OPTEST1 -o OPTEST2`。
+
 ## touch
 
 创建新文件或修改文件时间。
@@ -218,6 +320,14 @@ touch [-acmt] FILENAME
 * -c：仅修改ctime，若该文件不存在会创建文件。
 * -m：仅修改mtime。
 * -t：指定时间，格式为[[CC]YY]MMDDhhmm[.ss]。
+
+## umask
+
+显示或设置权限掩码。umask实际上是shell内置的命令。
+
+```shell
+umask [MODE]
+```
 
 # 文件查找
 
@@ -541,17 +651,17 @@ REGEXP最好用''或""括起来，虽然一些简单正则表达式缺省也无�
 * \^：行首。
 * $：行尾。
 * .：任意一个字符。
-* \：转义字符，主要用以在不使用''和""时，对{和}进行转义。
+* \\：转义字符。
 * *：重复前一个0次或多次。
-* [AB]：任意一个。
+* [AB]：枚举中任意一个。
 * [A-B]：范围中任意一个。
-* [\^AB]：无任意一个。
-* [\^A-B]：无范围中任意一个。
+* [\^AB]：不在枚举中的任意一个。
+* [\^A-B]：不在范围中的任意一个。
 * {N}：重复前一个N次。
 * {N,}：重复前一个N次或更多。
 * {N,M}：重复前一个最少N次（含），最多M次（含）。
 
-以下特殊字符需配合[]一起使用，如如[\^[:lower:]]：
+以下特殊字符需配合[]一起使用，如：[\^[:lower:]]：
 
 * [:alnum:]：字母和数字。
 * [:alpha:]：字母。
@@ -569,7 +679,7 @@ REGEXP最好用''或""括起来，虽然一些简单正则表达式缺省也无�
 扩展正则表达式：
 
 * +：重复前一个1次或多次。
-* ?：重复前一个0次或多次。
+* ?：重复前一个0次或1次。
 * A|B：A或B任意一个。注意，若abc和xyz都是字符串，则abc|xyz匹配abc或xyz。
 * ()：分组。
 
@@ -1166,6 +1276,67 @@ top执行过程中可使用如下命令（以下所述排序均为降序），�
 * T：以使用的CPU累积时间（TIME+）排序。
 * q：离开top。
 
+# 服务
+
+## service
+
+服务管理。新系统应使用`systemctl`。
+
+```shell
+service SERVICE restart
+service SERVICE start
+service SERVICE status
+service SERVICE stop
+```
+
+子命令：
+
+* restart：重启服务。
+* start：启动服务。
+* status：查看服务状态。
+* stop：停止服务。
+
+## systemctl
+
+systemd系统和服务管理。
+
+单元文件存放目录按优先级从高至低为：`/etc/systemd/system/`（系统管理员安装的单元）、`/usr/lib/systemd/system/`或`/lib/systemd/system/`（软件包安装的单元）。
+
+```shell
+systemctl [--failed]
+systemctl enable UNIT
+systemctl daemon-reload
+systemctl disable UNIT
+systemctl is-enabled UNIT
+systemctl list-unit-files
+systemctl list-units
+systemctl mask UNIT
+systemctl reload UNIT
+systemctl restart UNIT
+systemctl start UNIT
+systemctl status [UNIT]
+systemctl stop UNIT
+systemctl umask UNIT
+```
+
+* --failed：查看执行失败的单元。如不指定该选项，则查看所有激活的单元，即等效于`systemctl list-units`。
+
+子命令：
+
+* enable：设置单元开机自动启动。
+* daemon-reload：重新加载systemd。扫描新的或有变动的单元配置。
+* disable：取消单元开机自动启动。
+* is-enabled：查看单元是否未开机自动启动。
+* list-unit-files：查看所有已安装单元。
+* list-units：查看所有激活的单元。
+* mask：禁用单元。禁用后，也不能间接启动。
+* reload：重新加载单元配置。
+* restart：重启单元。
+* start：启动单元。
+* status：查看单元状态。如不指定单元，则以树形查看单元。
+* stop：停止单元。
+* umask：取消禁用单元。
+
 # 系统资源
 
 top也可查看系统资源使用情况，其显示值与下面很多命令均一致。
@@ -1632,11 +1803,26 @@ ssh [-p PORT] USERNAME@HOST
 
 * -p PORT：指定远程SSH端口。
 
-# 环境变量
+# 变量
+
+## declare
+
+设置/查看环境变量。
+
+```shell
+declare [[-airx] VARIABLE[=VALUE]]
+```
+
+* -a：指定变量为数组。
+* -i：指定变量为整数。
+* -r：指定变量为只读。
+* -x：指定变量为环境变量。
+
+只使用`declare`时，查看所有环境变量，与`set`相同。
 
 ## env
 
-列出所有环境变量。
+查看所有环境变量。
 
 ```shell
 env
@@ -1644,15 +1830,58 @@ env
 
 ## export
 
-设置变量为环境变量。
+设置/查看环境变量。
 
 ```shell
-export [NAME[=VALUE]]
+export [VARIABLE[=VALUE]]
 ```
 
-只使用export时，列出所有的环境变量。
+只使用`export`时，查看所有环境变量，显示格式包含"declare"。
 
-# 其他
+## locale
+
+查看语系变量。
+
+```shell
+locale [-a]
+```
+
+* -a：查看系统支持的所有语系。
+
+只使用`locale`时，查看当前的语系变量。
+
+## read
+
+从键盘读取变量。
+
+```shell
+read [-p PROMPT -t TIMEOUT] VARIABLE
+```
+
+* -p PROMPT：指定提示符。
+* -t TIMEOUT：指定等待超时，以秒为单位。
+
+## set
+
+查看所有变量，包括环境变量和自定义变量。
+
+```shell
+set
+```
+
+## typeset
+
+设置/查看环境变量。用法与`declare`相同。
+
+## unset
+
+取消变量设置，可为环境变量或自定义变量。
+
+```shell
+unset VARIABLE
+```
+
+# 命令执行
 
 ## alias
 
@@ -1660,6 +1889,78 @@ export [NAME[=VALUE]]
 
 ```shell
 alias NEW=OLD
+```
+
+## echo
+
+打印回显。
+
+```shell
+echo CONTENT [ ...]
+```
+
+## history
+
+查看历史执行命令。
+
+```shell
+history [N]
+histroy -c
+history -r FILENAME
+history -aw [FILENAME]
+```
+
+* -a：将当前shell新增的历史命令追加入文件中。如没指定FILENAME，则默认为`~/.bash_history`。
+* -c：将当前shell所有历史命令清除。
+* -r：将FILENAME中的历史命令读到当前shell中。
+* -w：将当前shell的历史命令写入文件中。如没指定FILENAME，则默认为`~/.bash_history`。
+
+如不使用参数，则列出所有历史命令。可指定列出最近N条命令。
+
+可通过如下方式执行历史命令：
+
+* !N：执行第N条命令。
+* !COMMAND：执行最近的以COMMAND开头的命令。
+* !!：执行上一条命令。
+
+## seq
+
+返回数值序列。
+
+```shell
+seq [FIRST [INCREMENT]] LAST
+```
+
+FIRST和INCREMENT默认为1。返回序列的范围为[FIRST, LAST]。
+
+## sh
+
+在子进程中执行脚本。
+
+```shell
+sh [-nvx] SCRIPTFILENAME
+```
+
+* -n：不执行，只检查语法。
+* -v：执行时，先打印脚本内容。
+* -x：执行，并打印每一步使用的脚本。
+
+## source
+
+在父进程中执行脚本。
+
+```shell
+source SCRIPTFILENAME
+```
+
+等同于`. SCRIPTFILENAME`。
+
+## unalias
+
+取消命令别名。
+
+```shell
+unalias NAME
 ```
 
 ## xargs
@@ -1671,11 +1972,3 @@ xargs COMMAND STDIN
 ```
 
 参数以空白符分隔。
-
-## umask
-
-显示或设置权限掩码。umask实际上是shell内置的命令。
-
-```shell
-umask [MODE]
-```
