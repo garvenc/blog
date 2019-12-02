@@ -1,4 +1,4 @@
-本文更新于2019-07-16，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2019-11-25，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -40,7 +40,7 @@ Windows配置文件读取顺序：
 	* **匹配任意中间目录。
 * 以/开头指定在工作目录中的相对路径，并忽略跟踪。
 * 以/结尾指定目录，并忽略跟踪。
-* 在模式前加!，可强制跟踪该模式，即使该模式被其他模式指定为忽略跟踪。
+* 在模式前加!，可强制跟踪该模式，即使该模式被其他模式指定为忽略跟踪。但如已忽略跟踪该模式的父目录，则使用!也不能强制跟踪。
 
 # 命令
 
@@ -261,27 +261,29 @@ git log [BRANCH ...]
 
 可使用如下选项：
 
+* -(n)：最近n次提交。
 * -p：显示每次提交的内容差异。
-* --stat：显示每次提交的简略的统计信息。
-* --shortstat：只显示--stat中最后的行数修改添加移除统计。
+* -S WORD：显示提交内容中含指定关键字的提交。
+* --abbrev-commit：仅显示SHA-1的前几个字符，而非所有的40个字符。
+* --after TIME：显示指定时间之后的提交，同--since。
+* --all：显示所有分支的提交信息。
+* --all-match：显示同时满足这所有选项搜索条件的提交，不带此选项则显示满足任意一个搜索条件的提交。
+* --author AUTHOR：显示指定作者相关的提交。
+* --before TIME：显示指定时间之前的提交，同--until。
+* --committer COMMITTER：显示指定提交者相关的提交。
+* --decorate：查看各个分支当前所指的对象。
+* --graph：使用ASCII图表展示分支，需与--pretty=oneline|format结合使用。
+* --grep WORD：显示提交说明中含指定关键字的提交。
 * --name-only：仅在提交信息后显示已修改的文件清单。
 * --name-status：显示新增、修改、删除的文件清单。
-* --abbrev-commit：仅显示SHA-1的前几个字符，而非所有的40个字符。
-* --relative-date：使用较短的相对时间显示（比如，“2 weeks ago”）。
-* --pretty=oneline|format:"FORMAT"|short|full|fuller：使用指定格式显示。
 * --oneline：每次提交信息单行显示，类似--pretty=oneline。
-* --graph：使用ASCII图表展示分支，需与--pretty=oneline|format结合使用。
-* --decorate：查看各个分支当前所指的对象。
-* --all：显示所有分支的提交信息。
-* -(n)：最近n次提交。
-* --since|--after TIME：显示指定时间之后的提交。
-* --until|--before TIME：显示指定时间之前的提交。
-* --author AUTHOR：显示指定作者相关的提交。
-* --committer COMMITTER：显示指定提交者相关的提交。
-* --grep WORD：显示提交说明中含指定关键字的提交。
-* -S WORD：显示提交内容中含指定关键字的提交。
+* --pretty=oneline|short|full|fuller|format:"FORMAT"：使用指定格式显示。
+* --relative-date：使用较短的相对时间显示（比如，“2 weeks ago”）。
+* --shortstat：只显示--stat中最后的行数修改添加移除统计。
+* --since TIME：显示指定时间之后的提交，同--after。
+* --stat：显示每次提交的简略的统计信息。
+* --until TIME：显示指定时间之前的提交，同--before。
 * -- PATH：放在最后位置上，指定文件路径。
-* --all-match：显示同时满足这所有选项搜索条件的提交，不带此选项则显示满足任意一个搜索条件的提交。
 
 常用命令：
 
