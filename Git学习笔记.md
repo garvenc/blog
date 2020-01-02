@@ -1,4 +1,4 @@
-本文更新于2019-11-25，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2019-12-24，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -159,23 +159,24 @@ git config KEY
 
 ```shell
 git config [--global] alias.ALIAS SOURCE
-git config --bool core.bare true
 git config [--global] core.autocrlf true|input|false
+git config --bool core.bare true
 git config [--global] core.editor EDITOR
 git config [--global] core.quotepath false
 git config [--global] gui.encoding ENCODING
-git config [--global] user.name NAME
-git config [--global] user.email EMAIL
 git config [--global] pull.rebase true
+git config [--global] user.email EMAIL
+git config [--global] user.name NAME
 ```
 
 * alias：如果SOURCE是外部命令，则需在前面加!。
 * core.autocrlf：为true则checkout时转换为CRLF，commit时转换为LF；为input则checkout时不做转换，commit时转换为LF；为false则checkout和commit时都不做转换。
+* core.bare：是否设为裸仓库。裸仓库可作为远程仓库往其push。
 * core.editor：默认编辑器。
 * core.quotepath：是否将文件路径中0x80以上的字符转义为八进制。
 * gui.encoding：GUI中的字符编码，如：utf-8。
-* user.name：作者名字。
 * user.email：作者邮箱。
+* user.name：作者名字。
 
 ## git commit
 

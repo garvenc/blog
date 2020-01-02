@@ -1,4 +1,4 @@
-本文更新于2019-12-02。
+本文更新于2019-12-30。
 
 [TOC]
 
@@ -16,7 +16,7 @@ blkid
 
 ## blockdev
 
-查看/设置块设备设置。
+查看或设置块设备设置。
 
 ```
 blockdev --report
@@ -59,6 +59,19 @@ du [-ahkmsS] NAME
 
 当不使用-a、-s、-S时，列出所有目录，目录的计算方式为汇总其子目录和文件。
 
+## fdisk
+
+MBR磁盘分区。最大支持2T的磁盘。
+
+```shell
+fdisk DEV
+fdisk -l [DEV]
+```
+
+* -l：列出指定设备的分区信息。如未指定设备则列出所有设备的分区信息。
+
+不带参数时为进行磁盘分区。
+
 ## lsblk
 
 以树形结构查看块设备。
@@ -66,6 +79,88 @@ du [-ahkmsS] NAME
 ```shell
 lsblk
 ```
+
+## mkfs
+
+格式化分区。
+
+```shell
+mkfs [-t FSTYPE] PARTITIONDEV
+```
+
+* -t FSTYPE：指定文件系统类型，如ext2、ext3、ext4。
+
+## mount
+
+挂载分区。
+
+```shell
+mount -a
+mount [-l]
+mount [-L LABEL] [-n] [-o OPTION] [-t FSTYPE] PARTITIONDEV DIR
+```
+* -a：依照/etc/fstab将所有未挂载的分区挂载。
+* -l：同时列出卷标名（Label）。
+* -L LABEL：指定卷标名，使用LABEL而不使用PARTITIONDEV进行挂载。
+* -n：不将信息更新至/etc/mtab。
+* -o OPTION：指定挂载的额外选项。可为如下值，以逗号分隔：
+
+	* async：异步写入。
+	* auto：允许被`mount -a`自动挂载。
+	* defaults：默认值，为`auto,async,dev,exec,nouser,rw,suid`。
+	* dev：允许在此分区上创建设备文件。
+	* exec：允许在此分区上执行二进制文件。
+	* noauto：不允许被`mount -a`自动挂载。
+	* nodev：不允许在此分区上创建设备文件。
+	* noexec：不允许在此分区上执行二进制文件。
+	* nosuid：不允许在此分区上有SUID/SGID的文件。
+	* nouser：不允许普通用户对此分区执行`mount`。
+	* remount：重新挂载，在系统出错或重新更新选项时有用。
+	* ro：只读。
+	* rw：可读写。
+	* suid：允许在此分区上有SUID/SGID的文件。
+	* sync：同步写入。
+	* user：允许普通用户对此分区执行`mount`。
+* -t FSTYPE：指定文件系统类型。
+
+不使用参数则列出当前的挂载信息。
+
+## parted
+
+磁盘分区。支持大于2T的磁盘。
+
+```shell
+parted [DEV]
+```
+
+使用如下子命令：
+
+* mklabel LABELTYPE：转换分区格式。LABELTYPE为分区格式，可为gpt等。
+* mkpart PARTTYPE [FSTYPE] START END：创建分区。PARTTYPE为分区类型，可为primary（主分区）等；FSTYPE为文件系统类型；START为开始位置，END为结束位置，默认以M为单位，可使用百分比N%。
+* align-check TYPE PARTITIONDEV：检查分区是否对齐，显示“PARTITIONDEV aligned”表示已对齐。TYPE必须为minimal（最小）或optimal（最优）；PARTITIONDEV为分区的编号，从1开始。
+* print：打印分区表。
+* quit：退出`parted`。
+
+## partprobe
+
+令系统重新读取分区表。
+
+```shell
+partprobe
+```
+
+## umount
+
+卸载分区。
+
+```shell
+umount [-fn] PARTITION
+```
+
+PARTITION可为设备名或挂载目录名。
+
+* -f：强制卸载。
+* -n：不将信息更新至/etc/mtab。
 
 # 文件与目录
 
@@ -598,7 +693,7 @@ cut -c RANGES FILENAME[ ...]|STDIN
 * -d DELIMITER：以DELIMITER分隔，输出如有多列也以DELIMITER分隔。DELIMITER只能是一个字符。
 * -f RANGES：取出列的范围。
 
-RANGES可取以下形式：
+RANGES可取如下形式：
 
 * N[,...]：第N列的列表。
 * N-M：第N列（含）至第M列（含），如缺省N则从第一列开始，如缺省M则至最后一列。
@@ -844,7 +939,7 @@ tar -x [-j|-z -v] -f FILENAME [-C DIR]
 
 使用-c打包，包中文件包含NAME前缀。
 
-# 用户和用户组
+# 用户与用户组
 
 ## adduser
 
@@ -1059,7 +1154,7 @@ w
 who
 ```
 
-# 工作和进程
+# 工作与进程
 
 ## bg
 
@@ -1463,7 +1558,7 @@ vmstat [interval [times]] [-a] [-S UNIT]
 vmstat [interval [times]] -d
 vmstat [interval [times]] -f
 vmstat [interval [times]] -s [-S UNIT]
-vmstat [interval [times]] -p PARTITION
+vmstat [interval [times]] -p PARTITIONDEV
 ```
 
 * -a：将memory的buff、cache替换为inact、active。
@@ -1471,7 +1566,7 @@ vmstat [interval [times]] -p PARTITION
 * -f：列出开机后fork的进程数。
 * -s：列出开机后导致内存变化的情况。
 * -S UNIT：指定显示的单位，可为k、K、m、M。
-* -p PARTITION：列出分区的读写情况。
+* -p PARTITIONDEV：列出分区的读写情况。
 
 缺省参数时的输出字段说明：
 
