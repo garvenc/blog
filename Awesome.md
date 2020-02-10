@@ -1,4 +1,4 @@
-本文更新于2019-12-30。
+本文更新于2020-02-10。
 
 [TOC]
 
@@ -14,6 +14,7 @@
 
 * [Linux安装Go](https://www.cnblogs.com/garvenc/p/linux_install_go.html)
 * [Go使用protobuf](https://www.cnblogs.com/garvenc/p/use_protobuf_in_go.html)
+* [Go文档：go命令](https://www.cnblogs.com/garvenc/p/go_document_command_go.html)
 
 # IDE/Editor
 

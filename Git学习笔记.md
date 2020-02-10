@@ -1,4 +1,4 @@
-本文更新于2019-12-24，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2020-01-17，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -303,7 +303,7 @@ git ls-remote [REMOTE]
 合并分支。将分支合并到当前分支：
 
 ```shell
-git merge BRANCH
+git merge BRANCH|HASH
 ```
 
 中断合并：
@@ -356,7 +356,7 @@ git pull --allow-unrelated-histories [REMOTE [BRANCH]]
 推送到远程仓库。并不会推送标签。如使用--force或-f，则强制推送，可能会导致远程仓库已有的提交丢失：
 
 ```shell
-git push [REMOTE] [[LOCALBRANCH:]REMOTEBRANCH] [--force|-f]
+git push [REMOTE] [[LOCALBRANCH|HASH:]REMOTEBRANCH] [--force|-f]
 ```
 
 如出现如下错误，则在远程仓库执行`git config --bool core.bare true`。
