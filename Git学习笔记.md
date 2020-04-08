@@ -1,4 +1,4 @@
-本文更新于2020-01-17，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2020-04-07，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -306,6 +306,12 @@ git ls-remote [REMOTE]
 git merge BRANCH|HASH
 ```
 
+合并分支。将分支合并到当前分支，总是创建一个提交而不使用快进（fast-forward）：
+
+```shell
+git merge --no-ff BRANCH|HASH
+```
+
 中断合并：
 
 ```shell
@@ -331,6 +337,8 @@ git mergetool
 1. ">>>>>>>"表示待合入分支，其后跟随待合入分支名。
 
 合并冲突解决后，需使用`git commit`提交。
+
+kdiff3可通过设置修改字符编码：Settings -> Configure KDiff3... -> Regional Settings，选择File Encoding for开头的对应下拉框为Unicode, 8 bit (UTF-8)。
 
 ## git mv
 
@@ -540,34 +548,14 @@ git tag -d TAG
 
 # 常用流程
 
-从远程仓库克隆至本地仓库：
-
 1. git clone 克隆远程仓库。
 1. git config 配置。
-1. git add 暂存。
-1. git commit 提交。
-1. git push 推送至远程仓库。
-
-以本地仓库追踪远程仓库：
-
-1. git init 初始化本地仓库。
-1. git config 配置。
-1. git remote 添加远程仓库。
-1. git add 暂存。
-1. git commit 提交。
-1. git push 推送至远程仓库。
-
-分支合并流程：
-
-1. git branch 创建分支（如若需要）。
+1. git branch 创建分支。
 1. git checkout 切换分支。
 1. git merge 合并分支。
 1. git mergetool 解决冲突。
 1. git add 暂存。
 1. git commit 提交。
-
-远程仓库提交流程：
-
-1. git checkout 切换分支。
+1. git remote 添加远程仓库。
 1. git pull 从远程仓库拉取。
 1. git push 推送至远程仓库。
