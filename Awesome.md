@@ -1,4 +1,4 @@
-本文更新于2020-04-08。
+本文更新于2020-04-10。
 
 [TOC]
 
@@ -32,6 +32,10 @@
 
 * [CentOS7使用rpm包安装MySQL](https://www.cnblogs.com/garvenc/p/centos7_rpm_install_mysql.html)
 * [Debian使用dpkg安装MySQL](https://www.cnblogs.com/garvenc/p/debian8_dpkg_install_mysql.html)
+
+# nginx
+
+* [nginx安装、运行、配置](https://www.cnblogs.com/garvenc/p/nginx_install_run_configure.html)
 
 # Node.js
 
