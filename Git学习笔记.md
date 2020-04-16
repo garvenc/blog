@@ -1,4 +1,4 @@
-本文更新于2020-04-07，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2020-04-14，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -226,6 +226,14 @@ git fetch [REMOTE]
 git fetch --all
 ```
 
+## git gc
+
+清理垃圾文件。
+
+```shell
+git gc
+```
+
 ## git gui
 
 打开图形用户界面：
@@ -257,34 +265,40 @@ git init [--bare]
 查看提交历史：
 
 ```shell
-git log [BRANCH ...]
+git log [OPTIONS] [BRANCH ...]
 ```
 
-可使用如下选项：
+OPTIONS可使用如下选项：
 
-* -(n)：最近n次提交。
-* -p：显示每次提交的内容差异。
-* -S WORD：显示提交内容中含指定关键字的提交。
-* --abbrev-commit：仅显示SHA-1的前几个字符，而非所有的40个字符。
-* --after TIME：显示指定时间之后的提交，同--since。
-* --all：显示所有分支的提交信息。
-* --all-match：显示同时满足这所有选项搜索条件的提交，不带此选项则显示满足任意一个搜索条件的提交。
-* --author AUTHOR：显示指定作者相关的提交。
-* --before TIME：显示指定时间之前的提交，同--until。
-* --committer COMMITTER：显示指定提交者相关的提交。
-* --decorate：查看各个分支当前所指的对象。
-* --graph：使用ASCII图表展示分支，需与--pretty=oneline|format结合使用。
-* --grep WORD：显示提交说明中含指定关键字的提交。
-* --name-only：仅在提交信息后显示已修改的文件清单。
-* --name-status：显示新增、修改、删除的文件清单。
-* --oneline：每次提交信息单行显示，类似--pretty=oneline。
-* --pretty=oneline|short|full|fuller|format:"FORMAT"：使用指定格式显示。
-* --relative-date：使用较短的相对时间显示（比如，“2 weeks ago”）。
-* --shortstat：只显示--stat中最后的行数修改添加移除统计。
-* --since TIME：显示指定时间之后的提交，同--after。
-* --stat：显示每次提交的简略的统计信息。
-* --until TIME：显示指定时间之前的提交，同--before。
-* -- PATH：放在最后位置上，指定文件路径。
+* 基本选项
+	* --decorate：查看各个分支当前所指的对象。
+	* -- PATH：放在最后位置上，指定文件路径。
+* 提交范围选项：
+	* -(n)：最近n次提交。
+	* --after TIME：显示指定时间之后的提交，同--since。
+	* --all：显示所有分支的提交信息。
+	* --all-match：显示同时满足这所有选项搜索条件的提交，不带此选项则显示满足任意一个搜索条件的提交。
+	* --author AUTHOR：显示指定作者相关的提交。
+	* --before TIME：显示指定时间之前的提交，同--until。
+	* --committer COMMITTER：显示指定提交者相关的提交。
+	* --grep WORD：显示提交说明中含指定关键字的提交。
+	* --since TIME：显示指定时间之后的提交，同--after。
+	* --until TIME：显示指定时间之前的提交，同--before。
+* 提交排序选项：
+	* --date-order：按提交时间排序。
+* 格式化选项：
+	* --abbrev-commit：仅显示SHA-1的前几个字符，而非所有的40个字符。
+	* --graph：使用ASCII图表展示分支，需与--pretty=oneline|format结合使用。
+	* --oneline：每次提交信息单行显示，类似--pretty=oneline。
+	* --pretty=oneline|short|full|fuller|format:"FORMAT"：使用指定格式显示。
+	* --relative-date：使用较短的相对时间显示（比如，“2 weeks ago”）。
+* 差异比较选项：
+	* -p：显示每次提交的内容差异。
+	* -S WORD：显示提交内容中含指定关键字的提交。
+	* --name-only：仅在提交信息后显示已修改的文件清单。
+	* --name-status：显示新增、修改、删除的文件清单。
+	* --shortstat：只显示--stat中最后的行数修改添加移除统计。
+	* --stat：显示每次提交的简略的统计信息。
 
 常用命令：
 

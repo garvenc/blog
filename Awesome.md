@@ -1,4 +1,4 @@
-本文更新于2020-04-10。
+本文更新于2020-04-16。
 
 [TOC]
 
@@ -40,3 +40,7 @@
 # Node.js
 
 * [Linux安装Node.js](https://www.cnblogs.com/garvenc/p/linux_install_nodejs.html)
+
+# Supervisor
+
+* [Supervisor安装、配置](https://www.cnblogs.com/garvenc/p/supervisor_install_configure.html)
