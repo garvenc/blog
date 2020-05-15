@@ -1,4 +1,4 @@
-本文更新于2020-04-14，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2020-05-15，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -6,11 +6,23 @@
 
 [TOC]
 
-# 基本概念
+# 运行机制
 
-git文件可能处于三种状态之一：已修改（modified）、已暂存（staged）和已提交（committed）。
+```
+Working Directory      Staging Area    .git Repository HEAD
+        |                    |                  |
+        |       checkout the project            |
+        | <------------------------------------ |
+        |    stage files     |                  |
+        | -----------------> |                  |
+        |                    |      commit      |
+        |                    | ---------------> |
+```
 
-工作目录下的每一个文件都处于两种状态之一：已跟踪或未跟踪。 已跟踪是指那些被纳入了版本控制的文件，在上一次快照中有它们的记录，在工作一段时间后，它们的状态可能处于未修改，已修改或已暂存。 工作目录中除已跟踪文件以外的所有其它文件都属于未跟踪文件，它们既不存在于上次快照的记录中，也没有放入暂存区。 
+工作目录（Working Directory）下的每一个文件都处于两种状态之一：
+
+* 已跟踪：被纳入了版本控制的文件，在上一次快照中有它们的记录，在工作一段时间后，它们的状态可能处于未修改、已修改、已暂存、已提交。
+* 未跟踪：除已跟踪文件以外的所有其它文件都属于未跟踪文件，它们既不存在于上次快照的记录中，也没有放入暂存区（Staging Area）。
 
 下文中的.目录均为工作目录，命令均在工作目录下执行。
 
@@ -42,7 +54,37 @@ Windows配置文件读取顺序：
 * 以/结尾指定目录，并忽略跟踪。
 * 在模式前加!，可强制跟踪该模式，即使该模式被其他模式指定为忽略跟踪。但如已忽略跟踪该模式的父目录，则使用!也不能强制跟踪。
 
-# 命令
+# 选择指定的提交
+
+命令行中可以使用如下方式，选择指定的提交：
+
+* 使用40个字符的完整哈希值（记为HASH）。
+* 使用哈希值的前缀，最少4个字符。
+* 使用分支名（记为BRANCH），选择分支最顶端的提交。
+* 使用BRANCH@{N}，BRANCH为分支名，N为整数，选择分支前N次的提交，N为0表示分支最顶端的提交。
+* 使用\^选择父提交，可连续使用多次选择祖先提交。
+* 使用\^N选择指定的父提交，只用于合并的提交，此时第一个父提交为合并时所在的分支，第二个父提交为被合入的分支。
+* 使用~选择父提交，可连续使用多次选择祖先提交，也可使用~N简写表示连续N个~。
+
+# 上层命令
+
+常用流程：
+
+1. git clone 克隆远程仓库。
+1. git config 配置。
+1. git status 查看文件状态。
+1. git diff 查看差异。
+1. git add 暂存。
+1. git reset 重置暂存区或工作目录。
+1. git commit 提交。
+1. git log 查看提交记录。
+1. git branch 创建分支。
+1. git checkout 切换分支。
+1. git merge 合并分支。
+1. git mergetool 解决冲突。
+1. git fetch 从远程仓库拉取。
+1. git push 推送至远程仓库。
+1. git tag 创建标签。
 
 ## git add
 
@@ -51,6 +93,75 @@ Windows配置文件读取顺序：
 ```shell
 git add FILE
 ```
+
+进入交互式暂存：
+
+```shell
+git add -i|--interactive
+```
+
+交互式暂存可输入以下子命令：
+
+* 1或s：status，查看暂存状态。
+* 2或u：update，暂存文件。
+* 3或r：revert，撤销暂存文件。
+* 4或a：add untracked，添加未跟踪的文件。
+* 5或p：patch：暂存文件的特定部分。
+* 6或d：diff，查看已暂存文件的差异。
+* 7或q：quit，退出交互式暂存。
+* 8或h：help，查看帮助。
+
+输入子命令后，会列出带标号的文件列表。可使用“?”查看帮助，可以如下选择文件：
+
+* 标号：选中单个文件，如：1。
+* 标号1-标号2：选中文件范围，如：3-5。
+* ,分隔的标号或标号区间：选中多个文件范围，如：2-3,6-9。
+* 文件名前缀：选中带有此前缀的文件。
+* -开头：取消选中。
+* *：选中所有文件。
+* 回车：结束并确认选择。
+
+输入5或p，选择文件后，可输入以下子命令：
+
+* y：暂存此块文件内容。
+* n：不暂存此块文件内容。
+* a：暂存此块及本文件中所有后续块的文件内容。
+* d：不暂存此块及本文件中所有后续块的文件内容。
+* g：选择跳至一个块。
+* /：选择匹配给定正则表达式的块。
+* j：不决定本块是否暂存，离开并跳至下一个未决定的块。
+* J：不决定本块是否暂存，离开并跳至下一个块。
+* k：不决定本块是否暂存，离开并跳至上一个未决定的块。
+* K：不决定本块是否暂存，离开并跳至上一个块。
+* s：将当前块分割成更小的块。
+* e：手工编辑当前块。
+* ?：查看帮助。
+
+直接进入交互式部分暂存：
+
+```shell
+git add -p|--patch
+```
+
+## git bisect
+
+二分查找出有问题的提交。
+
+## git blame
+
+查看文件标注，可查看每一行分别来自那次提交：
+
+```shell
+git blame [-C] [-L STARTLINE,ENDLINE] FILENAME
+```
+
+每行的结果包括以下内容：
+
+1. 最后一次修改的提交哈希，以\^开头表示从未修改。
+1. 原始文件名，当使用-C时出现，表示行内容从此文件复制过来。
+1. 提交者。
+1. 提交时间。
+1. 文件行内容。
 
 ## git branch
 
@@ -77,7 +188,7 @@ git branch --no-merged
 创建分支。不会切换到新分支：
 
 ```shell
-git branch BRANCH
+git branch BRANCH [HASH]
 ```
 
 删除分支：
@@ -99,24 +210,28 @@ git branch -u REMOTE/BRANCH
 git branch --set-upstream-to REMOTE/BRANCH
 ```
 
+## git bundle
+
+打包提交。
+
 ## git checkout
 
 使用暂存区文件撤销工作目录文件的修改：
 
 ```shell
-git checkout -- FILE...
-```
-
-切换分支：
-
-```shell
-git checkout BRANCH
+git checkout -- FILE[ ...]
 ```
 
 切换工作目录至指定的标签或提交：
 
 ```shell
 git checkout TAG|HASH
+```
+
+切换分支：
+
+```shell
+git checkout BRANCH
 ```
 
 创建并切换分支：
@@ -131,11 +246,73 @@ git checkout -b BRANCH
 git checkout -b BRANCH TAG
 ```
 
+交互式检出文件：
+
+```shell
+git checkout --patch BRANCH|TAG|HASH
+```
+
 建立远程分支的跟踪分支。跟踪分支的起点为远程分支：
 
 ```shell
 git checkout -b BRANCH REMOTE/BRANCH
 git checkout --track REMOTE/BRANCH
+```
+
+解决冲突后检出文件：
+
+```shell
+git checkout --conflict=merge|diff3 FILENAME
+```
+
+解决冲突时检出当前分支原来的文件：
+
+```shell
+git checkout --ours FILENAME
+```
+
+解决冲突时检出待合入分支的文件：
+
+```shell
+git checkout --theirs FILENAME
+```
+
+## git clean
+
+清理工作目录，移除未被追踪的文件：
+
+```shell
+git clean
+```
+
+强制清理：
+
+```shell
+git clean -f
+```
+
+同时移除未跟踪的目录：
+
+```shell
+git clean -d
+```
+
+同时移除忽略跟踪的文件：
+
+```shell
+git clean -x
+```
+
+查看清理将移除的文件，但不实际移除：
+
+```shell
+git clean -n|--dry-run
+```
+
+交互式清理：
+
+```shell
+git clean -i
 ```
 
 ## git clone
@@ -163,7 +340,9 @@ git config [--global] core.autocrlf true|input|false
 git config --bool core.bare true
 git config [--global] core.editor EDITOR
 git config [--global] core.quotepath false
+git config [--global] credential.helper cache|store|osxkeychain
 git config [--global] gui.encoding ENCODING
+git config [--global] merge.conflictstyle merge|diff3
 git config [--global] pull.rebase true
 git config [--global] user.email EMAIL
 git config [--global] user.name NAME
@@ -174,7 +353,9 @@ git config [--global] user.name NAME
 * core.bare：是否设为裸仓库。裸仓库可作为远程仓库往其push。
 * core.editor：默认编辑器。
 * core.quotepath：是否将文件路径中0x80以上的字符转义为八进制。
+* credential.helper：凭证存储方式。cache为保存在内存中，可附加参数--timeout SECONDS；store为明文保存在磁盘中，可附加参数--file FILENAME；osxkeychain在Mac下使用，密文保存在磁盘中。
 * gui.encoding：GUI中的字符编码，如：utf-8。
+* merge.conflictstyle：合并冲突时冲突的样式。merge有ours、theirs的数据，diff3有ours、theirs、base的数据。
 * user.email：作者邮箱。
 * user.name：作者名字。
 
@@ -198,18 +379,40 @@ git commit -a [-m MSG]
 git commit --amend
 ```
 
+## git credential
+
+凭证辅助工具。
+
 ## git diff
 
-比较工作目录和暂存区的差异：
+比较工作目录和暂存区的差异，使用-b在比较时忽略空白符的差异：
 
 ```shell
-git diff
+git diff [-b]
 ```
 
 比较暂存区和已提交的差异：
 
 ```shell
 git diff --staged|--cached
+```
+
+比较合并的结果与当前分支原来的差异：
+
+```shell
+git diff --ours
+```
+
+比较合并的结果与待合入分支的差异：
+
+```shell
+git diff --theirs
+```
+
+三路比较合并差异：
+
+```shell
+git diff --base
 ```
 
 ## git fetch
@@ -233,6 +436,23 @@ git fetch --all
 ```shell
 git gc
 ```
+
+## git grep
+
+搜索文件内容，可搜索工作目录和所有提交：
+
+```shell
+git grep [OPTIONS] REGEXP
+```
+
+OPTIONS可使用如下选项：
+
+* -c或--count：只显示匹配的计数概要。
+* -n或--line-number：显示匹配的行号。
+* -p或--show-function：显示匹配的行所在的函数。
+* --and：同一行同时匹配多个值。
+* --break：在不同文件的匹配之间显示空行。
+* --heading：在同一个文件的匹配之前显示文件名。
 
 ## git gui
 
@@ -262,26 +482,48 @@ git init [--bare]
 
 ## git log
 
-查看提交历史：
+查看分支的提交历史：
 
 ```shell
 git log [OPTIONS] [BRANCH ...]
 ```
 
+双点（..为命令行输入的字符）查看提交区间，查看在BRANCH2中而不在BRANCH1中的提交历史：
+
+```shell
+git log [OPTIONS] BRANCH1..BRANCH2
+```
+
+三点（...为命令行输入的字符）查看提交区间，查看被两个分支之一包含，但不被同时包含的提交：
+
+```shell
+git log [OPTIONS] [--left-right] BRANCH1...BRANCH2
+```
+
+--left-right使用“<”和“>”表示提交属于左侧的分支还是右侧的分支。
+
+多点查看提交区间，使用^或--not指定提交不在其中的分支：
+
+```shell
+git log [OPTIONS] BRANCH1 [ ...] [^BRANCH2 [ ...]] [--not BRANCH3 [ ...]]
+```
+
 OPTIONS可使用如下选项：
 
-* 基本选项
-	* --decorate：查看各个分支当前所指的对象。
+* 基本选项：
 	* -- PATH：放在最后位置上，指定文件路径。
+	* -L :FUNCNAME:FILENAME或-L '/REGEXP/':FILENAME：行日志搜索，查看指定函数的提交历史。
+	* --decorate：查看各个分支当前所指的对象。
 * 提交范围选项：
 	* -(n)：最近n次提交。
+	* -g：显示引用日志，即类似git reflog。
 	* --after TIME：显示指定时间之后的提交，同--since。
 	* --all：显示所有分支的提交信息。
 	* --all-match：显示同时满足这所有选项搜索条件的提交，不带此选项则显示满足任意一个搜索条件的提交。
 	* --author AUTHOR：显示指定作者相关的提交。
 	* --before TIME：显示指定时间之前的提交，同--until。
 	* --committer COMMITTER：显示指定提交者相关的提交。
-	* --grep WORD：显示提交说明中含指定关键字的提交。
+	* --grep WORD：显示提交说明（即git commit -m指定的内容）中含指定关键字的提交。
 	* --since TIME：显示指定时间之后的提交，同--after。
 	* --until TIME：显示指定时间之前的提交，同--before。
 * 提交排序选项：
@@ -293,8 +535,9 @@ OPTIONS可使用如下选项：
 	* --pretty=oneline|short|full|fuller|format:"FORMAT"：使用指定格式显示。
 	* --relative-date：使用较短的相对时间显示（比如，“2 weeks ago”）。
 * 差异比较选项：
+	* -G REGEXP：显示提交文件内容中匹配正则表达式的提交。
 	* -p：显示每次提交的内容差异。
-	* -S WORD：显示提交内容中含指定关键字的提交。
+	* -S WORD：显示提交文件内容中含指定关键字的提交。
 	* --name-only：仅在提交信息后显示已修改的文件清单。
 	* --name-status：显示新增、修改、删除的文件清单。
 	* --shortstat：只显示--stat中最后的行数修改添加移除统计。
@@ -326,6 +569,27 @@ git merge BRANCH|HASH
 git merge --no-ff BRANCH|HASH
 ```
 
+合并时忽略空白：
+
+```shell
+git merge -Xignore-all-space|-Xignore-space-change BRANCH|HASH
+```
+
+* -Xignore-all-space： 完全忽略空白符的修改。
+* -Xignore-space-change：将一个空白符与多个连续的空白字符视作等价的。
+
+合并时冲突使用当前分支的内容：
+
+```shell
+git merge -Xours BRANCH|HASH
+```
+
+合并时冲突使用待合入分支的内容：
+
+```shell
+git merge -Xtheirs BRANCH|HASH
+```
+
 中断合并：
 
 ```shell
@@ -334,12 +598,32 @@ git merge --abort
 
 如有合并冲突，需使用`git mergetool`解决。
 
+## git merge-file
+
+合并文件，如使用-p则将结果打印而不是写入CURRENTFILENAME：
+
+```shell
+git merge-file [-p] CURRENTFILENAME BASEFILENAME OTHERFILENAME
+```
+
+使用当前分支的内容合并文件：
+
+```shell
+git merge-file --ours FILENAME
+```
+
+使用待合入分支的内容合并文件：
+
+```shell
+git merge-file --theirs FILENAME
+```
+
 ## git mergetool
 
 可视化合并冲突解决：
 
 ```shell
-git mergetool
+git mergetool [FILENAME]
 ```
 
 使用kdiff3合并：A(Base)为共同祖先；B(Local)为当前分支；C(Remote)为待合入的分支；Ouput为合并结果。合并成功后，会保存后缀为.orig的冲突文件，其中描述的冲突内容如下：
@@ -440,6 +724,22 @@ git rebase BASEBRANCH TOPICBRANCH
 git rebase --onto BRANCH1 BRANCH2 BRANCH3
 ```
 
+交互式变基，将指定提交及之后的提交重写：
+
+```shell
+git rebase -i HASH
+```
+
+其列出的提交历史是从旧至新的，修改提交历史前的命令，退出后`git commit --amend`修改`edit`命令指定的提交，`git rebase --continue`自动应用剩余的提交。
+
+## git reflog
+
+查看引用日志，引用日志只保存在本地仓库，且只会保存一段时间：
+
+```shell
+git reflog
+```
+
 ## git remote
 
 查看本地仓库的远程仓库信息：
@@ -467,33 +767,67 @@ git remote rename OLDNAME NEWNAME
 git remote rm REMOTE
 ```
 
+## git replace
+
+替换提交。
+
+## git rerere
+
+重用记录的解决方案（reuse recorded resolution）。
+
 ## git reset
 
-注意，此处的HEAD不是自定义变量。
+注意，此处的HEAD是HEAD指针而不是自定义变量。
 
-从暂存区移除跟踪文件，回到已修改状态：
+COMMIT缺省或为HEAD则恢复到上一次提交；为HEAD^则恢复到倒数第二次提交，即丢弃上一次提交；为HEAD~N则恢复到倒数第N+1次提交，即丢弃最近N次提交。
 
-```shell
-git reset [HEAD] [FILE[ ...]]
-```
-
-将暂存区和工作目录恢复到上一次提交：
+将HEAD恢复至指定的提交，但不改变暂存区和工作目录，相当于回滚`git commit`：
 
 ```shell
-git reset --hard [HEAD]
+git reset --soft [COMMIT]
 ```
 
-将暂存区和工作目录恢复到倒数第二次提交，即丢弃上一次提交：
+将HEAD和暂存区恢复至指定的提交，但不改变工作目录，相当于回滚`git add`和`git commit`：
 
 ```shell
-git reset --hard HEAD^
+git reset [--mixed] [COMMIT]
 ```
 
-将暂存区和工作目录恢复到倒数第N+1次提交，即丢弃最近N次提交：
+将HEAD、暂存区和工作目录恢复到指定的提交，如工作目录有未提交的内容则会丢失：
 
 ```shell
-git reset --hard HEAD~N
+git reset --hard [COMMIT]
 ```
+
+将指定的文件暂存区中的内容恢复至指定的提交，不改变工作目录：
+
+```shell
+git reset [COMMIT] FILE[ ...]
+```
+
+交互式恢复：
+
+```shell
+git reset --patch
+```
+
+## git rev-parse
+
+解析提交的完整哈希：
+
+```shell
+git rev-parse BRANCH
+```
+
+## git revert
+
+还原至合并前：
+
+```shell
+git revert [-m N] HEAD
+```
+
+N的值：1为还原至本地分支，2为还原至待合入分支。
 
 ## git rm
 
@@ -519,6 +853,62 @@ git show [--stat] HASH
 
 * --stat：显示每次提交的简略的统计信息。
 
+查看合并冲突的文件内容：
+
+```shell
+git show :N:FILENAME
+```
+
+N的值：1为共同祖先；2为当前分支；3为待合入的分支。
+
+## git stash
+
+储藏改动：
+
+```shell
+git stash
+git stash push [-m MSG]
+```
+
+还可以同时使用以下参数：
+
+* --all或-a：同时储藏未跟踪的文件和忽略跟踪的文件。
+* --include-untracked或-u：同时贮藏未跟踪的文件，但不包括忽略跟踪的文件。
+* --keep-index：不仅贮藏已暂存的文件，还将它们保留在索引中。
+* --patch：交互式储藏。
+
+查看储藏栈，每条以stash@{N}标记，stash@{0}为栈顶，即最近的储藏：
+
+```shell
+git stash list
+```
+
+应用储藏，如不指定储藏标记，则默认应用最近的储藏。可以在一个不干净的工作目录，或其它分支上应用储藏，但可能产生合并冲突：
+
+```shell
+git stash apply [--index] [stash@{N}]
+```
+
+使用--index可同时应用暂存，否则只应用文件的改动，不会重新暂存。
+
+移除储藏：
+
+```shell
+git stash drop stash@{N}
+```
+
+应用栈顶的储藏后移除该储藏：
+
+```shell
+git stash pop [--index]
+```
+
+从储藏创建分支：
+
+```shell
+git stash branch BRANCH [stash@{N}]
+```
+
 ## git status
 
 查看当前文件状态。使用-s或--short可查看简短的输出。path可使用glob模式匹配：
@@ -533,6 +923,10 @@ git status [-s|--short] [path]
 * A：新跟踪到暂存区。
 * 右M：已修改但未放入暂存区。
 * M左：已修改并放入暂存区。
+
+## git submodule
+
+使用子模块。
 
 ## git tag
 
@@ -559,17 +953,3 @@ git tag TAG [HASH]
 ```shell
 git tag -d TAG
 ```
-
-# 常用流程
-
-1. git clone 克隆远程仓库。
-1. git config 配置。
-1. git branch 创建分支。
-1. git checkout 切换分支。
-1. git merge 合并分支。
-1. git mergetool 解决冲突。
-1. git add 暂存。
-1. git commit 提交。
-1. git remote 添加远程仓库。
-1. git pull 从远程仓库拉取。
-1. git push 推送至远程仓库。
