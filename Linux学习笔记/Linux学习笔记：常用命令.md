@@ -1,4 +1,4 @@
-本文更新于2019-12-30。
+本文更新于2020-07-30。
 
 [TOC]
 
@@ -349,7 +349,7 @@ test OPTEST
 [ OPTEST ]
 ```
 
-若为真，则命令执行返回码为0；否则为1。注意，上述两种表示是等价的，第二种`[`和`]`间必须有空格。OPTEST中的变量和常量建议使用`""`引起，OPTEST如下设置：
+若为真，则命令执行返回码为0；否则为1。注意，上述两种表示是等价的，第二种`[`和`]`间必须有空格。OPTEST中的变量和常量建议使用`""`引起，使用方法如下：
 
 检测文件或目录，如`test OP NAME`：
 
@@ -690,13 +690,8 @@ cut -c RANGES FILENAME[ ...]|STDIN
 ```
 
 * -c：以字符为单位。
-* -d DELIMITER：以DELIMITER分隔，输出如有多列也以DELIMITER分隔。DELIMITER只能是一个字符。
-* -f RANGES：取出列的范围。
-
-RANGES可取如下形式：
-
-* N[,...]：第N列的列表。
-* N-M：第N列（含）至第M列（含），如缺省N则从第一列开始，如缺省M则至最后一列。
+* -d DELIMITER：以DELIMITER分隔进行切割，输出如有多列也以DELIMITER分隔。DELIMITER只能是一个字符，默认为Tab。
+* -f RANGES：取出列的范围。RANGES的格式为{N|N-M|N-|-M}[,...]，第一列为1。如：2、-2,5,7,9-10,12-。
 
 ## diff
 
@@ -923,21 +918,19 @@ wc [-lmw] FILENAME[ ...]|STDIN
 ## tar
 
 ```shell
-tar -c [-j|-z -v] -f FILENAME NAME[ ...]
+tar -c [-j|-z -v] -f FILENAME [-C DIR] NAME[ ...]
 tar -t [-j|-z -v] -f FILENAME
 tar -x [-j|-z -v] -f FILENAME [-C DIR]
 ```
 
-* -c：打包文件。
-* -C DIR：解包至指定目录，目录必须存在。默认为当前目录。
-* -f FILENAME：指定打包/解包的包名。
+* -c：打包文件，指定的NAME即为包中文件名。
+* -C DIR：指定打包文件的源目录或解包文件的目标目录，目录必须存在。默认为当前目录。
+* -f FILENAME：指定打包文件的目标文件名或解包文件的源文件名。
 * -j：通过bzip2压缩/解压缩，文件名最好为*.tar.bz2。
 * -t：查看包中文件。
-* -v：显示正在压缩/解压缩的文件名。
+* -v：显示正在打包/解包的文件名。
 * -x：解包文件。
 * -z：通过gzip压缩/解压缩，文件名最好为*.tar.gz。
-
-使用-c打包，包中文件包含NAME前缀。
 
 # 用户与用户组
 
@@ -984,7 +977,7 @@ groupdel GROUPNAME
 查看所属用户组。
 
 ```shell
-groups
+groups [USERNAME[ ...]]
 ```
 
 第一个为有效用户组。

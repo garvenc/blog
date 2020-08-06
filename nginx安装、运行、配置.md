@@ -1,4 +1,4 @@
-本文更新于2020-04-10，使用nginx 1.16。
+本文更新于2020-07-29，使用nginx 1.16。
 
 [TOC]
 
@@ -73,10 +73,10 @@
 	`./configure`参数含义如下：
 	
 	* --prefix：安装目录。
-	* --with-http_ssl_module：SSL模块，用于支持SSL，需要安装依赖。
+	* --with-http_ssl_module：SSL模块，用于支持SSL，需要安装依赖openssl。
 	* --with-http_stub_status_module：监控模块，用于监控nginx状态。
-	* --with-pcre：PCRE模块，用于支持正则表达式，需要安装依赖。
-	* --with-zlib：ZLIB模块，用于支持压缩算法，需安装依赖。
+	* --with-pcre：PCRE模块，用于支持正则表达式，需要安装依赖pcre。
+	* --with-zlib：ZLIB模块，用于支持压缩算法，需安装依赖zlib。
 	
 	注意`make install`会覆盖此前安装的所有文件，包括配置文件。
 1. 权限配置
@@ -86,13 +86,15 @@
 	vi /usr/local/nginx/nginx.conf
 	```
 	
-	修改/usr/local/nginx/nginx.conf的user为nginxd。
+	修改/usr/local/nginx/confi/nginx.conf的user为nginxd。
 
 # 运行
 
 需先进入安装目录。
 
-nginx可使用以下参数：
+运行nginx时不使用参数，会启动nginx服务，包含主进程和工作进程两个nginx进程。
+
+运行nginx时也可使用以下参数：
 
 * -?, -h：查看帮助。
 * -c filename：设置配置文件名（默认为conf/nginx.conf）。
@@ -107,20 +109,161 @@ nginx可使用以下参数：
 * -t：检查配置后退出。
 * -T：检查配置，转储后退出。
 * -v：打印版本后退出。
-* -V：打印版本和配置参数后退出。
-
-不使用参数运行，会启动nginx服务，包含主进程和工作进程两个nginx进程。
+* -V：打印版本和configure编译配置参数后退出。
 
 # 配置
 
-大写字母需使用实际的配置值。
+`<>`引起表示可选，大写字母需使用实际的配置值。
 
-| 字段名                                                  | 说明                                          | 备注      |
-| ------------------------------------------------------- | -------------------------------------------- | --------- |
-| http {}                                                 | HTTP                                         |           |
-| http.server {}                                          | HTTP服务                                     | 可指定多个 |
-| http.server.listen PORT                                 | 监听的端口                                    |           |
-| http.server.server_name HOST                            | 分发的域名，Host首部匹配该值时分发             |           |
-| http.server.location PATH {}                            | 反向代理，URL路径前缀匹配该值时分发            |           |
-| http.server.location.proxy_pass SCHEME://HOST:PORT      | 反向代理转向的服务                            |           |
-| user USER                                               | 运行工作进程的系统用户                        |           |
+## http
+
+HTTP。
+
+```
+http {
+}
+```
+
+## http.server
+
+HTTP服务。可指定多个。
+
+```
+http {
+	server {
+	}
+}
+```
+
+## http.server.listen
+
+HTTP服务监听的端口。可指定使用HTTPS（SSL）。
+
+```
+http {
+	server {
+		listen PORT <ssl>;
+	}
+}
+```
+
+## http.server.location
+
+反向代理，URL路径前缀匹配该值时分发。
+
+```
+http {
+	server {
+		location PATH {
+		}
+	}
+}
+```
+
+## http.server.location.proxy_pass
+
+反向代理转向的服务。
+
+```
+http {
+	server {
+		location PATH {
+			proxy_pass SCHEME://HOST:PORT;
+		}
+	}
+}
+```
+
+## http.server.server_name
+
+HTTP服务的主机名。请求的Host首部匹配该值。
+
+```
+http {
+	server {
+		server_name HOST;
+	}
+}
+```
+
+## http.server.ssl_certificate
+
+HTTPS证书PEM文件路径。
+
+```
+http {
+	server {
+		ssl_certificate CERT.PEM;
+	}
+}
+```
+
+## http.server.ssl_certificate_key
+
+HTTPS证书KEY文件路径。
+
+```
+http {
+	server {
+		ssl_certificate_key CERT.KEY;
+	}
+}
+```
+
+## http.server.ssl_ciphers
+
+```
+http {
+	server {
+		ssl_ciphers HIGH:!aNULL:!MD5;
+	}
+}
+```
+
+## http.server.ssl_prefer_server_ciphers
+
+```
+http {
+	server {
+		ssl_prefer_server_ciphers on;
+	}
+}
+```
+
+## http.server.ssl_session_cache
+
+```
+http {
+	server {
+		ssl_session_cache shared:SSL:1m;
+	}
+}
+```
+
+## http.server.ssl_session_timeout
+
+```
+http {
+	server {
+		ssl_session_timeout 5m;
+	}
+}
+```
+
+## http.server_names_hash_bucket_size
+
+出现类似“nginx: [emerg] could not build server_names_hash, you should increase server_names_hash_bucket_size: 32”的错误时，加大该值。
+
+```
+http {
+	server_names_hash_bucket_size N;
+}
+```
+
+## user
+
+运行工作进程的操作系统用户名。
+
+```
+user USER;
+```

@@ -75,7 +75,9 @@ DROP PROCEDURE|FUNCTION [IF EXISTS] name
 
 ## 调用存储过程或函数
 
+```sql
 CALL name(param[, ...])
+```
 
 如果是输出参数，需传入变量，如：`@xxx`。
 

@@ -1,4 +1,4 @@
-本文更新于2020-05-15，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2020-08-05，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -44,14 +44,12 @@ Windows配置文件读取顺序：
 配置忽略跟踪的文件列表。
 
 * 以#开头的行是注释。
-* 使用glob模式匹配的文件，均忽略跟踪。
+* 使用glob模式匹配的文件或目录，均忽略跟踪。匹配的为工作目录中的相对路径，可以/开头或以/结尾。
 	* *匹配零个或多个任意字符。
 	* [abc]匹配列表中任意一个字符。
 	* ?匹配任意一个字符。
 	* [a-z]匹配范围内任意一个字符。
 	* **匹配任意中间目录。
-* 以/开头指定在工作目录中的相对路径，并忽略跟踪。
-* 以/结尾指定目录，并忽略跟踪。
 * 在模式前加!，可强制跟踪该模式，即使该模式被其他模式指定为忽略跟踪。但如已忽略跟踪该模式的父目录，则使用!也不能强制跟踪。
 
 # 选择指定的提交
@@ -341,8 +339,10 @@ git config --bool core.bare true
 git config [--global] core.editor EDITOR
 git config [--global] core.quotepath false
 git config [--global] credential.helper cache|store|osxkeychain
+git config --system --unset credential.helper
 git config [--global] gui.encoding ENCODING
 git config [--global] merge.conflictstyle merge|diff3
+git config [--global] merge.tool MERGETOOL
 git config [--global] pull.rebase true
 git config [--global] user.email EMAIL
 git config [--global] user.name NAME
@@ -353,11 +353,19 @@ git config [--global] user.name NAME
 * core.bare：是否设为裸仓库。裸仓库可作为远程仓库往其push。
 * core.editor：默认编辑器。
 * core.quotepath：是否将文件路径中0x80以上的字符转义为八进制。
-* credential.helper：凭证存储方式。cache为保存在内存中，可附加参数--timeout SECONDS；store为明文保存在磁盘中，可附加参数--file FILENAME；osxkeychain在Mac下使用，密文保存在磁盘中。
+* credential.helper：凭证存储方式。cache为保存在内存中，可附加参数--timeout SECONDS；store为明文保存在磁盘中，可附加参数--file FILENAME；osxkeychain在Mac下使用，密文保存在磁盘中。如需清除之前保持的凭证，则使用--system --unset。
 * gui.encoding：GUI中的字符编码，如：utf-8。
 * merge.conflictstyle：合并冲突时冲突的样式。merge有ours、theirs的数据，diff3有ours、theirs、base的数据。
+* merge.tool：合并冲突的工具，如：kdiff3。需同时指定mergetool.MERGETOOL.path。
+* mergetool.MERGETOOL.path：合并冲突的工具的可执行文件路径。MERGETOOL需与merge.tool指定的值相同。
 * user.email：作者邮箱。
 * user.name：作者名字。
+
+删除配置：
+
+```shell
+git config --unset KEY
+```
 
 ## git commit
 
@@ -636,7 +644,7 @@ git mergetool [FILENAME]
 
 合并冲突解决后，需使用`git commit`提交。
 
-kdiff3可通过设置修改字符编码：Settings -> Configure KDiff3... -> Regional Settings，选择File Encoding for开头的对应下拉框为Unicode, 8 bit (UTF-8)。
+kdiff3可通过设置修改字符编码：“Settings -> Configure KDiff3... -> Regional Settings”，选择“File Encoding for”开头的对应下拉框为“Unicode, 8 bit (UTF-8)”。
 
 ## git mv
 
@@ -797,12 +805,6 @@ git reset [--mixed] [COMMIT]
 
 ```shell
 git reset --hard [COMMIT]
-```
-
-将指定的文件暂存区中的内容恢复至指定的提交，不改变工作目录：
-
-```shell
-git reset [COMMIT] FILE[ ...]
 ```
 
 交互式恢复：

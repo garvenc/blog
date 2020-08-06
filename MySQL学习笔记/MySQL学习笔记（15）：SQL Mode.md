@@ -1,7 +1,5 @@
 本文更新于2019-06-29，使用MySQL 5.7，操作系统为Deepin 15.4。
 
-[TOC]
-
 与其他数据库不同，MySQL可以运行在不同的SQL Mode（SQL模式）下。
 
 可通过变量`@@sql_mode`查看或设置当前的SQL Mode。
