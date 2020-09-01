@@ -1,4 +1,4 @@
-本文更新于2020-08-06。
+本文更新于2020-09-01。
 
 [TOC]
 
@@ -20,6 +20,10 @@
 
 * [LiteIDE灰调配色方案](https://www.cnblogs.com/garvenc/p/liteide_gv-gray.html)
 * [VSCode自定义配色方案](https://www.cnblogs.com/garvenc/p/vscode_customize_color_theme.html)
+
+# JavaScript
+
+* [JavaScript学习笔记：内置API](https://www.cnblogs.com/garvenc/p/javascript_learning_built-in_api.html)
 
 # Linux
 
