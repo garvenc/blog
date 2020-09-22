@@ -1,4 +1,4 @@
-本文更新于2020-07-29，使用nginx 1.16。
+本文更新于2020-09-22，使用nginx 1.16。
 
 [TOC]
 
@@ -111,9 +111,79 @@
 * -v：打印版本后退出。
 * -V：打印版本和configure编译配置参数后退出。
 
-# 配置
+# 日志
 
-`<>`引起表示可选，大写字母需使用实际的配置值。
+请求日志为安装目录下的logs/access.log。
+
+请求日志使用组合日志格式，各字段依次为：
+
+1. 客户端主机名或IP。
+1. ident查找的用户名。
+1. 已认证的用户名。
+1. 日期时间，以“[]”扩起。
+1. 请求行，以“""”引起。
+1. 响应状态码。
+1. 响应Content-Length，如无则为0。
+1. 请求Referer。
+1. 请求User-Agent。
+
+# 配置示例
+
+## HTTP反向代理
+
+```
+http {
+	# Other configurations...
+	server {
+		listen      80;
+		server_name www.myweb.com;
+		location / {
+			proxy_pass http://localhost:81;
+		}
+	}
+}
+```
+
+## HTTPS反向代理
+
+```
+http {
+	# Other configurations...
+	server {
+		listen       443 ssl;
+		server_name  www.myweb.com;
+
+		ssl_certificate      /certificate/dir/cert.pem;
+		ssl_certificate_key  /certificate/dir/key.key;
+
+		ssl_session_cache    shared:SSL:1m;
+		ssl_session_timeout  5m;
+
+		ssl_ciphers  HIGH:!aNULL:!MD5;
+		ssl_prefer_server_ciphers  on;
+
+		location / {
+			proxy_pass http://localhost:81;
+		}
+	}
+}
+```
+
+## 重定向
+
+```
+http {
+	server {
+		listen      80;
+		server_name www.myweb.com;
+		rewrite .* https://www.herweb.com$request_uri;
+	}
+}
+```
+
+# 配置说明
+
+`[]`引起表示可选，大写字母需使用实际的配置值。
 
 ## http
 
@@ -121,6 +191,16 @@ HTTP。
 
 ```
 http {
+}
+```
+
+## http.client_max_body_size
+
+HTTP最大的实体大小。可使用k、m、g等表示大小。
+
+```
+http {
+	client_max_body_size SIZE;
 }
 ```
 
@@ -135,6 +215,18 @@ http {
 }
 ```
 
+## http.server.client_max_body_size
+
+HTTP服务最大的实体大小。可使用k、m、g等表示大小。
+
+```
+http {
+	server {
+		client_max_body_size SIZE;
+	}
+}
+```
+
 ## http.server.listen
 
 HTTP服务监听的端口。可指定使用HTTPS（SSL）。
@@ -142,14 +234,14 @@ HTTP服务监听的端口。可指定使用HTTPS（SSL）。
 ```
 http {
 	server {
-		listen PORT <ssl>;
+		listen PORT [ssl];
 	}
 }
 ```
 
 ## http.server.location
 
-反向代理，URL路径前缀匹配该值时分发。
+URL路径前缀匹配规则。
 
 ```
 http {
@@ -160,9 +252,23 @@ http {
 }
 ```
 
+## http.server.location.client_max_body_size
+
+URL路径最大的实体大小。可使用k、m、g等表示大小。
+
+```
+http {
+	server {
+		location PATH {
+			client_max_body_size SIZE;
+		}
+	}
+}
+```
+
 ## http.server.location.proxy_pass
 
-反向代理转向的服务。
+跳转的地址。
 
 ```
 http {
@@ -173,6 +279,25 @@ http {
 	}
 }
 ```
+
+## http.server.rewrite
+
+重定向的地址。
+
+```
+http {
+	server {
+		rewrite REQUEST_URI_PATTERN REDIRECT_URL [last|break|redirect|permanent];
+	}
+}
+```
+
+REQUEST_URI_PATTERN进行匹配时忽略方案、主机和端口，从路径开始匹配。可使用正则表达式。
+
+REDIRECT_URL可使用以下变量：
+
+* $N：正则表达式匹配时与第N个分组（以“()”引起）匹配的内容，从0开始。
+* $request_uri：从路径开始的请求URI。
 
 ## http.server.server_name
 

@@ -1,4 +1,4 @@
-本文更新于2020-08-27。
+本文更新于2020-09-10。
 
 **说明：下文中，大写为自定义变量（个别大写的类型除外），根据实际情况填写。使用`<>`引起表示内容可选，`|`表示使用左侧或右侧内容，`...`表示重复之前内容。**
 
@@ -1452,7 +1452,7 @@ var REGEXP = new RegExp(PATTERN <, ATTRIBUTES>);
 
 对应的源文本，即PATTERN。
 
-## REGEXP.exec
+## RegExp.prototype.exec
 
 通用的模式匹配。
 
@@ -1470,7 +1470,7 @@ var ARRAY = REGEXP.exec(STR);
 
 如找到匹配项，则返回一个数组：第一个元素MATCHED_STR是STR中与正则表达式匹配的字符串，其后的元素MATCHED_STR_OF_GROUP是MATCHED_STR与正则表达式各个分组（使用“()”引起）匹配的字符串，index为MATCHED_STR第一个字符在STR中的下标，input为REGEXP.exec的参数即STR。如找不到匹配项，则返回null。
 
-## REGEXP.test
+## RegExp.prototype.test
 
 测试字符串是否匹配。
 
@@ -1478,7 +1478,7 @@ var ARRAY = REGEXP.exec(STR);
 var OK = REGEXP.test(STR);
 ```
 
-## REGEXP.toString
+## RegExp.prototype.toString
 
 转换成字符串。
 

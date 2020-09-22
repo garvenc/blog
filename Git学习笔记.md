@@ -1,4 +1,4 @@
-本文更新于2020-08-05，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2020-09-08，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -62,7 +62,7 @@ Windows配置文件读取顺序：
 * 使用BRANCH@{N}，BRANCH为分支名，N为整数，选择分支前N次的提交，N为0表示分支最顶端的提交。
 * 使用\^选择父提交，可连续使用多次选择祖先提交。
 * 使用\^N选择指定的父提交，只用于合并的提交，此时第一个父提交为合并时所在的分支，第二个父提交为被合入的分支。
-* 使用~选择父提交，可连续使用多次选择祖先提交，也可使用~N简写表示连续N个~。
+* 使用\~选择父提交，可连续使用多次选择祖先提交，也可使用\~N简写表示连续N个\~。
 
 # 上层命令
 
@@ -683,7 +683,7 @@ remote: error: By default, updating the current branch in a non-bare repository
 推送的时候同时在远程仓库创建分支：
 
 ```shell
-git push --set-upstream REMOTE REMOTEBRANCH
+git push -u|--set-upstream REMOTE REMOTEBRANCH
 ```
 
 删除远程分支：
