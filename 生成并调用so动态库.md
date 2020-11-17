@@ -1,4 +1,4 @@
-本文更新于2019-01-03。
+本文更新于2020-11-09。
 
 # 生成库
 
@@ -27,8 +27,6 @@ int add(int a, int b);
 源文件fn.c如下：
 
 ```c
-#include "fn.h"
-
 int add(int a, int b) {
 	return a+b;
 }
@@ -40,7 +38,7 @@ int add(int a, int b) {
 gcc -fPIC -shared fn.c -o libfn.so
 ```
 
-若不使用extern "C"，且使用g++编译或使用gcc编译cpp文件，则生成C++形式的库。
+若不使用extern "C"，则使用gcc编译cpp文件或使用g++编译时，会生成C++形式的库。
 
 # 调用库
 
@@ -78,7 +76,7 @@ int main() {
 编译生成可执行文件a.out：
 
 ```shell
-gcc -rdynamic -ldl main.c -o a.out
+gcc main.c -rdynamic -ldl -o a.out
 ```
 
 如使用dlopen调用库时没指定库文件路径，只指定库文件名（如libfn.so），则执行程序前需导出环境变量LD_LIBRARY_PATH，将库文件所在目录加入其中。

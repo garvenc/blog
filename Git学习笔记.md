@@ -1,4 +1,4 @@
-本文更新于2020-09-08，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2020-11-11，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -353,7 +353,7 @@ git config [--global] user.name NAME
 * core.bare：是否设为裸仓库。裸仓库可作为远程仓库往其push。
 * core.editor：默认编辑器。
 * core.quotepath：是否将文件路径中0x80以上的字符转义为八进制。
-* credential.helper：凭证存储方式。cache为保存在内存中，可附加参数--timeout SECONDS；store为明文保存在磁盘中，可附加参数--file FILENAME；osxkeychain在Mac下使用，密文保存在磁盘中。如需清除之前保持的凭证，则使用--system --unset。
+* credential.helper：凭证存储方式。cache为保存在内存中，可附加参数--timeout SECONDS；store为明文保存在磁盘中，可附加参数--file FILENAME；osxkeychain在Mac下使用，密文保存在磁盘中。如需清除之前保持的凭证（例如：提示“You are not allowed to push code to this project.”），则使用--system --unset。
 * gui.encoding：GUI中的字符编码，如：utf-8。
 * merge.conflictstyle：合并冲突时冲突的样式。merge有ours、theirs的数据，diff3有ours、theirs、base的数据。
 * merge.tool：合并冲突的工具，如：kdiff3。需同时指定mergetool.MERGETOOL.path。

@@ -1,4 +1,4 @@
-本文更新于2020-09-01。
+本文更新于2020-11-17。
 
 [TOC]
 
@@ -66,9 +66,9 @@
 * [MySQL学习笔记（30）：高可用架构](https://www.cnblogs.com/garvenc/p/mysql_learning_30_high_availability_architecture.html)
 * [MySQL学习笔记（31）：监控](https://www.cnblogs.com/garvenc/p/mysql_learning_31_monitor.html)
 
-# nginx
+# Nginx
 
-* [nginx安装、运行、配置](https://www.cnblogs.com/garvenc/p/nginx_install_run_configure.html)
+* [Nginx安装、运行、配置](https://www.cnblogs.com/garvenc/p/nginx_install_run_configure.html)
 
 # Node.js
 

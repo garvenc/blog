@@ -1,4 +1,4 @@
-本文更新于2020-07-30。
+本文更新于2020-11-02。
 
 [TOC]
 
@@ -50,14 +50,14 @@ df [-ahHikmT] [NAME]
 du [-ahkmsS] NAME
 ```
 
+当不使用-a、-s、-S时，列出所有目录，目录的计算方式为汇总其子目录和文件。
+
 * -a：列出所有目录和文件的磁盘使用量，目录的计算方式为汇总其子目录和文件。
 * -h：以人类易读的方式列出，如K。
 * -k：以K为单位。
 * -m：以M为单位。
 * -s：只列出总量，不列出子目录，目录的计算方式为汇总其子目录和文件。
 * -S：列出所有目录，目录的计算方式为只汇总文件，不汇总子目录。
-
-当不使用-a、-s、-S时，列出所有目录，目录的计算方式为汇总其子目录和文件。
 
 ## fdisk
 
@@ -99,6 +99,9 @@ mount -a
 mount [-l]
 mount [-L LABEL] [-n] [-o OPTION] [-t FSTYPE] PARTITIONDEV DIR
 ```
+
+不使用参数则列出当前的挂载信息。
+
 * -a：依照/etc/fstab将所有未挂载的分区挂载。
 * -l：同时列出卷标名（Label）。
 * -L LABEL：指定卷标名，使用LABEL而不使用PARTITIONDEV进行挂载。
@@ -122,8 +125,6 @@ mount [-L LABEL] [-n] [-o OPTION] [-t FSTYPE] PARTITIONDEV DIR
 	* sync：同步写入。
 	* user：允许普通用户对此分区执行`mount`。
 * -t FSTYPE：指定文件系统类型。
-
-不使用参数则列出当前的挂载信息。
 
 ## parted
 
@@ -506,7 +507,7 @@ type [-a] COMMAND
 
 ## whereis
 
-查看包含指定文件名（不含扩展名）的文件绝对路径。
+查看包含指定文件名（不含扩展名）的二进制文件、源代码文件和man手册文件的绝对路径。
 
 ```shell
 whereis FILENAME
@@ -610,6 +611,14 @@ od [-t TYPE] FILENAME[ ...]|STDIN
 	* x[SIZE]：十六进制，每个数占用SIZE字节。
 	
 输出的第一列表示该行的第一个字节是该文件的第几个字节（八进制，以0开始）。
+
+## strings
+
+显示文件中的可打印字符。可用于二进制文件。
+
+```shell
+strings FILENAME
+```
 
 ## tac
 
@@ -722,7 +731,7 @@ diff [-bBi] FROMNAME TONAME
 查找匹配字符串的行。
 
 ```shell
-grep [-acEinv -A N -B N] 'REGEXP' FILENAME[ ...]|STDIN
+grep [-acEinrsv -A N -B N] 'REGEXP' {FILENAME|DIR}[ ...]|STDIN
 ```
 
 * -a：将二进制文件以文本文件方式查找。
@@ -732,6 +741,8 @@ grep [-acEinv -A N -B N] 'REGEXP' FILENAME[ ...]|STDIN
 * -E：使用扩展正则表达式。
 * -i：忽略大小写。
 * -n：同时显示行号。
+* -r：递归匹配目录中的文件。等同于使用：-d recurse。
+* -s：不显示错误消息。
 * -v：反向显示不匹配的行。
 
 REGEXP最好用''或""括起来，虽然一些简单正则表达式缺省也无问题。
@@ -917,6 +928,8 @@ wc [-lmw] FILENAME[ ...]|STDIN
 
 ## tar
 
+打包或解包tar文件。
+
 ```shell
 tar -c [-j|-z -v] -f FILENAME [-C DIR] NAME[ ...]
 tar -t [-j|-z -v] -f FILENAME
@@ -931,6 +944,17 @@ tar -x [-j|-z -v] -f FILENAME [-C DIR]
 * -v：显示正在打包/解包的文件名。
 * -x：解包文件。
 * -z：通过gzip压缩/解压缩，文件名最好为*.tar.gz。
+
+## unzip
+
+解压缩zip文件。
+
+```shell
+unzip -l FILENAME
+unzip FILENAME
+```
+
+* -l：查看压缩包中文件。
 
 # 用户与用户组
 
@@ -992,13 +1016,13 @@ gpasswd [-r -A USERNAME[,...]] [-M USERNAME[,...]] GROUPNAME
 gpasswd [-a USERNAME -d USERNAME] GROUPNAME
 ```
 
+不使用选项时为给用户组设置密码。
+
 * -a USERNAME：添加用户至用户组，用户组管理员可使用此选项。
 * -A USERNAME[,...]：添加用户作为用户组管理员。
 * -d USERNAME：从用户组删除用户，用户组管理员可使用此选项。
 * -M USERNAME[,...]：添加用户至用户组。
 * -r：删除用户组密码。
-
-不使用选项时为给用户组设置密码。
 
 ## id
 
@@ -1658,6 +1682,16 @@ ss [-alnptu]
 * -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
 * -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
 
+## wget
+
+发送HTTP的GET请求。
+
+```shell
+wget [-O FILENAME] URL
+```
+
+* -O FILENAME：指定保存响应内容的文件名。
+
 # 系统信息
 
 ## date
@@ -1726,6 +1760,14 @@ FORMAT可使用如下格式：
 
 ```shell
 dmesg
+```
+
+## hostname
+
+查看主机名。
+
+```shell
+hostname
 ```
 
 ## uname
@@ -1937,6 +1979,27 @@ yum update YUMPACKAGE
 
 # 程序和库
 
+## ldconfig
+
+配置共享库搜索。
+
+```shell
+ldconfig
+ldconfig -v
+```
+
+如不使用选项，则根据/etc/ld.so.conf刷新共享库的搜索缓存。
+
+* -v：显示每个搜索目录的详细信息。
+
+## ldd
+
+打印二进制文件依赖的共享库。
+
+```shell
+ldd FILENAME
+```
+
 ## nm
 
 查看符号表。
@@ -1944,6 +2007,16 @@ yum update YUMPACKAGE
 ```shell
 nm FILENAME
 ```
+
+## readelf
+
+查看ELF文件的信息。
+
+```
+readelf -a FILENAME
+```
+
+* -a：查看所有信息。
 
 # 远程连接
 
@@ -2074,12 +2147,12 @@ history -r FILENAME
 history -aw [FILENAME]
 ```
 
+如不使用选项，则列出所有历史命令。可指定列出最近N条命令。
+
 * -a：将当前shell新增的历史命令追加入文件中。如没指定FILENAME，则默认为`~/.bash_history`。
 * -c：将当前shell所有历史命令清除。
 * -r：将FILENAME中的历史命令读到当前shell中。
 * -w：将当前shell的历史命令写入文件中。如没指定FILENAME，则默认为`~/.bash_history`。
-
-如不使用参数，则列出所有历史命令。可指定列出最近N条命令。
 
 可通过如下方式执行历史命令：
 

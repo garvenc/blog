@@ -1,4 +1,4 @@
-本文更新于2020-09-22，使用nginx 1.16。
+本文更新于2020-11-06，使用nginx 1.16。
 
 [TOC]
 
@@ -268,7 +268,7 @@ http {
 
 ## http.server.location.proxy_pass
 
-跳转的地址。
+反向代理跳转的地址。
 
 ```
 http {
