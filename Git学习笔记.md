@@ -1,4 +1,4 @@
-本文更新于2020-11-11，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2020-12-21，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -557,7 +557,7 @@ OPTIONS可使用如下选项：
 
 ## git ls-remote
 
-查看远程引用完整列表：
+查看并更新远程仓库的所有引用：
 
 ```shell
 git ls-remote [REMOTE]
@@ -792,19 +792,19 @@ COMMIT缺省或为HEAD则恢复到上一次提交；为HEAD^则恢复到倒数�
 将HEAD恢复至指定的提交，但不改变暂存区和工作目录，相当于回滚`git commit`：
 
 ```shell
-git reset --soft [COMMIT]
+git reset --soft [COMMIT] [FILENAME]
 ```
 
 将HEAD和暂存区恢复至指定的提交，但不改变工作目录，相当于回滚`git add`和`git commit`：
 
 ```shell
-git reset [--mixed] [COMMIT]
+git reset [--mixed] [COMMIT] [FILENAME]
 ```
 
 将HEAD、暂存区和工作目录恢复到指定的提交，如工作目录有未提交的内容则会丢失：
 
 ```shell
-git reset --hard [COMMIT]
+git reset --hard [COMMIT] [FILENAME]
 ```
 
 交互式恢复：
@@ -899,7 +899,7 @@ git stash apply [--index] [stash@{N}]
 git stash drop stash@{N}
 ```
 
-应用栈顶的储藏后移除该储藏：
+应用栈顶的储藏后移除该储藏。可以在一个不干净的工作目录，或其它分支上应用储藏，但可能产生合并冲突：
 
 ```shell
 git stash pop [--index]
@@ -913,7 +913,19 @@ git stash branch BRANCH [stash@{N}]
 
 ## git status
 
-查看当前文件状态。使用-s或--short可查看简短的输出。path可使用glob模式匹配：
+查看当前文件状态。path可使用glob模式匹配：
+
+```shell
+git status [path]
+```
+
+默认只输出未跟踪文件的目录，如需同时输出未跟踪文件：
+
+```shell
+git status -u [path]
+```
+
+查看简短的输出：
 
 ```shell
 git status [-s|--short] [path]

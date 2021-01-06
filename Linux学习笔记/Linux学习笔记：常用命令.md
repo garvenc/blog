@@ -1,4 +1,4 @@
-本文更新于2020-11-02。
+本文更新于2020-12-03。
 
 [TOC]
 
@@ -1465,233 +1465,6 @@ systemctl umask UNIT
 * stop：停止单元。
 * umask：取消禁用单元。
 
-# 系统资源
-
-top也可查看系统资源使用情况，其显示值与下面很多命令均一致。
-
-## free
-
-查看内存使用情况。
-
-```shell
-free [-bgkmt]
-```
-
-* -b：以B为单位。
-* -g：以G为单位。
-* -k：以K为单位，默认设置。
-* -m：以M为单位。
-* -t：显示物理内存和内存交互空间的总和。
-
-free的结果与top一致。对某些发行版：total=used+free+buff/cache，available为程序可用的内存。对于某些发行版：total=used+free，used和free在Mem行表示系统已分配和未分配的内存，在-/+ buffers/cache行表示不计算缓存，程序已用和可用的内存。
-
-## fuser
-
-查找打开指定文件的进程。
-
-```shell
-fuser [-muv] FILENAME
-```
-
-* -m：如果是目录，则查找所有在该目录下使用文件的进程。
-* -u：同时列出进程的所有者。
-* -v：列出详细信息。
-
-ACCESS字段的含义：
-
-* c：进程在当前目录下（非子目录）。
-* e：可被触发为执行状态。
-* f：是一个被打开的文件。
-* F：文件被打开了，不过在等待回应中。
-* m：可能为动态库。
-* r：代表顶层目录。
-
-## getcap
-
-查看可执行文件获取的内核权限。
-
-```shell
-getcap FILENAME
-```
-
-## lsof
-
-列出被进程打开的文件。
-
-```shell
-lsof [-a -u USERNAME +d DIR]
-```
-
-* -a：列出多个选项同时成立的结果。
-* -u USERNAME：列出该用户的进程打开的文件。
-* +d DIR：列出指定目录下打开的文件。
-
-## setcap
-
-设置可执行文件的内核权限。
-
-```shell
-setcap CAPABILITY FILENAME
-setcap -r FILENAME
-```
-
-* -r：清除权限。
-
-CAPABILITY为`cap_net_bind_service=+eip`可让程序监听小于1024的端口。
-
-## ulimit
-
-显示或设置当前shell的系统资源限制。
-
-```shell
-ulimit -a
-ulimit [-HS -cdfltu [N]]
-```
-
-* -a：列出当前的所有限制。
-* -c [N]：显示或设置内核文件大小限制。
-* -d [N]：显示或设置进程段内存大小限制。
-* -f [N]：显示或设置单个文件大小限制，单位为K。
-* -H：严格的限制。
-* -l [N]：显示或设置可用于锁定的内存大小限制。
-* -S：宽松的限制。
-* -t [N]：显示或设置CPU时间限制，单位为秒。
-* -u [N]：显示或设置进程数量限制。
-
-## uptime
-
-查看系统启动时间和工作负载。
-
-```shell
-uptime
-```
-
-## vmstat
-
-检测系统资源变化。
-
-```shell
-vmstat [interval [times]] [-a] [-S UNIT]
-vmstat [interval [times]] -d
-vmstat [interval [times]] -f
-vmstat [interval [times]] -s [-S UNIT]
-vmstat [interval [times]] -p PARTITIONDEV
-```
-
-* -a：将memory的buff、cache替换为inact、active。
-* -d：列出磁盘的读写情况。
-* -f：列出开机后fork的进程数。
-* -s：列出开机后导致内存变化的情况。
-* -S UNIT：指定显示的单位，可为k、K、m、M。
-* -p PARTITIONDEV：列出分区的读写情况。
-
-缺省参数时的输出字段说明：
-
-* procs：进程。
-	* r：等待和运行中的进程数量。
-	* b：不可被唤醒的进程数量。
-* memory：内存。
-	* swpd：已使用的内存交换空间，同free的Swap行used列。
-	* free：空闲的物理内存，同free的Mem行free列。
-	* buff：用于缓冲存储器，buff+cache同free的Mem行buff/cache列。
-	* cache：用于告诉缓存，buff+cache同free的Mem行buff/cache列。
-* swap：内存交换空间。
-	* si：每秒从内存交换空间换入的数量。
-	* so：每秒换出至内存交换空间的数量。
-* io：I/O。
-	* bi：每秒从磁盘读取的块数。
-	* bo：每秒写入到磁盘的块数。
-* system：系统。
-	* in：每秒被中断的进程次数。
-	* cs：每秒上下文切换的次数。
-* cpu：CPU使用率，与top的%CPU含义相同。
-
-# 网络
-
-## firewall-cmd
-
-设置防火墙。
-
-```shell
-firewall-cmd --zone=public --add-port=PORT/tcp --permanent
-firewall-cmd --zone=public --remove-port=PORT/tcp --permanent
-firewall-cmd --reload
-firewall-cmd --list-ports
-```
-
-* --add-port：添加端口，值为：端口/协议。
-* --list-ports：查看所有打开的端口。
-* --permanent：设置为永久生效。
-* --reload：重新加载防火墙规则，无需断开连接。防火墙规则修改后需重新加载才能生效。
-* --remove-port：移除端口，值为：端口/协议。
-* --zone：设置作用域。
-
-## ifconfig
-
-网卡配置。
-
-```shell
-ifconfig
-```
-
-## ip
-
-网络配置。RHEL系列使用其替代`ifconfig`。
-
-```shell
-ip addr
-```
-
-* addr：查看网卡地址信息。
-
-## netstat
-
-查看网络状态。
-
-```shell
-netstat [-alnptu]
-```
-
-* -a：将所有连接、监听、套接字状态都列出。
-* -l：列出监听状态。
-* -n：列出端口号，不列出服务名。
-* -p：列出进程信息。
-* -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
-* -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
-
-## ping
-
-发送ICMP包。会不断重复发送。
-
-```shell
-ping HOST
-```
-
-## ss
-
-查看网络状态。RHEL系列使用其替代`netstat`。
-
-```shell
-ss [-alnptu]
-```
-
-* -a：将所有连接、监听、套接字状态都列出。
-* -l：列出监听状态。
-* -n：列出端口号，不列出服务名。
-* -p：列出进程信息。
-* -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
-* -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
-
-## wget
-
-发送HTTP的GET请求。
-
-```shell
-wget [-O FILENAME] URL
-```
-
-* -O FILENAME：指定保存响应内容的文件名。
-
 # 系统信息
 
 ## date
@@ -1779,6 +1552,306 @@ uname [-a]
 ```
 
 * -a：列出所有信息。
+
+# 系统资源
+
+top也可查看系统资源使用情况，其显示值与下面很多命令均一致。
+
+## free
+
+查看内存使用情况。
+
+```shell
+free [-bgkmt]
+```
+
+* -b：以B为单位。
+* -g：以G为单位。
+* -k：以K为单位，默认设置。
+* -m：以M为单位。
+* -t：显示物理内存和内存交互空间的总和。
+
+free的结果与top一致。对某些发行版：total=used+free+buff/cache，available为程序可用的内存。对于某些发行版：total=used+free，used和free在Mem行表示系统已分配和未分配的内存，在-/+ buffers/cache行表示不计算缓存，程序已用和可用的内存。
+
+## fuser
+
+查找打开指定文件的进程。
+
+```shell
+fuser [-muv] FILENAME
+```
+
+* -m：如果是目录，则查找所有在该目录下使用文件的进程。
+* -u：同时列出进程的所有者。
+* -v：列出详细信息。
+
+ACCESS字段的含义：
+
+* c：进程在当前目录下（非子目录）。
+* e：可被触发为执行状态。
+* f：是一个被打开的文件。
+* F：文件被打开了，不过在等待回应中。
+* m：可能为动态库。
+* r：代表顶层目录。
+
+## getcap
+
+查看可执行文件获取的内核权限。
+
+```shell
+getcap FILENAME
+```
+
+## lsof
+
+列出被进程打开的文件。
+
+```shell
+lsof [-a -u USERNAME +d DIR -p PID]
+```
+
+* -a：列出多个选项同时成立的结果。
+* -u USERNAME：列出该用户的进程打开的文件。
+* +d DIR：列出指定目录下打开的文件。
+* -p PID：列出指定进程ID打开的文件。
+
+## setcap
+
+设置可执行文件的内核权限。
+
+```shell
+setcap CAPABILITY FILENAME
+setcap -r FILENAME
+```
+
+* -r：清除权限。
+
+CAPABILITY为`cap_net_bind_service=+eip`可让程序监听小于1024的端口。
+
+## ulimit
+
+显示或设置当前shell的系统资源限制。
+
+```shell
+ulimit -a
+ulimit [-HS -cdfltu [N]]
+```
+
+* -a：列出当前的所有限制。
+* -c [N]：显示或设置内核文件大小限制。
+* -d [N]：显示或设置进程段内存大小限制。
+* -f [N]：显示或设置单个文件大小限制，单位为K。
+* -H：严格的限制。
+* -l [N]：显示或设置可用于锁定的内存大小限制。
+* -S：宽松的限制。
+* -t [N]：显示或设置CPU时间限制，单位为秒。
+* -u [N]：显示或设置进程数量限制。
+
+## uptime
+
+查看系统启动时间和工作负载。
+
+```shell
+uptime
+```
+
+## vmstat
+
+检测系统资源变化。
+
+```shell
+vmstat [interval [times]] [-a] [-S UNIT]
+vmstat [interval [times]] -d
+vmstat [interval [times]] -f
+vmstat [interval [times]] -s [-S UNIT]
+vmstat [interval [times]] -p PARTITIONDEV
+```
+
+* -a：将memory的buff、cache替换为inact、active。
+* -d：列出磁盘的读写情况。
+* -f：列出开机后fork的进程数。
+* -s：列出开机后导致内存变化的情况。
+* -S UNIT：指定显示的单位，可为k、K、m、M。
+* -p PARTITIONDEV：列出分区的读写情况。
+
+缺省参数时的输出字段说明：
+
+* procs：进程。
+	* r：等待和运行中的进程数量。
+	* b：不可被唤醒的进程数量。
+* memory：内存。
+	* swpd：已使用的内存交换空间，同free的Swap行used列。
+	* free：空闲的物理内存，同free的Mem行free列。
+	* buff：用于缓冲存储器，buff+cache同free的Mem行buff/cache列。
+	* cache：用于告诉缓存，buff+cache同free的Mem行buff/cache列。
+* swap：内存交换空间。
+	* si：每秒从内存交换空间换入的数量。
+	* so：每秒换出至内存交换空间的数量。
+* io：I/O。
+	* bi：每秒从磁盘读取的块数。
+	* bo：每秒写入到磁盘的块数。
+* system：系统。
+	* in：每秒被中断的进程次数。
+	* cs：每秒上下文切换的次数。
+* cpu：CPU使用率，与top的%CPU含义相同。
+
+# 网络
+
+## curl
+
+发送HTTP请求。
+
+```shell
+curl URL
+curl URL -X METHOD -H HEADER -d BODY
+```
+
+* -d BODY：指定实体。同时默认-X为POST。
+* -H HEADER：指定首部。
+* -X METHOD：指定方法。默认为GET。
+
+## firewall-cmd
+
+设置防火墙。
+
+```shell
+firewall-cmd --zone=public --add-port=PORT/tcp --permanent
+firewall-cmd --zone=public --remove-port=PORT/tcp --permanent
+firewall-cmd --reload
+firewall-cmd --list-ports
+```
+
+* --add-port：添加端口，值为：端口/协议。
+* --list-ports：查看所有打开的端口。
+* --permanent：设置为永久生效。
+* --reload：重新加载防火墙规则，无需断开连接。防火墙规则修改后需重新加载才能生效。
+* --remove-port：移除端口，值为：端口/协议。
+* --zone：设置作用域。
+
+## ifconfig
+
+网卡配置。
+
+```shell
+ifconfig
+```
+
+## ip
+
+网络配置。RHEL系列使用其替代`ifconfig`。
+
+```shell
+ip addr
+```
+
+* addr：查看网卡地址信息。
+
+## netstat
+
+查看网络状态。
+
+```shell
+netstat [-alnptu]
+```
+
+* -a：将所有连接、监听、套接字状态都列出。
+* -l：列出监听状态。
+* -n：列出端口号，不列出服务名。
+* -p：列出进程信息。
+* -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
+* -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
+
+## ping
+
+发送ICMP包。会不断重复发送。
+
+```shell
+ping HOST
+```
+
+## ss
+
+查看网络状态。RHEL系列使用其替代`netstat`。
+
+```shell
+ss [-alnptu]
+```
+
+* -a：将所有连接、监听、套接字状态都列出。
+* -l：列出监听状态。
+* -n：列出端口号，不列出服务名。
+* -p：列出进程信息。
+* -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
+* -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
+
+## wget
+
+发送HTTP的GET请求下载文件。
+
+```shell
+wget [-O FILENAME] URL
+```
+
+* -O FILENAME：指定保存响应内容的文件名。
+
+# 证书
+
+## openssl
+
+1. 生成CA私钥，期间会要求设置密码：
+
+	```shell
+	openssl genrsa -des3 -out CAKEYFILENAME
+	```
+1. 使用CA私钥生成CA证书，期间会要求输入CA私钥的密码：
+
+	```shell
+	openssl req -new -x509 -days N -key CAKEYFILENAME -out CACERTFILENAME
+	```
+1. 生成服务器私钥，期间会要求设置密码：
+
+	```shell
+	openssl genrsa -des3 -out SERVERKEYFILENAME
+	```
+1. 使用服务器私钥生成服务端CSR（证书签名请求），期间会要求输入服务器私钥的密码：
+
+	```shell
+	openssl req -new -key SERVERKEYFILENAME -out SERVERCSRFILENAME
+	```
+
+	输入的选项中最重要的是Common Name（即CN），要么是从DNS解析后的完全限定域名（fully qualified domain name/FQDN），要么是*即可在任何服务器使用。
+1. 使用CA证书对服务端CSR进行签名生成服务器证书，期间会要求输入CA私钥的密码，并需存在文件内容为一个整数的ca.srl文件：
+
+	```shell
+	openssl x509 -req -days N -CA CACERTFILENAME -CAkey CAKEYFILENAME -in SERVERCSRFILENAME -out SERVERCERTFILENAME
+	```
+1. 清除服务器私钥的密码，便于服务器使用，期间会要求输入服务器私钥的密码：
+
+	```shell
+	openssl rsa -in SERVERKEYFILENAME -out SERVERKEYFILENAME
+	```
+1. 生成客户端私钥，期间会要求设置密码：
+
+	```shell
+	openssl genrsa -des3 -out CLIENTKEYFILENAME
+	```
+1. 使用客户端私钥生成客户端CSR（证书签名请求），期间会要求输入客户端私钥的密码：
+
+	```shell
+	openssl req -new -key CLIENTKEYFILENAME -out CLIENTCSRFILENAME
+	```
+1. 使用CA证书对客户端CSR进行签名生成客户端证书，期间会要求输入CA私钥的密码，并需存在文件内容为一个整数的ca.srl文件：
+
+	```shell
+	openssl x509 -req -days N -CA CACERTFILENAME -CAkey CAKEYFILENAME -in CLIENTCSRFILENAME -out CLIENTCERTFILENAME -extfile CLIENTEXTFILENAME
+	```
+
+	CLIENTEXTFILENAME用来添加扩展的SSL属性，格式为“KEY = VALUE”。
+1. 清除客户端私钥的密码，便于客户端使用，期间会要求输入客户端私钥的密码：
+
+	```shell
+	openssl rsa -in CLIENTKEYFILENAME -out CLIENTKEYFILENAME
+	```
 
 # 软件安装
 
@@ -2089,10 +2162,10 @@ locale [-a]
 
 ## read
 
-从键盘读取变量。
+从标准输入读取一行至变量。
 
 ```shell
-read [-p PROMPT -t TIMEOUT] VARIABLE
+read [-p PROMPT -t TIMEOUT] VARIABLE STDIN
 ```
 
 * -p PROMPT：指定提示符。
@@ -2133,8 +2206,10 @@ alias NEW=OLD
 打印回显。
 
 ```shell
-echo CONTENT[ ...]
+echo [-e] CONTENT[ ...]
 ```
+
+* -e：使用转义字符。
 
 ## history
 

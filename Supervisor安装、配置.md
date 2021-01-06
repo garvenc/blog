@@ -1,4 +1,6 @@
-本文更新于2020-04-16。
+本文更新于2021-01-06。
+
+官方文档参阅：[http://supervisord.org/](http://supervisord.org/)
 
 [TOC]
 
@@ -51,31 +53,60 @@ rm partial/*
 systemctl enable supervisord
 ```
 
+# 命令
+
+下述，“|”表示使用左侧或右侧，“<>”表示其括起的内容可选，“{}”表示其括起的内容为一个整体，“...”表示重复之前的内容，“PROGRAM”为配置中program小节设置的程序名。
+
+* supervisorctl：进入命令行交互界面，可直接输入子命令进行管理。
+* supervisorctl reload：重新加载配置文件，并重启supervisord及所有自动启动的程序。
+* supervisorctl restart all|{PROGRAM < ...>}：重启程序，all表示重启所有程序。
+* supervisorctl start all|{PROGRAM <...>}：启动程序，all表示启动所有程序。
+* supervisorctl status <all|{PROGRAM <...>}>：查看程序状态，如为all或不指定则查看所有程序状态。
+* supervisorctl stop all|{PROGRAM <...>}：停止程序，all表示停止所有程序。
+* supervisorctl update：重新加载配置文件，并启动新配置指定的程序。
+
 # 配置
 
 CentOS中的配置文件为/etc/supervisord.conf，配置文件目录为/etc/supervisord.d/，配置文件目录中的配置文件后缀为.ini。
 Debian中的配置文件为/etc/supervisor/supervisord.conf，配置文件目录为/etc/supervisor/conf.d，配置文件目录中的配置文件后缀为.conf。
 
-自定义服务的配置文件最好放于配置文件目录。每个配置文件可包含多个组，使用“;”开头进行注释。
+自定义服务的配置文件最好放于配置文件目录。每个配置文件可包含多个小节，使用“;”开头进行注释。
 
-## program组
+## supervisord小节
 
-| 字段名                           | 说明                   | 备注                       |
-| -------------------------------- | ---------------------- | -------------------------- |
-| [program:PROGRAM]                | 被管理的程序名          | 可指定多个program组         |
-| command=CMD                      | 执行的命令，可带参数     |                            |
-| directory=DIR                    | 执行命令时的进程运行目录 |                            |
-| autostart=AUTO                   | 是否自动启动            | 默认为true                  |
-| autorestart=AUTO                 | 是否自动重启            | 为true、false或unexpected，默认为true。如为unexpected，当进程的退出码不为exitcodes中的值时重启 |
-| exitcodes=CODE1,CODE2            | 允许的进程退出码        | 以“,”分隔，默认为0,2         |
-| stopsignal=SIGNAL                | 停止进程时发送的信号     | 默认为TERM                  |
-| user=USER                        | 执行命令使用的系统用户   |                            |
-| stdout_logfile=FILENAME          | stdout的重定向日志文件   |                            |
-| stderr_logfile=FILENAME          | stderr的重定向日志文件   |                            |
+修改此小节的内容需要使用`systemctl restart supervisord`重启supervisord。
+
+* [supervisord]：supervisord服务进程。
+* minfds=N：supervisord服务进程启动时必需的最少可用文件描述符数量，也是个program小节定义的被管理程序的最大可用文件描述符数量（即Max open files的值）。默认为1024。
 
 配置示例如下（各配置均已被注释）：
 
-```ini
+```
+;[supervisord]
+;logfile=/var/log/supervisor/supervisord.log ; (main log file;default $CWD/supervisord.log)
+;pidfile=/var/run/supervisord.pid            ; (supervisord pidfile;default supervisord.pid)
+;childlogdir=/var/log/supervisor             ; ('AUTO' child log dir, default $TEMP)
+;minfds=1024
+```
+
+## program小节
+
+修改此小节的内容需要使用`supervisorctl restart PROGRAM`重启被管理的程序。
+
+* [program:PROGRAM]：被管理的程序名。可指定多个program小节。
+* command=CMD：执行的命令，可带参数。
+* directory=DIR：执行命令时的进程运行目录。
+* autostart=AUTO：是否自动启动。默认为true。
+* autorestart=AUTO：是否自动重启。为true、false或unexpected，默认为true。如为unexpected，当进程的退出码不为exitcodes中的值时重启。
+* exitcodes=CODE1,CODE2：允许的进程退出码。以“,”分隔，默认为0,2。
+* stopsignal=SIGNAL：停止进程时发送的信号。默认为TERM。
+* user=USER：执行命令使用的系统用户。
+* stdout_logfile=FILENAME：stdout的重定向日志文件。
+* stderr_logfile=FILENAME：stderr的重定向日志文件。
+
+配置示例如下（各配置均已被注释）：
+
+```
 ;[program:theprogramname]
 ;command=/bin/cat              ; the program (relative uses PATH, can take args)
 ;process_name=%(program_name)s ; process_name expr (default %(program_name)s)
@@ -105,15 +136,3 @@ Debian中的配置文件为/etc/supervisor/supervisord.conf，配置文件目录
 ;environment=A=1,B=2           ; process environment additions (def no adds)
 ;serverurl=AUTO                ; override serverurl computation (childutils)
 ```
-
-# 管理
-
-下述，“|”表示使用左侧或右侧，“<>”表示其括起的内容可选，“{}”表示其括起的内容为一个整体，“...”表示重复之前的内容，“PROGRAM”为program组设置的程序名。
-
-* supervisorctl：进入命令行交互界面，可直接输入子命令进行管理。
-* supervisorctl reload：重新加载配置文件，并重启supervisord及所有自动启动的程序。
-* supervisorctl restart all|{PROGRAM < ...>}：重启程序，all表示重启所有程序。
-* supervisorctl start all|{PROGRAM <...>}：启动程序，all表示启动所有程序。
-* supervisorctl status <all|{PROGRAM <...>}>：查看程序状态，如为all或不指定则查看所有程序状态。
-* supervisorctl stop all|{PROGRAM <...>}：停止程序，all表示停止所有程序。
-* supervisorctl update：重新加载配置文件，并启动新配置指定的程序。

@@ -1,4 +1,4 @@
-本文更新于2020-09-10。
+本文更新于2020-11-30。
 
 **说明：下文中，大写为自定义变量（个别大写的类型除外），根据实际情况填写。使用`<>`引起表示内容可选，`|`表示使用左侧或右侧内容，`...`表示重复之前内容。**
 
@@ -195,7 +195,7 @@ var ELEMENT = ARRAY.shift();
 使用数组的一部分生成新数组。
 
 ```js
-var NEW_ARRAY = ARRAY.slice(START_INDEX <, END_INDEX>);
+var NEW_ARRAY = ARRAY.slice(<START_INDEX <, END_INDEX>>);
 ```
 
 新数组对应ARRAY的区间为[START_INDEX, END_INDEX)。START_INDEX和END_INDEX均可为负数，表示从尾部数起，-1为最后一个元素。
