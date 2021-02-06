@@ -1,4 +1,4 @@
-本文更新于2020-11-29。
+本文更新于2021-02-06。
 
 [TOC]
 
@@ -79,6 +79,13 @@
 # Node.js
 
 * [Linux安装Node.js](https://www.cnblogs.com/garvenc/p/linux_install_nodejs.html)
+
+# Redis
+
+* [Redis学习笔记：安装、配置、命令行工具](https://www.cnblogs.com/garvenc/p/redis_learning_install_configure_tools.html)
+* [Redis学习笔记：命令](https://www.cnblogs.com/garvenc/p/redis_learning_commands.html)
+* [Redis学习笔记：持久化](https://www.cnblogs.com/garvenc/p/redis_learning_persistence.html)
+* [Redis学习笔记：复制](https://www.cnblogs.com/garvenc/p/redis_learning_replicate.html)
 
 # Supervisor
 
