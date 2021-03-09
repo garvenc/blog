@@ -1,4 +1,4 @@
-本文更新于2020-12-21，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2021-02-23，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -575,6 +575,12 @@ git merge BRANCH|HASH
 
 ```shell
 git merge --no-ff BRANCH|HASH
+```
+
+将没有共同祖先提交的不关联分支合并到当前分支：
+
+```shell
+git merge --allow-unrelated-histories BRANCH|HASH
 ```
 
 合并时忽略空白：

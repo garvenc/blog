@@ -1,4 +1,4 @@
-本文更新于2021-01-30，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2021-02-19，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
@@ -31,6 +31,7 @@ sudo make install
 * appendonly yes|no：是否开启AOF，不使用快照。
 * auto-aof-rewrite-min-size SIZE：AOF文件超过此大小，且比上一次重写后增长超过auto-aof-rewrite-percentage指定的百分比时，进行重写。如：auto-aof-rewrite-min-size 64mb。
 * auto-aof-rewrite-percentage PERCENTAGE：AOF文件比上一次重写后增长超过此百分比，且超过auto-aof-rewrite-min-size指定的大小时，进行重写。如：auto-aof-rewrite-percentage 100。
+* bind IP [...]：监听的IP地址。
 * client-output-buffer-limit pubsub HARDSIZE SOFTSIZE SOFTSECONDS：发布/订阅连接的输出缓冲区限制，不超过HARDSIZE且在SOFTSECONDS秒内不超过SOFTSIZE，否则关闭连接。全0为无限制。如：client-output-buffer-limit pubsub 32mb 8mb 60。
 * dbfilename FILENAME：快照文件名。如：dbfilename dump.rdb。
 * dir DIR：快照文件和AOF文件保存的目录。如：dir ./。
