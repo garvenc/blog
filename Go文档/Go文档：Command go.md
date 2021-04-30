@@ -1,4 +1,4 @@
-本文更新于2021-03-09。
+本文更新于2021-03-30。
 
 翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.16。
 
@@ -1136,16 +1136,16 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 
 通用的环境变量：
 
-* GO111MODULE：控制go命令运行在模块感知模式还是GOPATH模式。可为“off”、“on”或“auto”。参阅[https://golang.org/ref/mod#mod-commands](https://golang.org/ref/mod#mod-commands)。
 * GCCGO：为“go build -compiler=gccgo”运行的gccgo命令。
+* GO111MODULE：控制go命令运行在模块感知模式还是GOPATH模式。可为“off”、“on”或“auto”。参阅[https://golang.org/ref/mod#mod-commands](https://golang.org/ref/mod#mod-commands)。
 * GOARCH：要为之编译代码的体系结构或处理器。例如amd64、386、arm、ppc64。
 * GOBIN：“go install”安装命令使用的目录。
 * GOCACHE：go命令存储缓存信息用以在将来的构建中重用的目录。
-* GOMODCACHE：go命令存储下载的模块的目录。
 * GODEBUG：启用多种调试功能。详细信息参阅“go doc runtime”。
 * GOENV：Go环境变量配置文件位置。不能使用“go env -w”设置。
 * GOFLAGS：一个空白分隔的-flag=value设置列表，当给定的标志被当前命令已知时，会被默认应用于go命令。每个条目必须是单独的标志。因为条目是空白分隔的，标志值必须不包含空白。在命令行列出的标志在这个列表之后应用并因此覆盖之。
 * GOINSECURE：模块路径前缀的glob模式（以Go的path.Match的语法）的逗号分隔的列表，其应总是以不安全的方式拉取。只应用于被直接拉取的依赖。不像“go get”的-insecure标志，GOINSECURE不禁用校验和数据库验证。GOPRIVATE或GONOSUMDB可以用来达到该目的。
+* GOMODCACHE：go命令存储下载的模块的目录。
 * GONOPROXY：（译注：模块路径前缀的glob模式（以Go的path.Match的语法）的逗号分隔的列表，其不使用模块代理下载。参阅[https://golang.org/ref/mod#private-modules](https://golang.org/ref/mod#private-modules)。）
 * GONOSUMDB：（译注：模块路径前缀的glob模式（以Go的path.Match的语法）的逗号分隔的列表，其不使用校验和数据库进行校验。参阅[https://golang.org/ref/mod#private-modules](https://golang.org/ref/mod#private-modules)。）
 * GOOS：要为之编译代码的操作系统。例如linux、darwin、windows、netbsd。

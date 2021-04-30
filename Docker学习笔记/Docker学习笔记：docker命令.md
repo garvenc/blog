@@ -1,4 +1,4 @@
-本文更新于2020-11-25，使用Docker 19.03.12，操作系统为Debian 10。
+本文更新于2021-04-13，使用Docker 19.03.12，操作系统为Debian 10。
 
 [TOC]
 
@@ -7,6 +7,13 @@
 ```shell
 wget -O install.sh https://get.docker.com
 sudo sh install.sh
+```
+
+可能需要启动系统服务，并设置系统服务为自启动：
+
+```shell
+sudo systemctl start docker
+sudo systemctl enable docker
 ```
 
 # 基本概念
@@ -18,10 +25,10 @@ sudo sh install.sh
 
 # 用户组
 
-可将用户（如:USER）加入docker用户组，来获得执行命令的权限。否则，需要使用root权限才能运行。
+可将用户（如:$USER）加入docker用户组，来获得执行命令的权限。否则，需要使用root权限才能运行。
 
 ```shell
-sudo gpasswd -a USER docker
+sudo gpasswd -a $USER docker
 ```
 
 # 环境变量
@@ -446,7 +453,7 @@ OPTIONS可为：
 * **-p [[HOST_IP:][HOST_PORT]:]CONTAINER_PORT[/PROTOCOL]**：指定开放给宿主机的端口。如不指定HOST_PORT，则宿主机使用32768~61000间的随机端口。可使用多次。
 * -P：开放在Dockerfile中使用EXPOSE指令公开的所有端口，使用32768~61000间的随机端口。
 * **-t**：为容器分配伪tty终端。交互式容器必需该选项。
-* -u USER|UID[:GROUP|GID]：指定启动时以系统的那个用户运行，覆盖构建镜像时的USER指令。
+* -u USER|UID[:GROUP|GID]：指定以容器内部哪个用户运行，覆盖构建镜像时的USER指令。
 * **-v HOST_DIR:CONTAINER_DIR[:rw|ro]**：将宿主机的目录作为卷挂载到容器中。如目录不存在，都会自动创建。
 * -w DIR：设置容器启动时的工作目录，覆盖构建镜像时的WORKDIR指令。
 * --add-host HOSTHOSTNAME:IP：添加主机解析至容器/etc/hosts文件中。
@@ -457,10 +464,10 @@ OPTIONS可为：
 * --expose PORTS：指定容器需公开的端口。
 * --link SERVICE_CONTAINER:LINK_ALIAS：创建客户服务链接。
 * --log-driver DRIVER：指定日志驱动。默认为json-file，其为`docker logs`提供基础；syslog将禁用`docker logs`并将日志输出到syslogd；none禁用日志，并禁用`docker logs`。
-* **--name NAME**：指定容器名称，不指定默认自动生成名称。只能使用大小写字母、数字、圆点、横线、下划线（即匹配正则表达式：^[a-zA-Z0-9.-_]+$），且必需唯一。
+* **--name NAME**：指定容器名称，不指定默认自动生成名称。只能使用大小写字母、数字、圆点、横线、下划线（即匹配正则表达式：`^[a-zA-Z0-9.-_]+$`），且必需唯一。
 * **--net NETWORK：指定容器使用的网络。**
 * --privileged：使用特权模式运行容器。容器对宿主机拥有root权限，有一定的安全风险，需在确保可信时使用。
-* --restart WHEN：指定当容器停止运行时，何时自动重启容器。默认为no，不自动重启；on-failure[:N]为当退出码不为0时才自动重启，并可指定最多重启的次数。
+* --restart WHEN：指定当容器停止运行时，何时自动重启容器。默认为no，不自动重启；on-failure[:N]为当退出码不为0时才自动重启，并可指定最多重启的次数；always为总是重启，无论退出码为何值，且总是在守护进程启动时启动容器，不管容器是否被主动停止；unless-stopped为总是重启，无论退出码为何值，且总是在守护进程启动时启动容器，除非容器被主动停止。
 * --rm：容器运行退出后自动删除容器。
 * --volumes-from CONTAINER：将指定的容器中的所有卷都加入新创建的容器中。CONTAINER可以使用容器名称或容器ID。可使用多次。
 

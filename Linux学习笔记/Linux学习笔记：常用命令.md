@@ -1,8 +1,26 @@
-本文更新于2020-12-03。
+本文更新于2021-04-21。
 
 [TOC]
 
 **说明：下文中，大写为自定义变量，根据实际情况填写（个别大写的参数除外）。使用`[]`引起表示内容可选，使用`{}`引起表示内容为一个整体，`|`表示使用左侧或右侧内容，`...`表示重复之前内容。**
+
+# 关机
+
+## shutdown
+
+关机或重启。
+
+```shell
+shutdown [-hkr] [TIME [MESSAGE]]
+shutdown -c
+```
+
+TIME可为hh:mm的格式指定时间，或为+m的格式指定m分钟后，或为now表示现在。缺省为+1。
+
+* -c：取消关机。
+* -h：将系统服务停止后就关机。
+* -k：不真正执行，只是发送警告消息。
+* -r：将系统服务停止后就重启。
 
 # 磁盘与分区
 
@@ -867,6 +885,22 @@ sed [-nri] 's/OLDREGEXP/NEWREGEXP/g' FILENAME[ ...]|STDIN
 
 CONTENT可使用\来输入多行。
 
+## split
+
+切割文件。
+
+```shell
+split [-b N] [-C N] [-l N] FILENAME|- [FILEPREFIX]
+```
+
+* -b N：每个文件N字节。
+* -C N：每个文件N字节，尽量保证行的完整性。
+* -l N：每个文件N行。
+
+如不使用FILENAME，则使用-表示标准输入。
+
+FILEPREFIX缺省为x。切割出来的文件名为FILEPREFIX拼接上小写英文字母生成的有序字符串。
+
 ## sort
 
 排序文本行。
@@ -1146,14 +1180,18 @@ usermod [-aLU -g GROUPNAME -G GROUPNAME[,...] -l NEWUSERNAME] USERNAME
 visudo
 ```
 
-/etc/sudoers有特定的格式：“用户名或组名	主机名=(可切换的用户名)	命令的绝对路径及其参数正则表达式”。
+/etc/sudoers使用制表符分隔各字段：
 
-* ALL表示所有。
+> 用户名或组名	主机名=(可切换的用户名)	命令的绝对路径及其参数正则表达式
+
+* 每个字段都可使用ALL表示所有。
 * 组名需在前面加"%"。
 * 命令前加"NOPASSWD: "可免去输入密码。
 * 命令前加"!"表示不可执行。
 * 多条命令使用", "分隔。
-* 可使用"\"来输入多行。
+* 可使用"\\"来输入多行。
+
+需按Ctrl+O然后按Enter保存，按Ctrl+X退出。
 
 ## w
 
@@ -1882,7 +1920,7 @@ apt upgrade
 * remove：删除apt包，保留配置文件，同apt-get remove。
 * search：从服务器搜索apt包，使用通配符匹配，同apt-cache search。
 * show：查看apt包的信息，同apt-cache show。
-* update：刷新本地apt存储库索引，同apt-get update。
+* update：刷新本地apt存储库索引，其他子命令依赖此索引，同apt-get update。
 * upgrade：更新所有已安装的apt包，同apt-get upgrade。
 
 ## apt-cache
@@ -1926,7 +1964,7 @@ apt-get upgrade
 * install：安装apt包。
 * purge：删除apt包，同时删除配置文件。同`remove --purge`。
 * remove：删除apt包，保留配置文件。
-* update：刷新本地apt存储库索引。
+* update：刷新本地apt存储库索引，其他子命令依赖此索引。
 * upgrade：更新所有已安装的apt包。
 
 ## dpkg

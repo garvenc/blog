@@ -1,4 +1,4 @@
-本文更新于2020-11-26，使用Docker 19.03.12。
+本文更新于2021-04-30，使用Docker 19.03.12。
 
 [TOC]
 
@@ -166,7 +166,7 @@ STOPSIGNAL signal
 
 # USER
 
-指定启动的容器以系统的那个用户运行，默认为root。
+指定以容器内部哪个用户运行，默认为root。
 
 ```
 USER user|uid<:group|gid>

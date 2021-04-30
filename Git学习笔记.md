@@ -1,4 +1,4 @@
-本文更新于2021-02-23，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2021-03-26，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -794,6 +794,12 @@ git remote rm REMOTE
 注意，此处的HEAD是HEAD指针而不是自定义变量。
 
 COMMIT缺省或为HEAD则恢复到上一次提交；为HEAD^则恢复到倒数第二次提交，即丢弃上一次提交；为HEAD~N则恢复到倒数第N+1次提交，即丢弃最近N次提交。
+
+恢复暂存区，但不改变工作目录，相当于回滚`git add`：
+
+```shell
+git reset [FILENAME]
+```
 
 将HEAD恢复至指定的提交，但不改变暂存区和工作目录，相当于回滚`git commit`：
 

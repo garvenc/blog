@@ -1,4 +1,4 @@
-本文更新于2021-02-06。
+本文更新于2021-04-30。
 
 [TOC]
 
@@ -74,7 +74,8 @@
 
 # Nginx
 
-* [Nginx安装、运行、配置](https://www.cnblogs.com/garvenc/p/nginx_install_run_configure.html)
+* [Nginx学习笔记：安装、运行](https://www.cnblogs.com/garvenc/p/nginx_install_run_configure.html)
+* [Nginx学习笔记：配置](https://www.cnblogs.com/garvenc/p/nginx_learning_configure.html)
 
 # Node.js
 
