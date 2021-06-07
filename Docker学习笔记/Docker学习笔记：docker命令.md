@@ -1,39 +1,6 @@
-本文更新于2021-04-13，使用Docker 19.03.12，操作系统为Debian 10。
+本文更新于2021-05-11，使用Docker 19.03.12，操作系统为Debian 10。
 
 [TOC]
-
-# 安装
-
-```shell
-wget -O install.sh https://get.docker.com
-sudo sh install.sh
-```
-
-可能需要启动系统服务，并设置系统服务为自启动：
-
-```shell
-sudo systemctl start docker
-sudo systemctl enable docker
-```
-
-# 基本概念
-
-* Registry：存储仓库。如：Docker Hub。
-* 仓库：存储镜像。
-* 镜像：创建容器。
-* 容器：可以启动。
-
-# 用户组
-
-可将用户（如:$USER）加入docker用户组，来获得执行命令的权限。否则，需要使用root权限才能运行。
-
-```shell
-sudo gpasswd -a $USER docker
-```
-
-# 环境变量
-
-* DOCKER_HOST：指定docker客户端连接的守护进程地址，类似-H选项，如：tcp://HOST:PORT。
 
 # dockerd服务
 
@@ -50,20 +17,6 @@ Docker守护进程，又称Docker服务器，或Docker引擎。
 * --tlscert FILENAME：服务器证书文件名。
 * --tlskey FILENAME：服务器私钥文件名。
 * --tlsverify：启用TLS并进行客户端认证。
-
-## 目录和文件
-
-* /var/lib/docker/：保存Docker镜像、容器、容器配置。
-* /var/lib/docker/containers/：保存容器。
-* /var/lib/docker/volumes/：保存卷。
-* /var/run/docker.sock：绑定的Unix套接字。
-
-配置文件可能为：
-
-* 对于Ubuntu或Debian系统：/etc/default/docker
-* 对于Read Hat或Fedora系统：/etc/sysconfig/docker
-* 对于使用Upstart的系统：/etc/init/docker.conf
-* 对于使用Systemd的系统：/usr/lib/systemd/system/docker.service
 
 # docker命令
 

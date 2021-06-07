@@ -1,4 +1,4 @@
-本文更新于2021-04-21。
+本文更新于2021-06-04。
 
 [TOC]
 
@@ -1565,6 +1565,10 @@ FORMAT可使用如下格式：
 * %:::z：数值时区，只使用必要的“:”。
 * %Z：字母时区。
 
+TIME可使用如下格式：
+
+* 2006-01-02 15:04:05
+
 ## dmesg
 
 查看开机后产生的内核信息。
@@ -1900,7 +1904,7 @@ wget [-O FILENAME] URL
 ```shell
 apt edit-sources
 apt install APTPACKAGE
-apt list [APTPACKAGE] [--installed]
+apt list APTPACKAGE|--installed
 apt purge APTPACKAGE
 apt remove APTPACKAGE
 apt search PATTERN
@@ -1909,7 +1913,7 @@ apt update
 apt upgrade
 ```
 
-* --installed：指定已安装的apt包。
+* --installed：用于列出所有已安装的apt包。
 
 子命令：
 
@@ -2060,7 +2064,7 @@ rpm --import KEYFILENAME|URL
 
 ```shell
 yum info YUMPACKAGE
-yum install YUMPACKAGE
+yum install YUMPACKAGE|RPMPACKAGE
 yum list [YUMPACKAGE]
 yum list installed [YUMPACKAGE]
 yum list updates
