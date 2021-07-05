@@ -1,4 +1,4 @@
-本文更新于2021-06-07。
+本文更新于2021-07-05。
 
 [TOC]
 
@@ -72,6 +72,10 @@
 * [MySQL学习笔记（29）：MySQL Cluster](https://www.cnblogs.com/garvenc/p/mysql_learning_29_mysql_cluster.html)
 * [MySQL学习笔记（30）：高可用架构](https://www.cnblogs.com/garvenc/p/mysql_learning_30_high_availability_architecture.html)
 * [MySQL学习笔记（31）：监控](https://www.cnblogs.com/garvenc/p/mysql_learning_31_monitor.html)
+
+# Network
+
+* [Linux屏蔽国外IP](https://www.cnblogs.com/garvenc/p/shield_foreign_ip_for_linux.html)
 
 # Nginx
 
