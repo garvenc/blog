@@ -1,4 +1,4 @@
-本文更新于2021-06-07。
+本文更新于2021-06-29。
 
 [TOC]
 
@@ -55,28 +55,3 @@ sudo sh get-docker.sh
 ```shell
 sudo gpasswd -a $USER docker
 ```
-
-# 环境变量
-
-* DOCKER_HOST：指定docker客户端连接的守护进程地址，类似-H选项，如：tcp://HOST:PORT。
-
-# 目录和文件
-
-* /var/lib/docker/：保存Docker镜像、容器、容器配置。
-* /var/lib/docker/containers/：保存容器。
-* /var/lib/docker/volumes/：保存卷。
-* /var/run/docker.sock：绑定的Unix套接字。
-
-配置文件可能为：
-
-* 对于Ubuntu或Debian系统：/etc/default/docker
-* 对于Read Hat或Fedora系统：/etc/sysconfig/docker
-* 对于使用Upstart的系统：/etc/init/docker.conf
-* 对于使用Systemd的系统：/usr/lib/systemd/system/docker.service
-
-# 基本概念
-
-* Registry：存储仓库。如：Docker Hub。
-* 仓库：存储镜像。
-* 镜像：创建容器。
-* 容器：可以启动。

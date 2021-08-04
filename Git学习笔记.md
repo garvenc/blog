@@ -1,4 +1,4 @@
-本文更新于2021-05-25，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2021-07-31，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -6,25 +6,35 @@
 
 [TOC]
 
+# 安装
+
+在Debian 10安装：
+
+```shell
+sudo apt-get install git
+```
+
 # 运行机制
 
 ```
-Working Directory      Staging Area    .git Repository HEAD
-        |                    |                  |
-        |       checkout the project            |
-        | <------------------------------------ |
-        |    stage files     |                  |
-        | -----------------> |                  |
-        |                    |      commit      |
-        |                    | ---------------> |
+Workspace    Index/Stage    Repository      Remote
+   |              |             |             |
+   |     add      |   commit    |    push     |
+   |------------->|------------>|------------>|
+   |           checkout         | fetch/clone |
+   |<---------------------------|<------------|
+   |                   pull                   |
+   |<-----------------------------------------|
 ```
 
-工作目录（Working Directory）下的每一个文件都处于两种状态之一：
+* 工作区（Workspace）：计算机中看到的目录，持有实际文件。工作区下每个文件都处于以下两种状态之一：
+	* 已跟踪：被纳入了版本控制的文件，在上一次快照中有它们的记录，在工作一段时间后，它们的状态可能处于未修改、已修改、已暂存、已提交。
+	* 未跟踪：除已跟踪文件以外的所有其它文件都属于未跟踪文件，它们既不存在于上次快照的记录中，也没有放入暂存区（Staging Area）。
+* 暂存区（Index/Stage）：临时保存改动。
+* 版本库（Repository）：工作区目录下的.git目录。
+* 远程仓库（Remote）：托管在远程计算机上的版本库，可供多人分布式开发。
 
-* 已跟踪：被纳入了版本控制的文件，在上一次快照中有它们的记录，在工作一段时间后，它们的状态可能处于未修改、已修改、已暂存、已提交。
-* 未跟踪：除已跟踪文件以外的所有其它文件都属于未跟踪文件，它们既不存在于上次快照的记录中，也没有放入暂存区（Staging Area）。
-
-下文中的.目录均为工作目录，命令均在工作目录下执行。
+下文中的.目录均为工作区，命令均在工作区下执行。
 
 # 配置文件
 
@@ -44,7 +54,7 @@ Windows配置文件读取顺序：
 配置忽略跟踪的文件列表。
 
 * 以#开头的行是注释。
-* 使用glob模式匹配的文件或目录，均忽略跟踪。匹配的为工作目录中的相对路径，可以/开头或以/结尾。
+* 使用glob模式匹配的文件或目录，均忽略跟踪。匹配的为工作区中的相对路径，可以/开头或以/结尾。
 	* *匹配零个或多个任意字符。
 	* [abc]匹配列表中任意一个字符。
 	* ?匹配任意一个字符。
@@ -54,7 +64,7 @@ Windows配置文件读取顺序：
 
 # 选择指定的提交
 
-命令行中可以使用如下方式，选择指定的提交：
+命令行中可以使用如下方式，选择指定的提交（记为COMMIT）：
 
 * 使用40个字符的完整哈希值（记为HASH）。
 * 使用哈希值的前缀，最少4个字符。
@@ -66,6 +76,12 @@ Windows配置文件读取顺序：
 
 # 上层命令
 
+查看版本：
+
+```shell
+git --version
+```
+
 常用流程：
 
 1. git clone 克隆远程仓库。
@@ -73,7 +89,7 @@ Windows配置文件读取顺序：
 1. git status 查看文件状态。
 1. git diff 查看差异。
 1. git add 暂存。
-1. git reset 重置暂存区或工作目录。
+1. git reset 重置暂存区或工作区。
 1. git commit 提交。
 1. git log 查看提交记录。
 1. git branch 创建分支。
@@ -86,10 +102,10 @@ Windows配置文件读取顺序：
 
 ## git add
 
-将文件放入暂存区。可以跟踪新文件，暂存已修改文件，合并时将冲突标记为已解决。如指定目录，则暂存目录下的所有文件：
+将文件放入暂存区。如匹配目录，则暂存目录下的所有文件。可用于跟踪新文件，暂存已修改文件，合并时将冲突标记为已解决：
 
 ```shell
-git add FILE
+git add PATTERN[ ...]
 ```
 
 进入交互式暂存：
@@ -150,7 +166,7 @@ git add -p|--patch
 查看文件标注，可查看每一行分别来自那次提交：
 
 ```shell
-git blame [-C] [-L STARTLINE,ENDLINE] FILENAME
+git blame [-C] [-L STARTLINE,ENDLINE] NAME[ ...]
 ```
 
 每行的结果包括以下内容：
@@ -163,12 +179,24 @@ git blame [-C] [-L STARTLINE,ENDLINE] FILENAME
 
 ## git branch
 
-查看所有分支。使用-v参数可查看每一个分支的最后一次提交。使用-vv参数可查看所有跟踪分支：
+查看所有本地分支。使用-v参数可查看每一个分支的最后一次提交。使用-vv参数可查看所有跟踪分支：
 
 ```shell
 git branch
 git branch -v
 git branch -vv
+```
+
+查看所有远程分支：
+
+```shell
+git branch -r
+```
+
+查看所有本地分支和远程分支：
+
+```shell
+git branch -a
 ```
 
 查看已合并到当前分支的分支：
@@ -186,7 +214,7 @@ git branch --no-merged
 创建分支。不会切换到新分支：
 
 ```shell
-git branch BRANCH [HASH]
+git branch BRANCH [COMMIT]
 ```
 
 删除分支：
@@ -201,11 +229,16 @@ git branch -d BRANCH
 git branch -D BRANCH
 ```
 
-设置当前的本地分支跟踪拉取下来的远程分支，或者修改正在跟踪的上游分支。当设置好跟踪分支后，可以通过`@{upstream}`或`@{u}`快捷方式来引用它：
+删除远程分支：
 
 ```shell
-git branch -u REMOTE/BRANCH
-git branch --set-upstream-to REMOTE/BRANCH
+git branch -dr REMOTE/BRANCH
+```
+
+设置本地分支跟踪的远程分支。当设置好跟踪分支后，可以通过`@{upstream}`或`@{u}`快捷方式来引用它：
+
+```shell
+git branch -u|--set-upstream [BRANCH] REMOTE/BRANCH
 ```
 
 ## git bundle
@@ -214,16 +247,22 @@ git branch --set-upstream-to REMOTE/BRANCH
 
 ## git checkout
 
-使用暂存区文件撤销工作目录文件的修改：
+检出暂存区的文件至工作区：
 
 ```shell
-git checkout -- FILE[ ...]
+git checkout [--] FILE[ ...]
 ```
 
-切换工作目录至指定的标签或提交：
+检出某次提交的文件至工作区：
 
 ```shell
-git checkout TAG|HASH
+git checkout COMMIT FILE[ ...]
+```
+
+将HEAD、暂存区和工作区切换至指定的提交：
+
+```shell
+git checkout COMMIT
 ```
 
 切换分支：
@@ -232,29 +271,28 @@ git checkout TAG|HASH
 git checkout BRANCH
 ```
 
+切换到上一个分支：
+
+```shell
+git checkout -
+```
+
 创建并切换分支：
 
 ```shell
 git checkout -b BRANCH
 ```
 
-在指定的标签上创建分支：
+在指定的提交上创建分支：
 
 ```shell
-git checkout -b BRANCH TAG
+git checkout -b BRANCH COMMIT
 ```
 
 交互式检出文件：
 
 ```shell
-git checkout --patch BRANCH|TAG|HASH
-```
-
-建立远程分支的跟踪分支。跟踪分支的起点为远程分支：
-
-```shell
-git checkout -b BRANCH REMOTE/BRANCH
-git checkout --track REMOTE/BRANCH
+git checkout --patch COMMIT
 ```
 
 解决冲突后检出文件：
@@ -275,9 +313,17 @@ git checkout --ours FILENAME
 git checkout --theirs FILENAME
 ```
 
+## git cherry-pick
+
+将提交在当前分支重放，不影响原有提交：
+
+```shell
+git cherry-pick COMMIT
+```
+
 ## git clean
 
-清理工作目录，移除未被追踪的文件：
+清理工作区，移除未被追踪的文件：
 
 ```shell
 git clean
@@ -330,6 +376,12 @@ git config --list
 git config KEY
 ```
 
+编辑配置：
+
+```shell
+git config -e [--global]
+```
+
 设置配置：
 
 ```shell
@@ -372,13 +424,19 @@ git config --unset KEY
 将暂存区提交：
 
 ```shell
-git commit [-m MSG]
+git commit [NAME[ ...]]
 ```
 
 将已跟踪过的文件暂存并提交：
 
 ```shell
-git commit -a [-m MSG]
+git commit -a
+```
+
+提交时注明备注信息：
+
+```shell
+git commit -m MSG
 ```
 
 撤销上一次提交，重新提交：
@@ -387,22 +445,34 @@ git commit -a [-m MSG]
 git commit --amend
 ```
 
+提交时显示差异信息：
+
+```shell
+git commit -v
+```
+
 ## git credential
 
 凭证辅助工具。
 
 ## git diff
 
-比较工作目录和暂存区的差异，使用-b在比较时忽略空白符的差异：
+比较工作区相对于暂存区的差异，使用-b在比较时忽略空白符的差异：
 
 ```shell
 git diff [-b]
 ```
 
-比较暂存区和已提交的差异：
+比较暂存区相对于已提交的差异：
 
 ```shell
 git diff --staged|--cached
+```
+
+比较COMMIT2相对于COMMIT1的差异：
+
+```shell
+git diff COMMIT1 COMMIT2
 ```
 
 比较合并的结果与当前分支原来的差异：
@@ -447,7 +517,7 @@ git gc
 
 ## git grep
 
-搜索文件内容，可搜索工作目录和所有提交：
+搜索文件内容，可搜索工作区和所有提交：
 
 ```shell
 git grep [OPTIONS] REGEXP
@@ -482,10 +552,16 @@ man git-VERB
 
 ## git init
 
-在当前目录初始化仓库。目录中可以存在文件。远程仓库最好使用--bare参数初始化，且之后仓库不能作为工作目录：
+在当前目录初始化仓库。目录中可以存在文件。远程仓库最好使用--bare参数初始化，且之后仓库不能作为工作区：
 
 ```shell
 git init [--bare]
+```
+
+在当前目录的子目录初始化仓库。
+
+```shell
+git init DIR
 ```
 
 ## git log
@@ -568,25 +644,25 @@ git ls-remote [REMOTE]
 合并分支。将分支合并到当前分支：
 
 ```shell
-git merge BRANCH|HASH
+git merge COMMIT
 ```
 
 合并分支。将分支合并到当前分支，总是创建一个提交而不使用快进（fast-forward）：
 
 ```shell
-git merge --no-ff BRANCH|HASH
+git merge --no-ff COMMIT
 ```
 
 将没有共同祖先提交的不关联分支合并到当前分支：
 
 ```shell
-git merge --allow-unrelated-histories BRANCH|HASH
+git merge --allow-unrelated-histories COMMIT
 ```
 
 合并时忽略空白：
 
 ```shell
-git merge -Xignore-all-space|-Xignore-space-change BRANCH|HASH
+git merge -Xignore-all-space|-Xignore-space-change COMMIT
 ```
 
 * -Xignore-all-space： 完全忽略空白符的修改。
@@ -595,13 +671,13 @@ git merge -Xignore-all-space|-Xignore-space-change BRANCH|HASH
 合并时冲突使用当前分支的内容：
 
 ```shell
-git merge -Xours BRANCH|HASH
+git merge -Xours COMMIT
 ```
 
 合并时冲突使用待合入分支的内容：
 
 ```shell
-git merge -Xtheirs BRANCH|HASH
+git merge -Xtheirs COMMIT
 ```
 
 中断合并：
@@ -676,7 +752,7 @@ git pull --allow-unrelated-histories [REMOTE [BRANCH]]
 推送到远程仓库。并不会推送标签。如使用--force或-f，则强制推送，可能会导致远程仓库已有的提交丢失：
 
 ```shell
-git push [REMOTE] [[LOCALBRANCH|HASH:]REMOTEBRANCH] [--force|-f]
+git push [REMOTE] [[COMMIT:]REMOTEBRANCH] [--force|-f]
 ```
 
 如出现如下错误，则在远程仓库执行`git config --bool core.bare true`。
@@ -686,13 +762,19 @@ remote: error: refusing to update checked out branch: refs/heads/master
 remote: error: By default, updating the current branch in a non-bare repository
 ```
 
+推送所有分支到远程仓库：
+
+```shell
+git push --all [REMOTE]
+```
+
 推送的时候同时在远程仓库创建分支：
 
 ```shell
 git push -u|--set-upstream REMOTE REMOTEBRANCH
 ```
 
-删除远程分支：
+在远程仓库删除分支：
 
 ```shell
 git push REMOTE --delete REMOTEBRANCH
@@ -704,7 +786,7 @@ git push REMOTE --delete REMOTEBRANCH
 git push REMOTE TAG
 ```
 
-推送所有为推送的标签到远程仓库：
+推送所有标签到远程仓库：
 
 ```shell
 git push REMOTE --tags
@@ -741,7 +823,7 @@ git rebase --onto BRANCH1 BRANCH2 BRANCH3
 交互式变基，将指定提交及之后的提交重写：
 
 ```shell
-git rebase -i HASH
+git rebase -i COMMIT
 ```
 
 其列出的提交历史是从旧至新的，修改提交历史前的命令，退出后`git commit --amend`修改`edit`命令指定的提交，`git rebase --continue`自动应用剩余的提交。
@@ -793,30 +875,28 @@ git remote rm REMOTE
 
 注意，此处的HEAD是HEAD指针而不是自定义变量。
 
-COMMIT缺省或为HEAD则恢复到上一次提交；为HEAD^则恢复到倒数第二次提交，即丢弃上一次提交；为HEAD~N则恢复到倒数第N+1次提交，即丢弃最近N次提交。
-
-恢复暂存区，但不改变工作目录，相当于回滚`git add`：
+恢复暂存区，但不改变工作区，相当于回滚`git add`：
 
 ```shell
-git reset [FILENAME]
+git reset [NAME]
 ```
 
-将HEAD恢复至指定的提交，但不改变暂存区和工作目录，相当于回滚`git commit`：
+将HEAD恢复至指定的提交，但不改变暂存区和工作区，相当于回滚`git commit`：
 
 ```shell
-git reset --soft [COMMIT] [FILENAME]
+git reset --soft [COMMIT] [NAME]
 ```
 
-将HEAD和暂存区恢复至指定的提交，但不改变工作目录，相当于回滚`git add`和`git commit`：
+将HEAD和暂存区恢复至指定的提交，但不改变工作区，相当于回滚`git add`和`git commit`：
 
 ```shell
-git reset [--mixed] [COMMIT] [FILENAME]
+git reset [--mixed] [COMMIT] [NAME]
 ```
 
-将HEAD、暂存区和工作目录恢复到指定的提交，如工作目录有未提交的内容则会丢失：
+将HEAD、暂存区和工作区恢复到指定的提交，如工作区有未提交的内容则会丢失：
 
 ```shell
-git reset --hard [COMMIT] [FILENAME]
+git reset --hard [COMMIT] [NAME]
 ```
 
 交互式恢复：
@@ -835,6 +915,12 @@ git rev-parse BRANCH
 
 ## git revert
 
+撤销指定提交的所有改动，会创建一个新提交：
+
+```shell
+git revert COMMIT
+```
+
 还原至合并前：
 
 ```shell
@@ -845,27 +931,37 @@ N的值：1为还原至本地分支，2为还原至待合入分支。
 
 ## git rm
 
-从暂存区移除跟踪文件，并从工作目录删除文件。若文件已修改且已放入暂存区，则需要使用-f：
+从暂存区移除跟踪文件，并从工作区删除文件。若文件已修改且已放入暂存区，则需要使用-f：
 
 ```shell
-git rm [-f] FILE
+git rm [-f] NAME[ ...]
 ```
 
-只从暂存区移除跟踪文件，不从工作目录删除文件：
+只从暂存区移除跟踪文件，不从工作区删除文件：
 
 ```shell
-git rm --cached FILE
+git rm --cached NAME[ ...]
 ```
 
 ## git show
 
-查看某次提交的信息：
+查看提交的信息：
 
 ```shell
-git show [--stat] HASH
+git show [COMMIT]
 ```
 
-* --stat：显示每次提交的简略的统计信息。
+查看提交的简略统计信息：
+
+```shell
+git show [--stat] [COMMIT]
+```
+
+查看提交中发生变化的文件：
+
+```shell
+git show --name-only [COMMIT]
+```
 
 查看合并冲突的文件内容：
 
@@ -897,7 +993,7 @@ git stash push [-m MSG]
 git stash list
 ```
 
-应用储藏，如不指定储藏标记，则默认应用最近的储藏。可以在一个不干净的工作目录，或其它分支上应用储藏，但可能产生合并冲突：
+应用储藏，如不指定储藏标记，则默认应用最近的储藏。可以在一个不干净的工作区，或其它分支上应用储藏，但可能产生合并冲突：
 
 ```shell
 git stash apply [--index] [stash@{N}]
@@ -911,7 +1007,7 @@ git stash apply [--index] [stash@{N}]
 git stash drop stash@{N}
 ```
 
-应用栈顶的储藏后移除该储藏。可以在一个不干净的工作目录，或其它分支上应用储藏，但可能产生合并冲突：
+应用栈顶的储藏后移除该储藏。可以在一个不干净的工作区，或其它分支上应用储藏，但可能产生合并冲突：
 
 ```shell
 git stash pop [--index]
@@ -962,16 +1058,16 @@ git status [-s|--short] [path]
 git tag [-l GLOB]
 ```
 
-创建附注标签（annotated）。指定校验和或校验和前缀，可对指定的提交创建标签：
+创建轻量标签（lightweight）：
 
 ```shell
-git tag -a TAG -m MSG [HASH]
+git tag TAG [COMMIT]
 ```
 
-创建轻量标签（lightweight）。指定校验和或校验和前缀，可对指定的提交创建标签：
+创建附注标签（annotated）：
 
 ```shell
-git tag TAG [HASH]
+git tag -a TAG -m MSG [COMMIT]
 ```
 
 删除标签：

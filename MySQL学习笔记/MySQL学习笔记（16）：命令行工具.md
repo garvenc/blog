@@ -1,4 +1,4 @@
-本文更新于2020-06-14，使用MySQL 5.7，操作系统为Deepin 15.4。
+本文更新于2021-05-09，使用MySQL 5.7，操作系统为Deepin 15.4。
 
 [TOC]
 
@@ -133,11 +133,11 @@ options选项如下：
 
 # mysqlcheck——表维护工具
 
-mysqlcheck实际上集成了mysql的`ANALYZE`、`CHECK`、`OPTIMIZE`、`REPAIR`功能。
+mysqlcheck实际上集成了`ANALYZE`、`CHECK`、`OPTIMIZE`、`REPAIR`功能。
 
 ```shell
-mysqlcheck [options] dbname [tablename[, ...]]
-mysqlcheck [options] --database dbname[, ...]
+mysqlcheck [options] dbname [tablename[ ...]]
+mysqlcheck [options] --database dbname[ ...]
 mysqlcheck [options] --all-database
 ```
 
@@ -147,6 +147,8 @@ options选项如下：
 * -c, --check：检查表，默认选项。
 * -o, --optimize：优化表。
 * -r, --repair：修复表。
+* --all-databases：所有数据库。
+* --databases dbname[ ...]：指定数据库，可指定多个。
 
 # mysqldump——数据导出工具
 
@@ -242,6 +244,21 @@ options选项如下：
 * --count：显示数据库或表的统计信息。可以不指定数据库，指定数据库，或指定表。
 * -k, --keys：显示指定表的表结构和索引信息，和`SHOW FULL COLUMNS`与`SHOW INDEX`的结果一致。
 * -i, --status：显示表的状态信息，和`SHOW TABLE STATUS`的结果一致。
+
+# mysqlslap——压力测试工具
+
+```shell
+mysqlslap [options]
+```
+
+options选项如下：
+
+* -a：使用自动生成的SQL。
+* -c N[,...]：各基准测试的并发连接数（默认为1）。
+* -i N：每个基准测试的迭代次数。
+* --auto-generate-sql-load-type=TYPE：自动生成的SQL的类型。读为read，写为write，混合读写为mixed（默认）。
+* --engine=ENGINE[,...]：各基准测试的存储引擎。MyISAM为myisam，InnoDB为innodb。
+* --number-of-queries=N：单次迭代中所有连接的总请求数。会平均分配到-c指定的连接。如不指定此选项，则只进行连接不进行请求。
 
 # perror——错误代码查看工具
 

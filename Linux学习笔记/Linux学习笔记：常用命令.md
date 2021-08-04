@@ -1,4 +1,4 @@
-本文更新于2021-06-04。
+本文更新于2021-07-19。
 
 [TOC]
 
@@ -44,7 +44,7 @@ blockdev --report
 
 ## df
 
-列出文件系统的磁盘使用量，包括各分区的磁盘使用量。
+列出文件系统的磁盘挂载点和空间使用情况。
 
 ```shell
 df [-ahHikmT] [NAME]
@@ -62,7 +62,7 @@ df [-ahHikmT] [NAME]
 
 ## du
 
-列出文件或目录的磁盘使用量。
+列出文件或目录的磁盘使用情况。
 
 ```shell
 du [-ahkmsS] NAME
@@ -182,6 +182,14 @@ PARTITION可为设备名或挂载目录名。
 * -n：不将信息更新至/etc/mtab。
 
 # 文件与目录
+
+## basename
+
+显示路径的文件名/目录名。
+
+```shell
+basename PATH
+```
 
 ## cd
 
@@ -669,17 +677,18 @@ awk [-F 'REGEXP'] '[CONDITION] {ACTION} [[CONDITION] {ACTION} ...]' FILENAME[ ..
 
 * -F 'REGEXP'：指定分隔符，以正则表达式匹配，支持扩展正则表达式。默认为任意个（大于等于1个）Space或Tab。
 
-CONDITION和ACTION中的字符串都需要用""括起。
+CONDITION和ACTION中的字符串都需要用""括起。可使用逻辑运算符（<、>、<=、>=、==、!=），赋值运算符（=）。
 
-特殊的CONDITION：BEGIN、END。
+CONDITION可使用的特殊值：BEGIN、END。
 
 ACTION有多个命令，可使用;或Enter键隔开。ACTION可使用的函数：
 
 * print：`print ARG[ ...]`，没有空格分隔，自动换行。
 * printf：`printf "FORMAT"[, ARG, ARG ...]`，不自动换行。FORMAT的变量格式如下：
 	* %[N]s：占位为N的字符串。
-	* %[N]d：占位为N的整数。
+	* %[N]d：占位为N的十进制整数。
 	* %[N][.M]f：占位为N小数位为M的浮点数。
+	* %[N]x：占位为N的十六进制整数。
 
 自定义变量不需要加$。内置变量如下：
 
@@ -687,8 +696,6 @@ ACTION有多个命令，可使用;或Enter键隔开。ACTION可使用的函数�
 * NF：列数量。
 * NR：目前的行号，从1开始。
 * FS：目前的分隔符。
-
-逻辑运算符：<、>、<=、>=、==、!=。赋值运算符：=。
 
 示例：
 
@@ -749,12 +756,14 @@ diff [-bBi] FROMNAME TONAME
 查找匹配字符串的行。
 
 ```shell
-grep [-acEinrsv -A N -B N] 'REGEXP' {FILENAME|DIR}[ ...]|STDIN
+grep [-acEinrsv -A N -B N -C N --color] 'REGEXP' {FILENAME|DIR}[ ...]|STDIN
 ```
 
+* -N：同时显示匹配行的前后N行。N为数字。
 * -a：将二进制文件以文本文件方式查找。
 * -A N：同时显示匹配行的后N行。
 * -B N：同时显示匹配行的前N行。
+* -C N：同时显示匹配行的前后N行。
 * -c：显示匹配的行数。
 * -E：使用扩展正则表达式。
 * -i：忽略大小写。
@@ -762,6 +771,7 @@ grep [-acEinrsv -A N -B N] 'REGEXP' {FILENAME|DIR}[ ...]|STDIN
 * -r：递归匹配目录中的文件。等同于使用：-d recurse。
 * -s：不显示错误消息。
 * -v：反向显示不匹配的行。
+* --color：将匹配内容着色显示。
 
 REGEXP最好用''或""括起来，虽然一些简单正则表达式缺省也无问题。
 
@@ -857,7 +867,7 @@ FORMAT的变量格式如下：
 
 ## sed
 
-行操作。
+以行为单位编辑内容。
 
 ```shell
 sed [-nri] '[N1[,N2]] a CONTENT' FILENAME[ ...]|STDIN
@@ -943,6 +953,22 @@ uniq [-ci] FILENAME|STDIN
 
 * -c：显示重复的次数。
 * -i：忽略大小写。
+
+## vi
+
+编辑文本。
+
+```shell
+vi FILENAME[ ...]
+```
+
+## vim
+
+编辑文本。`vi`的升级版本。
+
+```shell
+vim FILENAME[ ...]
+```
 
 ## wc
 
@@ -1209,7 +1235,7 @@ w
 who
 ```
 
-# 工作与进程
+# 工作
 
 ## bg
 
@@ -1267,6 +1293,18 @@ jobs [-lrs]
 
 带+代表最近被放至后台的工作，带-代表最后第二个被放至后台的工作。
 
+## nohup
+
+使工作与终端机无关，能脱机运行。
+
+```shell
+nohup COMMAND
+```
+
+nohup不支持shell内置的命令。通常与&配合使用。
+
+# 进程
+
 ## kill
 
 向进程发送信号，可杀死进程。
@@ -1296,16 +1334,6 @@ kill [-iI -SIGNAL] COMMANDNAME[ ...]
 * -I：忽略大小写。
 * -SIGNAL：指定信号，SIGNAL为信号值或信号名。
 
-## nohup
-
-使工作与终端机无关，能脱机运行。
-
-```shell
-nohup COMMAND
-```
-
-nohup不支持shell内置的命令。通常与&配合使用。
-
 ## pidof
 
 根据进程名查找进程ID。
@@ -1316,26 +1344,52 @@ pidof [-s] COMMAND
 
 * -s：只列出一个进程ID而不是所有进程ID。
 
-## ps
+## pidstat
 
 查看进程状态。
 
 ```shell
-ps
+pidstat [-urd -p PID]
+```
+
+* -d：查看磁盘I/O状态。
+* -p PID：指定进程ID。
+* -r：查看内存使用状态。
+* -u：查看CPU使用状态。
+
+## pmap
+
+查看进程中各个模块占用内存的情况。
+
+```shell
+pmap PID
+```
+
+## ps
+
+查看进程状态信息。
+
+```shell
+ps [-q PID[,...]]
 ps -l
 ps -Al
+ps -elf
 ps aux
 ps afjx
 ```
 
 * a：列出所有与控制台有关的进程（所有用户，所有控制台）。
 * f：显示进程树。
-* j：以工作控制格式显示，不能与u一起使用。
-* u：以用户信息格式显示，不能与j一起使用。
-* x：列出当前用户的所有进程，如果和a一起则列出系统所有进程。
+* j：格式化参数，以工作控制格式显示。
+* u：格式化参数，以用户信息格式显示。
+* x：列出当前用户的所有进程，如果和a一起使用则列出系统所有进程。
 * -A：列出系统所有进程，同-e。
 * -e：列出系统所有进程，同-A。
-* -l：以较长的格式显示，不能与j、u一起使用。
+* -f：格式化参数，以全格式显示。如果和-l一起使用则显示命令的参数。
+* -l：格式化参数，以较长的格式显示。
+* -q PID[,...]：显示指定PID的进程。
+
+格式化参数只能使用一个。
 
 不加任何选项则只列出当前bash相关的进程。
 
@@ -1364,6 +1418,7 @@ ps afjx
 * SID：会话ID。
 * START：进程启动的时间。
 * STAT：进程状态，第一个字母与S相同。
+* STIME：进程的启动时间。
 * SZ：使用的内存页数量，SZ*内存页大小（以K为单位）=VSZ。
 * TIME：使用的CPU累积时间。
 * TPGID：进程关联的TTY的进程组ID，-1表示不关联TTY。
@@ -1391,17 +1446,18 @@ pstree [-ApuU]
 动态查看进程状态。
 
 ```shell
-top [-b -d SECONDS -n TIMES -p PID[,...]]
+top [-bH -d SECONDS -n TIMES -p PID[,...]]
 ```
 
 * -b：以批次方式执行，会将各次的结果顺序依次显示。
 * -d SECONDS：刷新的时间间隔，单位为秒，缺省为5秒。
+* -H：查看线程状态。
 * -n TIMES：执行的次数。
 * -p PID[,...]：只显示指定pid的进程。
 
 界面上部为系统整体资源使用状态:
 
-* 第一行：当前的时间，系统开机至今的时间，登录的用户数，1/5/15分钟的平均工作负载（值越小越空闲）。
+* 第一行：当前的时间，系统开机至今的时长，当前登录的用户数，最近1/5/15分钟的平均工作负载（即在特定的时间间隔内队列中运行的平均进程数）。
 * 第二行：进程的总数，运行、睡眠、停止、僵尸进程的数量。
 * 第三行：CPU负载。
 	* us：不改变优先级的用户时间（time running un-niced user processes）。
@@ -1434,12 +1490,17 @@ top [-b -d SECONDS -n TIMES -p PID[,...]]
 top执行过程中可使用如下命令（以下所述排序均为降序），按ESC可退出交互的命令输入：
 
 * ?：显示可输入的命令。
-* 1：将CPU负载在整体负载和各逻辑处理器负载间切换。
-* k：向进程发送信号。
+* 1：切换平均工作负载的显示，即第一行内容。
+* k：向进程发送信号。会提示输入进程ID和信号。
+* m：切换内存信息的显示，即第四行和第五行内容。
 * M：以内存使用率（%MEM）排序。
 * N：以PID（PID）排序。
 * P：以CPU使用率（%CPU）排序，默认排序字段。
+* r：设置进程的优先级。会提示输入进程ID和优先级。
+* s：修改刷新的时间间隔。会提示输入秒数。
+* t：切换工作和CPU的状态显示，即第二行和第三行内容。
 * T：以使用的CPU累积时间（TIME+）排序。
+* u：显示指定用户的进程。会提示输入用户名。
 * q：离开top。
 
 # 服务
@@ -1644,18 +1705,56 @@ ACCESS字段的含义：
 getcap FILENAME
 ```
 
+## iostat
+
+查看CPU和I/O状态。
+
+```shell
+iostat [-x]
+```
+
+* -x：显示扩展的状态信息。
+
 ## lsof
 
 列出被进程打开的文件。
 
 ```shell
-lsof [-a -u USERNAME +d DIR -p PID]
+lsof [-a -u USERNAME +d DIR -p PID -i:PORT]
 ```
 
 * -a：列出多个选项同时成立的结果。
 * -u USERNAME：列出该用户的进程打开的文件。
 * +d DIR：列出指定目录下打开的文件。
+* -i:PORT：列出使用指定端口的连接。
 * -p PID：列出指定进程ID打开的文件。
+
+## mpstat
+
+查看CPU状态。使用/proc/stat中的信息。
+
+```shell
+mpstat [-P ALL]
+```
+
+* -P ALL：同时显示每个CPU核心的状态。
+
+## sar
+
+系统性能分析工具。
+
+```shell
+sar -n NET INTERVAL COUNT
+```
+
+* -A：所有报告的汇总。
+* -b：报告缓冲区使用情况。
+* -d：报告磁盘使用状态。
+* -n NET：报告网络状态。NET可为ALL。
+* -r：报告没有使用的内存页面和硬盘块。
+* -u：报告CPU使用率。
+* -v：报告进程、I节点、文件和锁表状态。
+* -w：报告系统的交换活动。
 
 ## setcap
 
@@ -1670,13 +1769,23 @@ setcap -r FILENAME
 
 CAPABILITY为`cap_net_bind_service=+eip`可让程序监听小于1024的端口。
 
+## swapon
+
+查看交换分区使用情况。
+
+```shell
+swapon -s
+```
+
+* -s：查看交换分区使用情况。
+
 ## ulimit
 
 显示或设置当前shell的系统资源限制。
 
 ```shell
 ulimit -a
-ulimit [-HS -cdfltu [N]]
+ulimit [-HS -cdflntu [N]]
 ```
 
 * -a：列出当前的所有限制。
@@ -1685,9 +1794,14 @@ ulimit [-HS -cdfltu [N]]
 * -f [N]：显示或设置单个文件大小限制，单位为K。
 * -H：严格的限制。
 * -l [N]：显示或设置可用于锁定的内存大小限制。
+* -n [N]：显示或设置打开的文件描述符数量限制。
 * -S：宽松的限制。
 * -t [N]：显示或设置CPU时间限制，单位为秒。
 * -u [N]：显示或设置进程数量限制。
+
+输出字段说明：
+
+* max user processes：最大用户进程/线程数量。
 
 ## uptime
 
@@ -1697,9 +1811,11 @@ ulimit [-HS -cdfltu [N]]
 uptime
 ```
 
+依次显示：当前的时间，系统开机至今的时长，当前登录的用户数，最近1/5/15分钟的平均工作负载（即在特定的时间间隔内队列中运行的平均进程数）。
+
 ## vmstat
 
-检测系统资源变化。
+查看系统资源状态。
 
 ```shell
 vmstat [interval [times]] [-a] [-S UNIT]
@@ -1724,8 +1840,8 @@ vmstat [interval [times]] -p PARTITIONDEV
 * memory：内存。
 	* swpd：已使用的内存交换空间，同free的Swap行used列。
 	* free：空闲的物理内存，同free的Mem行free列。
-	* buff：用于缓冲存储器，buff+cache同free的Mem行buff/cache列。
-	* cache：用于告诉缓存，buff+cache同free的Mem行buff/cache列。
+	* buff：缓存磁盘块设备的元数据，buff+cache同free的Mem行buff/cache列。
+	* cache：缓存读写文件的页，buff+cache同free的Mem行buff/cache列。
 * swap：内存交换空间。
 	* si：每秒从内存交换空间换入的数量。
 	* so：每秒换出至内存交换空间的数量。
@@ -1739,18 +1855,13 @@ vmstat [interval [times]] -p PARTITIONDEV
 
 # 网络
 
-## curl
+## ethtool
 
-发送HTTP请求。
+查看网络接口信息。
 
 ```shell
-curl URL
-curl URL -X METHOD -H HEADER -d BODY
+ethtool ETH
 ```
-
-* -d BODY：指定实体。同时默认-X为POST。
-* -H HEADER：指定首部。
-* -X METHOD：指定方法。默认为GET。
 
 ## firewall-cmd
 
@@ -1772,11 +1883,13 @@ firewall-cmd --list-ports
 
 ## ifconfig
 
-网卡配置。
+网络接口配置。
 
 ```shell
-ifconfig
+ifconfig [-a]
 ```
+
+* -a：显示所有的网络接口，即使其是未激活的。
 
 ## ip
 
@@ -1786,7 +1899,23 @@ ifconfig
 ip addr
 ```
 
-* addr：查看网卡地址信息。
+* addr：查看网络接口地址信息。
+
+# nc
+
+TCP/UDP网络工具。等同`netcat`。
+
+```shell
+nc -l -p PORT
+nc HOST PORT
+```
+
+* -l：服务器模式。不使用此参数则为客户端模式，会要求输入传输内容。
+* -p PORT：监听的端口。
+
+# netcat
+
+TCP/UDP网络工具。等同`nc`。
 
 ## netstat
 
@@ -1802,6 +1931,27 @@ netstat [-alnptu]
 * -p：列出进程信息。
 * -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
 * -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
+
+## mtr
+
+网络连通性测试工具。
+
+```shell
+mtr [-r] HOST
+```
+
+* -r：使用报告模式。
+
+## nmap
+
+端口扫描工具。
+
+```shell
+nmap [-Av[v]] HOST
+```
+
+* -A：启用操作系统探测和版本探测。
+* -v[v]：显示详细信息。
 
 ## ping
 
@@ -1825,6 +1975,74 @@ ss [-alnptu]
 * -p：列出进程信息。
 * -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
 * -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
+
+## tcpdump
+
+网络抓包工具。
+
+```shell
+tcpdump [-n -i ETH] FILTER
+```
+
+* -i ETH：指定网络接口。
+* -n：显示IP而不是主机名。
+
+FILTER过滤规则的示例如下：
+
+* host IP
+* dst IP and (port PORT1 or PORT2)
+* dst IP and tcp and port PORT
+
+## telnet
+
+使用TCP连接远程主机的端口。
+
+```shell
+telnet HOST PORT
+```
+
+## traceroute
+
+路由跟踪。
+
+```shell
+traceroute HOST
+```
+
+# HTTP
+
+## ab
+
+HTTP压力测试。
+
+```shell
+ab -c CONCURRENCY -n N URL
+ab -c CONCURRENCY -n N -T CONTENTTYPE -p BODYFILENAME URL
+```
+
+* -c CONCURRENCY：并发数。
+* -n N：请求总数。
+* -p BODYFILENAME：将文件内容指定为请求实体。只用于POST请求。
+* -T CONTENTTYPE：指定Content-Type首部。只用于POST请求。
+
+URL不可省略路径。
+
+## curl
+
+发送HTTP请求。
+
+```shell
+curl URL [-iILv]
+curl URL -X METHOD -H HEADER -d BODY [-iv]
+```
+
+* -d BODY：指定请求实体。同时默认-X为POST。
+* -H HEADER：指定请求首部。格式为“KEY: VALUE”。
+* -i：响应打印包含首部信息。
+* -I：提交HEAD请求，只返回首部信息。
+* -L：跟随HTTP重定向重新请求。
+* -X METHOD：指定请求方法。默认为GET。
+* -v：打印详细信息。
 
 ## wget
 
@@ -2133,6 +2351,19 @@ readelf -a FILENAME
 
 * -a：查看所有信息。
 
+## 进程调试
+
+## strace
+
+查看进程的系统调用。
+
+```shell
+strace COMMAND [ARG[ ...]]
+strace -p PID
+```
+
+* -p PID：指定进程ID。
+
 # 远程连接
 
 ## scp
@@ -2154,6 +2385,32 @@ ssh [-p PORT] USERNAME@HOST
 ```
 
 * -p PORT：指定远程SSH端口。
+
+# 计算
+
+## base64
+
+生成base64编码。
+
+```shell
+base64 FILENAME|STDIN
+```
+
+## md5sum
+
+生成md5摘要。
+
+```shell
+md5sum FILENAME|STDIN
+```
+
+## sha256sum
+
+生成sha256摘要。
+
+```shell
+sha256sum FILENAME|STDIN
+```
 
 # 变量
 
@@ -2253,6 +2510,14 @@ echo [-e] CONTENT[ ...]
 
 * -e：使用转义字符。
 
+## exit
+
+退出执行。
+
+```shell
+exit [CODE]
+```
+
 ## history
 
 查看历史执行命令。
@@ -2293,11 +2558,31 @@ FIRST和INCREMENT默认为1。返回序列的范围为[FIRST, LAST]。
 
 ```shell
 sh [-nvx] SCRIPTFILENAME
+sh [-nvx] -c SCRIPTSTR
 ```
 
+* -c SCRIPTSTR：执行字符中的脚本。
 * -n：不执行，只检查语法。
 * -v：执行时，先打印脚本内容。
 * -x：执行，并打印每一步使用的脚本。
+
+## shift
+
+将参数列表左移。
+
+```shell
+shift [N]
+```
+
+N默认为1。
+
+## sleep
+
+睡眠等待。
+
+```shell
+sleep SECONDS
+```
 
 ## source
 
@@ -2318,6 +2603,14 @@ tee [-a] FILENAME[ ...]
 ```
 
 * -a：以追加方式写入文件。
+
+## trap
+
+捕获信号后执行命令。
+
+```shell
+trap COMMAND SIGNAL
+```
 
 ## unalias
 

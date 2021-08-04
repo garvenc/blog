@@ -1,10 +1,10 @@
-本文更新于2021-04-30，使用Docker 19.03.12。
+本文更新于2021-07-19，使用Docker 19.03.12。
 
 [TOC]
 
 官方文档参阅：[https://docs.docker.com/engine/reference/builder/](https://docs.docker.com/engine/reference/builder/)
 
-Dockerfile所在的目录为构建上下文，Docker会在构建镜像时将构建上下文和该上下文中的文件和目录上传到Docker守护进程。如目录中存在文件.dockerignore，则匹配其中规则的文件将不会上传。
+Dockerfile所在的目录为构建上下文，Docker会在构建镜像时将构建上下文和该上下文中的文件和目录上传到Docker引擎。如目录中存在文件.dockerignore，则匹配其中规则的文件将不会上传。
 
 Dockerfile由一系列指令和参数构成，以“#”开头的行视为注释。Dockerfile会从上至下执行，每条指令都会创建一个新的镜像层并对镜像进行提交。
 
@@ -13,11 +13,11 @@ Dockerfile由一系列指令和参数构成，以“#”开头的行视为注释
 ```
 # Version: 0.0.1
 FROM ubuntu:14.04
-MAINTAINER James Turnbull "james@example.com"
+MAINTAINER GV "gv@example.com"
 ENV REFRESHED_AT 2014-07-01
-RUN apt-get update && apt-get install -y nginx
-RUN echo 'Hi, I am in your container' \
-	> /usr/share/nginx/html/index.html
+ADD ./index.html /usr/share/nginx/html/index.html
+RUN apt-get update && \
+	apt-get install -y nginx
 EXPOSE 80
 ```
 
