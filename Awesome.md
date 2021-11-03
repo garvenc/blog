@@ -1,4 +1,4 @@
-本文更新于2021-08-04。
+本文更新于2021-11-03。
 
 [TOC]
 
@@ -93,6 +93,7 @@
 * [Redis学习笔记：命令](https://www.cnblogs.com/garvenc/p/redis_learning_commands.html)
 * [Redis学习笔记：持久化](https://www.cnblogs.com/garvenc/p/redis_learning_persistence.html)
 * [Redis学习笔记：复制](https://www.cnblogs.com/garvenc/p/redis_learning_replicate.html)
+* [CentOS 7使用Redis Cluster](https://www.cnblogs.com/garvenc/p/use_redis_cluster_in_centos7.html)
 
 # Supervisor
 
