@@ -1,4 +1,4 @@
-本文更新于2021-07-19。
+本文更新于2021-10-12。
 
 [TOC]
 
@@ -1855,6 +1855,16 @@ vmstat [interval [times]] -p PARTITIONDEV
 
 # 网络
 
+## arp
+
+ARP工具。
+
+```shell
+arp
+```
+
+如不指定该选项，则查看ARP缓存。
+
 ## ethtool
 
 查看网络接口信息。
@@ -1901,7 +1911,7 @@ ip addr
 
 * addr：查看网络接口地址信息。
 
-# nc
+## nc
 
 TCP/UDP网络工具。等同`netcat`。
 
@@ -1913,7 +1923,7 @@ nc HOST PORT
 * -l：服务器模式。不使用此参数则为客户端模式，会要求输入传输内容。
 * -p PORT：监听的端口。
 
-# netcat
+## netcat
 
 TCP/UDP网络工具。等同`nc`。
 
@@ -1922,13 +1932,14 @@ TCP/UDP网络工具。等同`nc`。
 查看网络状态。
 
 ```shell
-netstat [-alnptu]
+netstat [-alnpstu]
 ```
 
 * -a：将所有连接、监听、套接字状态都列出。
 * -l：列出监听状态。
 * -n：列出端口号，不列出服务名。
 * -p：列出进程信息。
+* -s：列出每种协议的概要统计信息。
 * -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
 * -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
 
@@ -1961,18 +1972,29 @@ nmap [-Av[v]] HOST
 ping HOST
 ```
 
+## route
+
+IP路由表工具。
+
+```shell
+route [-n]
+```
+
+* -n：显示数值IP。默认显示主机名。
+
 ## ss
 
 查看网络状态。RHEL系列使用其替代`netstat`。
 
 ```shell
-ss [-alnptu]
+ss [-alnpstu]
 ```
 
 * -a：将所有连接、监听、套接字状态都列出。
 * -l：列出监听状态。
 * -n：列出端口号，不列出服务名。
 * -p：列出进程信息。
+* -s：列出概要统计信息。
 * -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
 * -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
 
@@ -1981,11 +2003,12 @@ ss [-alnptu]
 网络抓包工具。
 
 ```shell
-tcpdump [-n -i ETH] FILTER
+tcpdump [-n -i ETH -w FILENAME] [FILTER]
 ```
 
 * -i ETH：指定网络接口。
 * -n：显示IP而不是主机名。
+* -w FILENAME：数据包写入的文件名。
 
 FILTER过滤规则的示例如下：
 
@@ -2173,11 +2196,12 @@ apt-get clean
 apt-get install APTPACKAGE
 apt-get purge APTPACKAGE
 apt-get remove APTPACKAGE [--purge]
-apt-get update
+apt-get update [--allow-releaseinfo-change]
 apt-get upgrade
 ```
 
 * --purge：如使用该参数，则同时删除配置文件，否则不删除。
+* --allow-releaseinfo-change：如`apt-get update`提示类似“N: Repository 'http://deb.debian.org/debian buster InRelease' changed its 'Suite' value from 'stable' to 'oldstable'”的错误，使用此选项来允许发布信息的改变。
 
 子命令：
 

@@ -1,4 +1,4 @@
-本文更新于2021-01-31，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2021-07-10，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
@@ -156,12 +156,22 @@ INCRBYFLOAT str increment
 设置字符串。
 
 ```
-SET str value
+SET str value [EX seconds|PX milliseconds] [NX|XX]
 ```
+
+`NX`为只当键不存在时设置，`XX`为只当键存在时设置。
 
 成功返回：
 
 > OK
+
+当使用`NX`时键不存在，或当使用`XX`时键已存在，则返回：
+
+> OK
+
+当使用`NX`时键已存在，或当使用`XX`时键不存在，则返回：
+
+> (nil)
 
 ## SETBIT
 
@@ -859,7 +869,7 @@ zset参数可使用集合，被当作分值为1的有序集合。AGGREGATE默认
 
 ## HDEL
 
-删除散列的键。
+删除散列的键，如散列所有键都被删除则散列也会被删除。
 
 ```
 HDEL hash field [...]
@@ -1023,7 +1033,7 @@ HVALS hash
 
 > (empty array)
 
-# 删除
+# 键
 
 ## DEL
 
@@ -1034,6 +1044,18 @@ DEL key [...]
 ```
 
 返回删除的键数量，如键不存在则不计入个数：
+
+> (integer) 1
+
+## EXISTS
+
+检查键是否存在，可用于所有类型。
+
+```
+EXISTS key [...]
+```
+
+返回存在的键数量：
 
 > (integer) 1
 

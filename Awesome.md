@@ -1,4 +1,4 @@
-本文更新于2021-11-03。
+本文更新于2021-11-11。
 
 [TOC]
 
@@ -74,10 +74,6 @@
 * [MySQL学习笔记（30）：高可用架构](https://www.cnblogs.com/garvenc/p/mysql_learning_30_high_availability_architecture.html)
 * [MySQL学习笔记（31）：监控](https://www.cnblogs.com/garvenc/p/mysql_learning_31_monitor.html)
 
-# Network
-
-* [Linux屏蔽国外IP](https://www.cnblogs.com/garvenc/p/shield_foreign_ip_for_linux.html)
-
 # Nginx
 
 * [Nginx学习笔记：安装、运行](https://www.cnblogs.com/garvenc/p/nginx_install_run_configure.html)
@@ -98,3 +94,7 @@
 # Supervisor
 
 * [Supervisor安装、配置](https://www.cnblogs.com/garvenc/p/supervisor_install_configure.html)
+
+# 网络
+
+* [Linux屏蔽国外IP](https://www.cnblogs.com/garvenc/p/shield_foreign_ip_for_linux.html)

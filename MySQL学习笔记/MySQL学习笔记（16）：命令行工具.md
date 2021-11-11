@@ -1,4 +1,4 @@
-本文更新于2021-05-09，使用MySQL 5.7，操作系统为Deepin 15.4。
+本文更新于2021-08-05，使用MySQL 5.7，操作系统为Deepin 15.4。
 
 [TOC]
 
@@ -173,6 +173,7 @@ options选项如下：
 	* -t, --no-create-info：不包含`CREATE TABLE`。
 	* --add-drop-database：在每个`CREATE DATABASE`前加上`DROP DATABASE`。默认加上此选项。
 	* --add-drop-table：在每个`CREATE TABLE`前加上`DROP TABLE`。默认加上此选项。
+	* --skip-add-drop-table：不在每个`CREATE TABLE`前加上`DROP TABLE`。
 	* --triggers：包含触发器。默认加上此选项。
 * 输出格式选项
 	* -c, --complete-insert：使输出的`INSERT`语句中包含字段名。

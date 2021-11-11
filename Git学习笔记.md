@@ -1,4 +1,4 @@
-本文更新于2021-07-31，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2021-11-03，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -21,15 +21,15 @@ Workspace    Index/Stage    Repository      Remote
    |              |             |             |
    |     add      |   commit    |    push     |
    |------------->|------------>|------------>|
-   |           checkout         | fetch/clone |
+   |           checkout         |    fetch    |
    |<---------------------------|<------------|
    |                   pull                   |
-   |<-----------------------------------------|
+   |<---------------------------|-------------|
 ```
 
 * 工作区（Workspace）：计算机中看到的目录，持有实际文件。工作区下每个文件都处于以下两种状态之一：
 	* 已跟踪：被纳入了版本控制的文件，在上一次快照中有它们的记录，在工作一段时间后，它们的状态可能处于未修改、已修改、已暂存、已提交。
-	* 未跟踪：除已跟踪文件以外的所有其它文件都属于未跟踪文件，它们既不存在于上次快照的记录中，也没有放入暂存区（Staging Area）。
+	* 未跟踪：除已跟踪文件以外的所有其它文件都属于未跟踪文件，它们既不存在于上次快照的记录中，也没有放入暂存区。
 * 暂存区（Index/Stage）：临时保存改动。
 * 版本库（Repository）：工作区目录下的.git目录。
 * 远程仓库（Remote）：托管在远程计算机上的版本库，可供多人分布式开发。
@@ -54,10 +54,10 @@ Windows配置文件读取顺序：
 配置忽略跟踪的文件列表。
 
 * 以#开头的行是注释。
-* 使用glob模式匹配的文件或目录，均忽略跟踪。匹配的为工作区中的相对路径，可以/开头或以/结尾。
+* 使用glob模式匹配的文件或目录，均忽略跟踪。可以/开头或以/结尾。工作区所在目录作为根目录。
 	* *匹配零个或多个任意字符。
-	* [abc]匹配列表中任意一个字符。
 	* ?匹配任意一个字符。
+	* [abc]匹配列表中任意一个字符。
 	* [a-z]匹配范围内任意一个字符。
 	* **匹配任意中间目录。
 * 在模式前加!，可强制跟踪该模式，即使该模式被其他模式指定为忽略跟踪。但如已忽略跟踪该模式的父目录，则使用!也不能强制跟踪。
@@ -179,6 +179,36 @@ git blame [-C] [-L STARTLINE,ENDLINE] NAME[ ...]
 
 ## git branch
 
+创建分支。不会切换到新分支：
+
+```shell
+git branch BRANCH [COMMIT]
+```
+
+删除分支：
+
+```shell
+git branch -d BRANCH
+```
+
+强制删除分支。如果分支包含未合并的提交，则会将其丢弃：
+
+```shell
+git branch -D BRANCH
+```
+
+删除远程分支：
+
+```shell
+git branch -dr REMOTE/BRANCH
+```
+
+设置本地分支跟踪的远程分支。当设置好跟踪分支后，可以通过`@{upstream}`或`@{u}`快捷方式来引用它：
+
+```shell
+git branch -u|--set-upstream [BRANCH] REMOTE/BRANCH
+```
+
 查看所有本地分支。使用-v参数可查看每一个分支的最后一次提交。使用-vv参数可查看所有跟踪分支：
 
 ```shell
@@ -211,53 +241,11 @@ git branch --merged
 git branch --no-merged
 ```
 
-创建分支。不会切换到新分支：
-
-```shell
-git branch BRANCH [COMMIT]
-```
-
-删除分支：
-
-```shell
-git branch -d BRANCH
-```
-
-强制删除分支。如果分支包含未合并的提交，则会将其丢弃：
-
-```shell
-git branch -D BRANCH
-```
-
-删除远程分支：
-
-```shell
-git branch -dr REMOTE/BRANCH
-```
-
-设置本地分支跟踪的远程分支。当设置好跟踪分支后，可以通过`@{upstream}`或`@{u}`快捷方式来引用它：
-
-```shell
-git branch -u|--set-upstream [BRANCH] REMOTE/BRANCH
-```
-
 ## git bundle
 
 打包提交。
 
 ## git checkout
-
-检出暂存区的文件至工作区：
-
-```shell
-git checkout [--] FILE[ ...]
-```
-
-检出某次提交的文件至工作区：
-
-```shell
-git checkout COMMIT FILE[ ...]
-```
 
 将HEAD、暂存区和工作区切换至指定的提交：
 
@@ -280,13 +268,7 @@ git checkout -
 创建并切换分支：
 
 ```shell
-git checkout -b BRANCH
-```
-
-在指定的提交上创建分支：
-
-```shell
-git checkout -b BRANCH COMMIT
+git checkout -b BRANCH [COMMIT]
 ```
 
 交互式检出文件：
@@ -311,6 +293,18 @@ git checkout --ours FILENAME
 
 ```shell
 git checkout --theirs FILENAME
+```
+
+检出暂存区的文件至工作区：
+
+```shell
+git checkout [--] FILE[ ...]
+```
+
+检出某次提交的文件至工作区：
+
+```shell
+git checkout COMMIT FILE[ ...]
 ```
 
 ## git cherry-pick
@@ -387,15 +381,17 @@ git config -e [--global]
 ```shell
 git config [--global] alias.ALIAS SOURCE
 git config [--global] core.autocrlf true|input|false
-git config --bool core.bare true
+git config --bool core.bare true|false
 git config [--global] core.editor EDITOR
-git config [--global] core.quotepath false
+git config [--global] core.quotepath true|false
 git config [--global] credential.helper cache|store|osxkeychain
 git config --system --unset credential.helper
 git config [--global] gui.encoding ENCODING
+git config [--global] http.sslVerify true|false
 git config [--global] merge.conflictstyle merge|diff3
 git config [--global] merge.tool MERGETOOL
-git config [--global] pull.rebase true
+git config [--global] mergetool.MERGETOOL.path PATH
+git config [--global] pull.rebase true|false
 git config [--global] user.email EMAIL
 git config [--global] user.name NAME
 ```
@@ -407,6 +403,7 @@ git config [--global] user.name NAME
 * core.quotepath：是否将文件路径中0x80以上的字符转义为八进制。
 * credential.helper：凭证存储方式。cache为保存在内存中，可附加参数--timeout SECONDS；store为明文保存在磁盘中，可附加参数--file FILENAME；osxkeychain在Mac下使用，密文保存在磁盘中。如需清除之前保持的凭证（例如：提示“You are not allowed to push code to this project.”），则使用--system --unset。
 * gui.encoding：GUI中的字符编码，如：utf-8。
+* http.sslVerify：当使用HTTPS从远程仓库推送或拉取时是否使用SSL证书验证。当提示“OpenSSL SSL_read: Connection was reset, errno 10054”时可能需设置为false。
 * merge.conflictstyle：合并冲突时冲突的样式。merge有ours、theirs的数据，diff3有ours、theirs、base的数据。
 * merge.tool：合并冲突的工具，如：kdiff3。需同时指定mergetool.MERGETOOL.path。
 * mergetool.MERGETOOL.path：合并冲突的工具的可执行文件路径。MERGETOOL需与merge.tool指定的值相同。
@@ -445,6 +442,12 @@ git commit -m MSG
 git commit --amend
 ```
 
+提交时跳过pre-commit和commit-msg的钩子：
+
+```shell
+git commit --no-verify
+```
+
 提交时显示差异信息：
 
 ```shell
@@ -457,10 +460,10 @@ git commit -v
 
 ## git diff
 
-比较工作区相对于暂存区的差异，使用-b在比较时忽略空白符的差异：
+比较工作区相对于暂存区的差异：
 
 ```shell
-git diff [-b]
+git diff
 ```
 
 比较暂存区相对于已提交的差异：
@@ -473,6 +476,18 @@ git diff --staged|--cached
 
 ```shell
 git diff COMMIT1 COMMIT2
+```
+
+比较时忽略空白符的差异：
+
+```shell
+git diff -b
+```
+
+比较时只列出有差异的文件名：
+
+```shell
+git diff --name-only
 ```
 
 比较合并的结果与当前分支原来的差异：
@@ -498,7 +513,7 @@ git diff --base
 从远程仓库拉取。不会自动合并分支：
 
 ```shell
-git fetch [REMOTE]
+git fetch [REMOTE REMOTEBRANCH]
 ```
 
 拉取所有远程仓库：
@@ -546,7 +561,7 @@ git gui
 
 ```shell
 git help VERB
-git BERB --help
+git VERB --help
 man git-VERB
 ```
 
@@ -641,13 +656,13 @@ git ls-remote [REMOTE]
 
 ## git merge
 
-合并分支。将分支合并到当前分支：
+将提交合并到当前分支：
 
 ```shell
 git merge COMMIT
 ```
 
-合并分支。将分支合并到当前分支，总是创建一个提交而不使用快进（fast-forward）：
+将提交合并到当前分支，总是创建一个提交而不使用快进（fast-forward）：
 
 ```shell
 git merge --no-ff COMMIT
@@ -873,30 +888,28 @@ git remote rm REMOTE
 
 ## git reset
 
-注意，此处的HEAD是HEAD指针而不是自定义变量。
-
 恢复暂存区，但不改变工作区，相当于回滚`git add`：
 
 ```shell
 git reset [NAME]
 ```
 
-将HEAD恢复至指定的提交，但不改变暂存区和工作区，相当于回滚`git commit`：
+将HEAD指针、当前分支恢复至指定的提交，但不改变暂存区和工作区，相当于回滚`git commit`：
 
 ```shell
-git reset --soft [COMMIT] [NAME]
+git reset --soft COMMIT [NAME]
 ```
 
-将HEAD和暂存区恢复至指定的提交，但不改变工作区，相当于回滚`git add`和`git commit`：
+将HEAD指针、当前分支、暂存区恢复至指定的提交，但不改变工作区，相当于回滚`git add`和`git commit`：
 
 ```shell
-git reset [--mixed] [COMMIT] [NAME]
+git reset [--mixed] COMMIT [NAME]
 ```
 
-将HEAD、暂存区和工作区恢复到指定的提交，如工作区有未提交的内容则会丢失：
+将HEAD指针、当前分支、暂存区、工作区恢复到指定的提交，如工作区有未提交的内容则会丢失：
 
 ```shell
-git reset --hard [COMMIT] [NAME]
+git reset --hard COMMIT [NAME]
 ```
 
 交互式恢复：
@@ -954,7 +967,7 @@ git show [COMMIT]
 查看提交的简略统计信息：
 
 ```shell
-git show [--stat] [COMMIT]
+git show --stat [COMMIT]
 ```
 
 查看提交中发生变化的文件：
@@ -993,6 +1006,12 @@ git stash push [-m MSG]
 git stash list
 ```
 
+应用栈顶的储藏后移除该储藏。可以在一个不干净的工作区，或其它分支上应用储藏，但可能产生合并冲突：
+
+```shell
+git stash pop [--index]
+```
+
 应用储藏，如不指定储藏标记，则默认应用最近的储藏。可以在一个不干净的工作区，或其它分支上应用储藏，但可能产生合并冲突：
 
 ```shell
@@ -1005,12 +1024,6 @@ git stash apply [--index] [stash@{N}]
 
 ```shell
 git stash drop stash@{N}
-```
-
-应用栈顶的储藏后移除该储藏。可以在一个不干净的工作区，或其它分支上应用储藏，但可能产生合并冲突：
-
-```shell
-git stash pop [--index]
 ```
 
 从储藏创建分支：

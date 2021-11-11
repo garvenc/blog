@@ -1,4 +1,4 @@
-本文更新于2020-05-04。
+本文更新于2021-08-04。
 
 [TOC]
 
@@ -11,7 +11,7 @@
 以Deepin 15.9下安装MySQL 5.7为例。
 
 ```shell
-apt-get install mysql-server
+sudo apt-get install mysql-server
 ```
 
 安装过程无初始化MySQL的root密码提示。登录可采用如下方法之一：
@@ -28,36 +28,51 @@ IDENTIFIED WITH mysql_native_password BY 'password'
 
 注意，如此修改root@localhost的密码后，`mysql.user`表中的`plugin`将从`auth_socket`变为`mysql_native_password`，此后能使用密码登录，但不能再用操作系统root用户直接使用`mysql`免密登录。修改debian-sys-maint@localhost的密码同理。
 
-## 使用dpkg安装
-
-以Debian 8.6下安装MySQL 5.7为例。
-
-因默认的apt仓库将MySQL相关的包移除，需要自己去官网下载，以及下载相关的依赖包。
-
-因包之间的依赖关系，各`dpkg`命令必须按序执行。
+## 在Debian 8.6下安装
 
 在安装mysql-community-server时，会提示初始化MySQL的root密码。
 
 ```shell
-wget https://cdn.mysql.com//Downloads/MySQL-5.7/mysql-server_5.7.19-1debian8_amd64.deb-bundle.tar
 wget http://ftp.br.debian.org/debian/pool/main/liba/libaio/libaio1_0.3.110-1_amd64.deb
 wget http://ftp.br.debian.org/debian/pool/main/m/mecab/libmecab2_0.996-1.1_amd64.deb
 wget http://ftp.br.debian.org/debian/pool/main/n/numactl/libnuma1_2.0.10-1_amd64.deb
+wget https://cdn.mysql.com//Downloads/MySQL-5.7/mysql-server_5.7.19-1debian8_amd64.deb-bundle.tar
 
-dpkg -i libaio1_0.3.110-1_amd64.deb
-dpkg -i libmecab2_0.996-1.1_amd64.deb
-dpkg -i libnuma1_2.0.10-1_amd64.deb
+sudo dpkg -i libaio1_0.3.110-1_amd64.deb
+sudo dpkg -i libmecab2_0.996-1.1_amd64.deb
+sudo dpkg -i libnuma1_2.0.10-1_amd64.deb
 
 mkdir mysql
 tar -xv -C mysql -f mysql-server_5.7.19-1debian8_amd64.deb-bundle.tar
 cd mysql
-dpkg -i mysql-common_5.7.19-1debian8_amd64.deb
-dpkg -i mysql-community-client_5.7.19-1debian8_amd64.deb
-dpkg -i mysql-client_5.7.19-1debian8_amd64.deb
-dpkg -i mysql-community-server_5.7.19-1debian8_amd64.deb
+sudo dpkg -i mysql-common_5.7.19-1debian8_amd64.deb
+sudo dpkg -i mysql-community-client_5.7.19-1debian8_amd64.deb
+sudo dpkg -i mysql-client_5.7.19-1debian8_amd64.deb
+sudo dpkg -i mysql-community-server_5.7.19-1debian8_amd64.deb
 ```
 
-## 使用rpm安装
+## 在Debian 10下安装
+
+在安装mysql-community-server时，会提示初始化MySQL的root密码。
+
+```shell
+wget http://ftp.br.debian.org/debian/pool/main/p/psmisc/psmisc_23.2-1_amd64.deb
+wget http://ftp.br.debian.org/debian/pool/main/m/mecab/libmecab2_0.996-1.1_amd64.deb
+wget https://cdn.mysql.com//Downloads/MySQL-5.7/mysql-server_5.7.35-1debian10_amd64.deb-bundle.tar
+
+sudo dpkg -i psmisc_23.2-1_amd64.deb
+sudo dpkg -i libmecab2_0.996-1.1_amd64.deb
+
+mkdir mysql
+tar -xv -C mysql -f mysql-server_5.7.35-1debian10_amd64.deb-bundle.tar
+cd mysql
+sudo dpkg -i mysql-common_5.7.35-1debian10_amd64.deb
+sudo dpkg -i mysql-community-client_5.7.35-1debian10_amd64.deb
+sudo dpkg -i mysql-client_5.7.35-1debian10_amd64.deb
+sudo dpkg -i mysql-community-server_5.7.35-1debian10_amd64.deb
+```
+
+## 在CentOS 7.5下安装
 
 以CentOS 7.5下安装MySQL 8.0为例。
 
@@ -78,7 +93,7 @@ yum服务器上移除了MySQL相关的软件包。CentOS7默认安装MariaDB相�
 1. 移除已安装的MariaDB相关yum包，包名需根据`yum list`命令的结果判断。
 
 	```shell
-	yum remove mariadb-libs
+	sudo yum remove mariadb-libs
 	```
 
 ### 安装MySQL
@@ -93,10 +108,10 @@ wget https://cdn.mysql.com//Downloads/MySQL-8.0/mysql-8.0.11-1.el7.x86_64.rpm-bu
 mkdir mysql
 tar -xv -C mysql -f mysql-8.0.11-1.el7.x86_64.rpm-bundle.tar
 cd mysql
-rpm -ivh mysql-community-common-8.0.11-1.el7.x86_64.rpm
-rpm -ivh mysql-community-libs-8.0.11-1.el7.x86_64.rpm
-rpm -ivh mysql-community-client-8.0.11-1.el7.x86_64.rpm
-rpm -ivh mysql-community-server-8.0.11-1.el7.x86_64.rpm
+sudo rpm -ivh mysql-community-common-8.0.11-1.el7.x86_64.rpm
+sudo rpm -ivh mysql-community-libs-8.0.11-1.el7.x86_64.rpm
+sudo rpm -ivh mysql-community-client-8.0.11-1.el7.x86_64.rpm
+sudo rpm -ivh mysql-community-server-8.0.11-1.el7.x86_64.rpm
 ```
 
 ### 初始化密码
@@ -104,7 +119,7 @@ rpm -ivh mysql-community-server-8.0.11-1.el7.x86_64.rpm
 1. 启动MySQL服务，第一次启动时会初始化数据目录`/var/lib/mysql`。
 
 	```shell
-	service mysqld start
+	sudo service mysqld start
 	```
 1. 使用初始化后root@localhost的临时密码登录，临时密码记录在`/var/log/mysql.log`，其中有一行：“A temporary password is generated for root@localhost:”。
 1. 修改root@localhost的密码，密码必须足够复杂，如包含大写、小写、数字、符号。

@@ -1,4 +1,4 @@
-本文更新于2021-02-19，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2021-11-02，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
@@ -14,7 +14,7 @@ make
 sudo make install
 ```
 
-执行`make`后，可执行文件编译于redis-6.0.8/src中。官方文档无`sudo make install`，执行后会将可执行文件拷贝至/usr/local/bin目录下，用户为root，用户组为staff。可执行文件包括：
+执行`make`后，可执行文件编译于redis-6.0.8/src中。官方文档无`sudo make install`这一步，其执行后会将可执行文件拷贝至/usr/local/bin目录下，用户为root，用户组为staff。可执行文件包括：
 
 * redis-benchmark：性能测试。
 * redis-check-aof：检查AOF文件。
@@ -22,6 +22,10 @@ sudo make install
 * redis-cli：客户端。
 * redis-sentinel：哨兵。
 * redis-server：服务器。
+
+另外，redis-6.0.8/src下还有以下可执行文件，不会被`sudo make install`拷贝至/usr/local/bin目录下：
+
+* redis-trib.rb：Cluster集群管理。
 
 # 配置
 
@@ -110,3 +114,7 @@ OPTIONS可为：
 ```shell
 redis-server
 ```
+
+## redis-trib.rb
+
+Cluster集群管理。
