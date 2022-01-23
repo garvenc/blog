@@ -1,4 +1,4 @@
-本文更新于2021-11-11。
+本文更新于2021-11-20。
 
 [TOC]
 
@@ -23,11 +23,6 @@
 * [Linux安装Go](https://www.cnblogs.com/garvenc/p/linux_install_go.html)
 * [Go文档：Command go](https://www.cnblogs.com/garvenc/p/go_document_command_go.html)
 * [Go使用protobuf](https://www.cnblogs.com/garvenc/p/use_protobuf_in_go.html)
-
-# IDE/Editor
-
-* [LiteIDE灰调配色方案](https://www.cnblogs.com/garvenc/p/liteide_gv-gray.html)
-* [VSCode自定义配色方案](https://www.cnblogs.com/garvenc/p/vscode_customize_color_theme.html)
 
 # JavaScript
 
@@ -94,6 +89,11 @@
 # Supervisor
 
 * [Supervisor安装、配置](https://www.cnblogs.com/garvenc/p/supervisor_install_configure.html)
+
+# IDE/编辑器
+
+* [LiteIDE灰调配色方案](https://www.cnblogs.com/garvenc/p/liteide_gv-gray.html)
+* [VSCode自定义配色方案](https://www.cnblogs.com/garvenc/p/vscode_customize_color_theme.html)
 
 # 网络
 

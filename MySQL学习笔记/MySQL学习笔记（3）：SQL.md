@@ -1,4 +1,4 @@
-本文章更新于2020-06-14，使用MySQL 5.7，操作系统为Deepin 15.9。
+本文章更新于2022-01-04，使用MySQL 5.7，操作系统为Deepin 15.9。
 
 [TOC]
 
@@ -114,6 +114,21 @@ CHANGE [COLUMN] oldcolname newcolname type [CHARSET [=] charset] [COLLATE [=] co
 ```sql
 ALTER TABLE tablename
 DROP [COLUMN] colname
+```
+
+添加外键：
+
+```sql
+ALTER TABLE tablename
+ADD CONSTRAINT fkname FOREIGN KEY (colname[, ...])
+REFERENCES tablename2(colname2[, ...]) [ON DELETE reference_option] [ON UPDATE reference_option]
+```
+
+删除外键：
+
+```sql
+ALTER TABLE tablename
+DROP FOREIGN KEY fkname;
 ```
 
 修改表名：

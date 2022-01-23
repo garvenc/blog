@@ -1,4 +1,4 @@
-本文更新于2021-11-02，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2021-12-04，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
@@ -101,7 +101,9 @@ OPTIONS可为：
 
 * -h HOST：指定服务器主机。默认为localhost。
 * -p PORT：指定服务器端口。默认为6379。
+* --eval LUAFILENAME [LUAKEY <...> [, LUAARGV [...]]]：执行Lua脚本文件。LUAKEY为脚本中使用到的键，依次以`KEYS[1]`等形式使用。LUAARGV为脚本中使用到的附加参数，依次以`ARGV[1]`等形式使用。脚本中可使用`VALUE = redis.call(COMMAND, KEYS[1] <...>)`或`VALUE = redis.pcall(COMMAND, KEYS[1] <...>)`的形式调用命令。
 * --help：打印帮助信息。
+* --ldb：开启Lua脚本的调试。与--eval一起使用。
 
 ## redis-sentinel
 

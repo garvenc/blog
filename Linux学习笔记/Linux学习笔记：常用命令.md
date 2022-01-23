@@ -1,4 +1,4 @@
-本文更新于2021-10-12。
+本文更新于2022-01-22
 
 [TOC]
 
@@ -38,9 +38,18 @@ blkid
 
 ```
 blockdev --report
+blockdev --setra N DEVICE
 ```
 
-* --report：查看块设备设置。
+* --report：查看块设备设置。显示结果各列的含义如下：
+	* RO
+	* RA：预读的扇区数量。
+	* SSZ
+	* BSZ
+	* StartSec
+	* Size：字节大小。
+	* Device：设备名。
+* --setra N：设置预读的扇区数量。
 
 ## df
 
@@ -59,6 +68,16 @@ df [-ahHikmT] [NAME]
 * -T：同时列出文件系统类型，如ext3。
 
 如指定文件或目录名，则列出其所在的文件系统；否则，列出所有文件系统。
+
+显示结果各列的含义如下：
+
+* Filesystem：使用的文件系统设备。
+* 1K-blocks：大小为1K的块的数量。
+* Size：总大小。
+* Used：已用大小。
+* Available：可用大小。
+* Use%：使用率。
+* Mounted on：挂载点目录名。
 
 ## du
 
@@ -230,7 +249,7 @@ cp [-adfprR] SRC[ ...] DST
 修改文件/目录的用户组。
 
 ```shell
-chgrp [-R] GROUP NAME[ ...]
+chgrp [-R] GROUP NAMEGLOB[ ...]
 ```
 
 * -R：递归更改子目录和文件。
@@ -240,7 +259,7 @@ chgrp [-R] GROUP NAME[ ...]
 修改文件/目录的权限。
 
 ```shell
-chmod [-R] MODE NAME[ ...]
+chmod [-R] MODE NAMEGLOB[ ...]
 ```
 
 * -R：递归更改子目录和文件。
@@ -255,7 +274,7 @@ MODE可取如下形式：
 修改文件/目录的所有者。
 
 ```shell
-chown [-R] [GROUP:]OWNER NAME[ ...]
+chown [-R] [GROUP:]OWNER NAMEGLOB[ ...]
 ```
 
 * -R：递归更改子目录和文件。
@@ -299,7 +318,7 @@ DST为新建的文件。
 查看文件/目录。
 
 ```shell
-ls [-aAdFhlrRSt --full-time --time={atime|ctime}] [NAME]
+ls [-aAdFhlrRSt --full-time --time={atime|ctime}] [NAMEGLOB]
 ```
 
 * -a：列出全部文件，包括隐藏文件。
@@ -320,7 +339,7 @@ ls [-aAdFhlrRSt --full-time --time={atime|ctime}] [NAME]
 新建目录。
 
 ```shell
-mkdir [-mp] DIR
+mkdir [-mp] DIR[ ...]
 ```
 
 * -m：指定目录的权限，会忽略umask的值。
@@ -351,7 +370,7 @@ pwd
 删除文件/目录。
 
 ```shell
-rm [-frR] NAME
+rm [-frR] NAMEGLOB
 ```
 
 * -f：强制删除。
@@ -1525,18 +1544,17 @@ service SERVICE stop
 
 ## systemctl
 
-systemd系统和服务管理。
+systemd系统服务管理。
 
 单元文件存放目录按优先级从高至低为：`/etc/systemd/system/`（系统管理员安装的单元）、`/usr/lib/systemd/system/`或`/lib/systemd/system/`（软件包安装的单元）。
 
 ```shell
-systemctl [--failed]
 systemctl enable UNIT
 systemctl daemon-reload
 systemctl disable UNIT
 systemctl is-enabled UNIT
 systemctl list-unit-files
-systemctl list-units
+systemctl [list-units] [--all --failed --state STATE[,...] --type TYPE]
 systemctl mask UNIT
 systemctl reload UNIT
 systemctl restart UNIT
@@ -1546,8 +1564,6 @@ systemctl stop UNIT
 systemctl umask UNIT
 ```
 
-* --failed：查看执行失败的单元。如不指定该选项，则查看所有激活的单元，即等效于`systemctl list-units`。
-
 子命令：
 
 * enable：设置单元开机自动启动。
@@ -1555,7 +1571,7 @@ systemctl umask UNIT
 * disable：取消单元开机自动启动。
 * is-enabled：查看单元是否未开机自动启动。
 * list-unit-files：查看所有已安装单元。
-* list-units：查看所有激活的单元。
+* list-units：查看单元。默认子命令。
 * mask：禁用单元。禁用后，也不能间接启动。
 * reload：重新加载单元配置。
 * restart：重启单元。
@@ -1563,6 +1579,11 @@ systemctl umask UNIT
 * status：查看单元状态。如不指定单元，则以树形查看单元。
 * stop：停止单元。
 * umask：取消禁用单元。
+
+* --all：查看所有单元。
+* --failed：查看执行失败的单元。
+* --state STATE[,...]：查看指定状态的单元：可为active、failed、running、enabled。
+* --type TYPE：查看指定类型的单元。可为service。
 
 # 系统信息
 
@@ -1916,12 +1937,15 @@ ip addr
 TCP/UDP网络工具。等同`netcat`。
 
 ```shell
-nc -l -p PORT
-nc HOST PORT
+nc -l [-tuv] -p PORT
+nc [-tuv] HOST PORT
 ```
 
 * -l：服务器模式。不使用此参数则为客户端模式，会要求输入传输内容。
 * -p PORT：监听的端口。
+* -t：使用TCP。如不指定-t和-u，则默认为TCP。
+* -u：使用UDP。如不指定-t和-u，则默认为TCP。
+* -v：显示详细信息。更详细的信息可使用-vv。
 
 ## netcat
 
