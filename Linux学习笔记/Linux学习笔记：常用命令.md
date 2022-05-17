@@ -1,4 +1,4 @@
-本文更新于2022-01-22
+本文更新于2022-04-25
 
 [TOC]
 
@@ -462,6 +462,14 @@ touch [-acmt] FILENAME
 * -m：仅修改mtime。
 * -t：指定时间，格式为[[CC]YY]MMDDhhmm[.ss]。
 
+## tree
+
+查看目录的树结构。
+
+```shell
+tree [DIR]
+```
+
 ## umask
 
 显示或设置权限掩码。umask实际上是shell内置的命令。
@@ -600,10 +608,12 @@ head [-n COUNT] FILENAME[ ...]|STDIN
 可翻页显示。
 
 ```shell
-less FILENAME[ ...]|STDIN
+less [+F] FILENAME[ ...]|STDIN
 ```
 
 只可使用管道输入时使用STDIN。
+
+* +F：持续检测文件。按Ctrl+C退出持续检测。
 
 在显示界面，可输入如下命令：
 
@@ -613,6 +623,7 @@ less FILENAME[ ...]|STDIN
 * Space键：下翻一页。
 * /str：向下查询str。
 * ?str：向上查询str。
+* F：持续检测文件。按Ctrl+C退出持续检测。
 * n：重复前一个查询。
 * N：反向重复前一个查询。
 * q：离开。
@@ -775,7 +786,7 @@ diff [-bBi] FROMNAME TONAME
 查找匹配字符串的行。
 
 ```shell
-grep [-acEinrsv -A N -B N -C N --color] 'REGEXP' {FILENAME|DIR}[ ...]|STDIN
+grep [-acEinrsv -A N -B N -C N --color] REGEXP {FILENAME|DIR}[ ...]|STDIN
 ```
 
 * -N：同时显示匹配行的前后N行。N为数字。
@@ -1029,8 +1040,7 @@ tar -x [-j|-z -v] -f FILENAME [-C DIR]
 解压缩zip文件。
 
 ```shell
-unzip -l FILENAME
-unzip FILENAME
+unzip [-l] FILENAME
 ```
 
 * -l：查看压缩包中文件。
@@ -1219,21 +1229,21 @@ usermod [-aLU -g GROUPNAME -G GROUPNAME[,...] -l NEWUSERNAME] USERNAME
 
 ## visudo
 
-修改/etc/sudoers。
+修改/etc/sudoers配置。
 
 ```shell
 visudo
 ```
 
-/etc/sudoers使用制表符分隔各字段：
+/etc/sudoers使用空白分隔各字段，格式如下：
 
-> 用户名或组名	主机名=(可切换的用户名)	命令的绝对路径及其参数正则表达式
+> 用户名或组名    主机名=(可切换的用户名)    命令的绝对路径及其参数正则表达式
 
 * 每个字段都可使用ALL表示所有。
 * 组名需在前面加"%"。
-* 命令前加"NOPASSWD: "可免去输入密码。
+* 命令前加"NOPASSWD:"（其后可带空格）可对所有命令免去输入密码。
 * 命令前加"!"表示不可执行。
-* 多条命令使用", "分隔。
+* 多条命令使用","（其后可带空格）分隔。
 * 可使用"\\"来输入多行。
 
 需按Ctrl+O然后按Enter保存，按Ctrl+X退出。
@@ -1252,6 +1262,14 @@ w
 
 ```shell
 who
+```
+
+## whoami
+
+打印当前用户名。
+
+```shell
+whoami
 ```
 
 # 工作
@@ -1765,13 +1783,13 @@ mpstat [-P ALL]
 系统性能分析工具。
 
 ```shell
-sar -n NET INTERVAL COUNT
+sar [-Abdruvw -n NET] INTERVAL [COUNT]
 ```
 
 * -A：所有报告的汇总。
 * -b：报告缓冲区使用情况。
 * -d：报告磁盘使用状态。
-* -n NET：报告网络状态。NET可为ALL。
+* -n NET：报告网络状态。NET取值：ALL为所有，DEV为网卡。
 * -r：报告没有使用的内存页面和硬盘块。
 * -u：报告CPU使用率。
 * -v：报告进程、I节点、文件和锁表状态。
@@ -1977,6 +1995,18 @@ mtr [-r] HOST
 
 * -r：使用报告模式。
 
+## ngrep
+
+可进行文本过滤的抓包工具。
+
+```shell
+ngrep [-pq -W DISPLAY] [REGEXP] [CAPTUREFILTER]
+```
+
+* -p：不使用混杂模式。
+* -q：安静模式，只输出包头和载荷。
+* -W DISPLAY：输出显示方式。byline为按换行符进行换行。
+
 ## nmap
 
 端口扫描工具。
@@ -2027,18 +2057,25 @@ ss [-alnpstu]
 网络抓包工具。
 
 ```shell
-tcpdump [-n -i ETH -w FILENAME] [FILTER]
+tcpdump [-Anq -v[...] -s N -i ETH -w FILENAME] [CAPTUREFILTER]
 ```
 
+* -A：以ASCII方式输出。
 * -i ETH：指定网络接口。
 * -n：显示IP而不是主机名。
+* -q：减少输出内容。
+* -s N：从一个包中截取的字节数。0表示不限制。
+* -v[...]：显示详细的信息。v越多越详细。
 * -w FILENAME：数据包写入的文件名。
 
-FILTER过滤规则的示例如下：
+CAPTUREFILTER捕获过滤规则的示例如下（可以使用`and`、`or`、`()`进行组合）：
 
-* host IP
-* dst IP and (port PORT1 or PORT2)
-* dst IP and tcp and port PORT
+* dst IP：目标IP。
+* host IP：主机IP。
+* port PORT：端口。
+* portrange PORT1-PORT2：端口范围。
+* tcp：TCP协议。
+* udp：UDP协议。
 
 ## telnet
 
@@ -2055,6 +2092,17 @@ telnet HOST PORT
 ```shell
 traceroute HOST
 ```
+
+## tshark
+
+Wireshark命令行版网络抓包工具。比`tcpdump`能识别更多的协议。
+
+```shell
+tshark [-i ETH -w FILENAME] [CAPTUREFILTER]
+```
+
+* -i ETH：指定网络接口。
+* -w FILENAME：数据包写入的文件名。
 
 # HTTP
 
@@ -2079,7 +2127,7 @@ URL不可省略路径。
 发送HTTP请求。
 
 ```shell
-curl URL [-iILv]
+curl URL [-iILOv -o FILENAME]
 curl URL -X METHOD -H HEADER -d BODY [-iv]
 ```
 
@@ -2088,8 +2136,10 @@ curl URL -X METHOD -H HEADER -d BODY [-iv]
 * -i：响应打印包含首部信息。
 * -I：提交HEAD请求，只返回首部信息。
 * -L：跟随HTTP重定向重新请求。
+* -o FILENAME：指定保存响应内容的文件名。
+* -O：将响应内容保存至文件。文件名为路径的最后一部分。
 * -X METHOD：指定请求方法。默认为GET。
-* -v：打印详细信息。
+* -v：打印详细信息。“*”开头的是调试信息，“>”开头的是请求内容（不打印请求实体），“<”开头的是响应内容（响应实体不带有此开头）。
 
 ## wget
 
@@ -2322,7 +2372,7 @@ rpm --rebuilddb
 rpm --import KEYFILENAME|URL
 ```
 
-** --import：安装数字证书。
+* --import：安装数字证书。
 
 ## yum
 
@@ -2444,6 +2494,16 @@ ssh [-p PORT] USERNAME@HOST
 base64 FILENAME|STDIN
 ```
 
+## expr
+
+计算表达式的值。
+
+```shell
+expr EXPRESSION
+```
+
+EXPRESSION可使用+-*/等运算，运算符两侧需有空格。
+
 ## md5sum
 
 生成md5摘要。
@@ -2537,6 +2597,39 @@ set
 ```shell
 unset VARIABLE
 ```
+
+# 媒体
+
+## sox
+
+音频处理工具。
+
+```shell
+sox [-c N -e ENCODING -r RATE -t TYPE] INPUTFILENAME OUTPUTFILENAME
+sox -m OUTPUTFILENAME INPUTFILENAME1 INPUTFILENAME2
+sox -M OUTPUTFILENAME INPUTFILENAME1 INPUTFILENAME2
+```
+
+* -c N：输出文件的声道数。
+* -e ENCODING：编码格式。μ律为u-law。
+* -m：使用混音合成至一个文件。
+* -M：使用立体声合成至一个文件。
+* -r RATE：采样率，单位为Hz。
+* -t TYPE：文件格式类型。原生格式为raw。
+
+## play
+
+播放声音文件。需要声卡驱动支持。
+
+```shell
+play [-e ENCODING -r RATE -t TYPE] FILENAME
+```
+
+* -e ENCODING：编码格式。μ律为u-law。
+* -r RATE：采样率，单位为Hz。
+* -t TYPE：文件格式类型。原生格式为raw。
+
+此命令为`sox`附带的命令。
 
 # 命令执行
 

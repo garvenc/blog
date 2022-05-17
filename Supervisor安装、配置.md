@@ -1,4 +1,4 @@
-本文更新于2021-01-06。
+本文更新于2022-05-12。
 
 官方文档参阅：[http://supervisord.org/](http://supervisord.org/)
 
@@ -49,6 +49,14 @@ rm partial/*
 
 # 开机启动
 
+系统服务名为supervisor或supervisord。
+
+```shell
+systemctl enable supervisor
+```
+
+或
+
 ```shell
 systemctl enable supervisord
 ```
@@ -59,10 +67,10 @@ systemctl enable supervisord
 
 * supervisorctl：进入命令行交互界面，可直接输入子命令进行管理。
 * supervisorctl reload：重新加载配置文件，并重启supervisord及所有自动启动的程序。
-* supervisorctl restart all|{PROGRAM < ...>}：重启程序，all表示重启所有程序。
-* supervisorctl start all|{PROGRAM <...>}：启动程序，all表示启动所有程序。
-* supervisorctl status <all|{PROGRAM <...>}>：查看程序状态，如为all或不指定则查看所有程序状态。
-* supervisorctl stop all|{PROGRAM <...>}：停止程序，all表示停止所有程序。
+* supervisorctl restart {PROGRAM< ...>}|all：重启程序，all表示重启所有程序。
+* supervisorctl start {PROGRAM< ...>}|all：启动程序，all表示启动所有程序。
+* supervisorctl status <{PROGRAM< ...>}|all>：查看程序状态，如为all或不指定则查看所有程序状态。
+* supervisorctl stop {PROGRAM< ...>}|all：停止程序，all表示停止所有程序。
 * supervisorctl update：重新加载配置文件，并启动新配置指定的程序。
 
 # 配置
@@ -70,14 +78,11 @@ systemctl enable supervisord
 CentOS中的配置文件为/etc/supervisord.conf，配置文件目录为/etc/supervisord.d/，配置文件目录中的配置文件后缀为.ini。
 Debian中的配置文件为/etc/supervisor/supervisord.conf，配置文件目录为/etc/supervisor/conf.d，配置文件目录中的配置文件后缀为.conf。
 
-自定义服务的配置文件最好放于配置文件目录。每个配置文件可包含多个小节，使用“;”开头进行注释。
+自定义的配置文件最好放于配置文件目录。每个配置文件可包含多个小节，使用“;”开头进行注释。
 
 ## supervisord小节
 
-修改此小节的内容需要使用`systemctl restart supervisord`重启supervisord。
-
-* [supervisord]：supervisord服务进程。
-* minfds=N：supervisord服务进程启动时必需的最少可用文件描述符数量，也是个program小节定义的被管理程序的最大可用文件描述符数量（即Max open files的值）。默认为1024。
+修改此小节的内容需要使用`systemctl restart supervisor`或`systemctl restart supervisord`重启系统服务。
 
 配置示例如下（各配置均已被注释）：
 
@@ -89,20 +94,12 @@ Debian中的配置文件为/etc/supervisor/supervisord.conf，配置文件目录
 ;minfds=1024
 ```
 
+* [supervisord]：supervisord服务进程。
+* minfds=N：supervisord服务进程启动时必需的最少可用文件描述符数量，也是个program小节定义的被管理程序的最大可用文件描述符数量（即Max open files的值）。默认为1024。
+
 ## program小节
 
 修改此小节的内容需要使用`supervisorctl restart PROGRAM`重启被管理的程序。
-
-* [program:PROGRAM]：被管理的程序名。可指定多个program小节。
-* command=CMD：执行的命令，可带参数。
-* directory=DIR：执行命令时的进程运行目录。
-* autostart=AUTO：是否自动启动。默认为true。
-* autorestart=AUTO：是否自动重启。为true、false或unexpected，默认为true。如为unexpected，当进程的退出码不为exitcodes中的值时重启。
-* exitcodes=CODE1,CODE2：允许的进程退出码。以“,”分隔，默认为0,2。
-* stopsignal=SIGNAL：停止进程时发送的信号。默认为TERM。
-* user=USER：执行命令使用的系统用户。
-* stdout_logfile=FILENAME：stdout的重定向日志文件。
-* stderr_logfile=FILENAME：stderr的重定向日志文件。
 
 配置示例如下（各配置均已被注释）：
 
@@ -136,3 +133,14 @@ Debian中的配置文件为/etc/supervisor/supervisord.conf，配置文件目录
 ;environment=A=1,B=2           ; process environment additions (def no adds)
 ;serverurl=AUTO                ; override serverurl computation (childutils)
 ```
+
+* [program:PROGRAM]：被管理的程序名。可指定多个program小节。
+* command=CMD：执行的命令，可带参数。
+* directory=DIR：执行命令时的进程运行目录。
+* autostart=AUTO：是否自动启动。默认为true。
+* autorestart=AUTO：是否自动重启。为true、false或unexpected，默认为true。如为unexpected，当进程的退出码不为exitcodes中的值时重启。
+* exitcodes=CODE1,CODE2：允许的进程退出码。以“,”分隔，默认为0,2。
+* stopsignal=SIGNAL：停止进程时发送的信号。默认为TERM。
+* user=USER：执行命令使用的系统用户。
+* stdout_logfile=FILENAME：stdout的重定向日志文件。
+* stderr_logfile=FILENAME：stderr的重定向日志文件。

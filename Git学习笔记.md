@@ -1,4 +1,4 @@
-本文更新于2022-01-11，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2022-04-21，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -24,7 +24,7 @@ Workspace    Index/Stage    Repository      Remote
    |           checkout         |    fetch    |
    |<---------------------------|<------------|
    |                   pull                   |
-   |<---------------------------|-------------|
+   |<-----------------------------------------|
 ```
 
 * 工作区（Workspace）：计算机中看到的目录，持有实际文件。工作区下每个文件都处于以下两种状态之一：
@@ -701,7 +701,7 @@ git merge -Xtheirs COMMIT
 git merge --abort
 ```
 
-如有合并冲突，需使用`git mergetool`解决。
+如有合并冲突，需使用`git mergetool`解决，然后执行`git add`和`git commit`。
 
 ## git merge-file
 
@@ -817,22 +817,22 @@ git push REMOTE :refs/tags/TAG
 
 **不要对在你的仓库外有副本的分支执行变基。**变基操作的实质是丢弃一些现有的提交，然后相应地新建一些内容一样但实际上不同的提交。
 
-变基。将当前分支指向目标基底分支BRANCH，并应用当前分支相较于最近共同祖先的修改。一般这样做的目的是为了向远程分支推送时保持提交历史的整洁：
+变基。将当前分支变基到目标基底分支BRANCH，并应用当前分支相较于最近共同祖先的修改。一般这样做的目的是为了向远程分支推送时保持提交历史的整洁：
 
 ```shell
 git rebase BRANCH
 ```
 
-将特性分支TOPICBRANCH变基到目标基底分支BASEBRANCH：
+将特性分支BRANCHFROM变基到目标基底分支BRANCHTO：
 
 ```shell
-git rebase BASEBRANCH TOPICBRANCH
+git rebase BRANCHTO BRANCHFROM
 ```
 
-取出BRANCH3分支，找出BRANCH3和BRANCH2共同祖先之后的修改，然后在BRANCH1分支上重放：
+取出BRANCHFROM分支，找出BRANCHFROM和BRANCH共同祖先之后的修改，然后在BRANCHTO分支上重放：
 
 ```shell
-git rebase --onto BRANCH1 BRANCH2 BRANCH3
+git rebase --onto BRANCHTO BRANCH BRANCHFROM
 ```
 
 交互式变基，将指定提交及之后的提交重写：
@@ -842,6 +842,20 @@ git rebase -i COMMIT
 ```
 
 其列出的提交历史是从旧至新的，修改提交历史前的命令，退出后`git commit --amend`修改`edit`命令指定的提交，`git rebase --continue`自动应用剩余的提交。
+
+中断变基：
+
+```shell
+git rebase --abort
+```
+
+如有变基冲突，需使用`git mergetool`解决，然后执行`git add`和`git commit`。
+
+处理完当前提交的变基冲突后，继续执行后续提交的变基：
+
+```shell
+git rebase --continue
+```
 
 ## git reflog
 

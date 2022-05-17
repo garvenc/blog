@@ -1,4 +1,4 @@
-本文更新于2021-08-04。
+本文更新于2022-04-10。
 
 [TOC]
 
@@ -53,14 +53,14 @@ sudo dpkg -i mysql-community-server_5.7.19-1debian8_amd64.deb
 
 ## 在Debian 10下安装
 
-在安装mysql-community-server时，会提示初始化MySQL的root密码。
+在安装mysql-community-server时，会提示初始化MySQL的root密码。安装成功后的系统服务名为mysql。
 
 ```shell
-wget http://ftp.br.debian.org/debian/pool/main/p/psmisc/psmisc_23.2-1_amd64.deb
+wget http://ftp.br.debian.org/debian/pool/main/p/psmisc/psmisc_23.2-1+deb10u1_amd64.deb
 wget http://ftp.br.debian.org/debian/pool/main/m/mecab/libmecab2_0.996-1.1_amd64.deb
 wget https://cdn.mysql.com//Downloads/MySQL-5.7/mysql-server_5.7.35-1debian10_amd64.deb-bundle.tar
 
-sudo dpkg -i psmisc_23.2-1_amd64.deb
+sudo dpkg -i psmisc_23.2-1+deb10u1_amd64.deb
 sudo dpkg -i libmecab2_0.996-1.1_amd64.deb
 
 mkdir mysql

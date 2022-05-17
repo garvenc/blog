@@ -1,4 +1,4 @@
-本文更新于2021-04-29，使用nginx 1.16。
+本文更新于2022-03-29。
 
 [TOC]
 
@@ -12,64 +12,73 @@
 
 ## Linux下安装
 
-1. 安装依赖库（按需选择版本），用于编译时指定依赖库的源代码目录：
-
-	* CentOS（7.5）下安装依赖库：
-
-		```shell
-		yum install pcre-devel
-		yum install zlib-devel
-		yum install openssl-devel
-		```
-	* Debian（8.9）下安装依赖库（CentOS下也可使用）：
-
-		```shell
-		cd /usr/local/src
-		wget https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
-		wget http://www.zlib.net/zlib-1.2.11.tar.gz
-		wget https://www.openssl.org/source/openssl-1.1.1f.tar.gz
-		tar -xvz -f pcre-8.44.tar.gz
-		tar -xvz -f zlib-1.2.11.tar.gz
-		tar -xvz -f openssl-1.1.1f.tar.gz
-		```
-		可删除.tar.gz文件。
 1. 创建用户：
-
 	```shell
-	groupadd nginxd
-	useradd -g nginxd nginxd
+	sudo groupadd nginxd
+	sudo useradd -g nginxd nginxd
 	```
 1. 创建安装目录：
-
 	```shell
 	cd /usr/local
-	mkdir nginx
-	chown nginxd:nginxd nginx
+	sudo mkdir nginx
+	sudo chown nginxd:nginxd nginx
 	```
-1. 安装nginx：
-
-	* CentOS下安装：
-
+1. 安装依赖库及nginx：
+	* CentOS 7.5下安装nginx 1.16：
 		```shell
+		sudo yum install pcre-devel
+		sudo yum install zlib-devel
+		sudo yum install openssl-devel
+
+		# In any directory.
 		wget http://nginx.org/download/nginx-1.16.1.tar.gz
 		tar -xvz -f nginx-1.16.1.tar.gz
 		cd nginx-1.16.1
 		./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-pcre
 		make
-		make install
+		sudo make install
+		# Do as you need.
+		#rm nginx-1.16.1.tar.gz
+		#rm -r nginx-1.16.1
 		```
-	* Debian下安装（CentOS下也可使用）：
-	
+	* Debian 8.9下安装nginx 1.16（CentOS 7.5下安装nginx 1.16也适用）：
 		```shell
+		cd /usr/local/src
+		sudo wget https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
+		sudo wget http://www.zlib.net/zlib-1.2.11.tar.gz
+		sudo wget https://www.openssl.org/source/openssl-1.1.1f.tar.gz
+		sudo tar -xvz -f pcre-8.44.tar.gz
+		sudo tar -xvz -f zlib-1.2.11.tar.gz
+		sudo tar -xvz -f openssl-1.1.1f.tar.gz
+		# Do as you need.
+		#sudo rm pcre-8.44.tar.gz zlib-1.2.11.tar.gz openssl-1.1.1f.tar.gz
+
+		# In any directory.
 		wget http://nginx.org/download/nginx-1.16.1.tar.gz
 		tar -xvz -f nginx-1.16.1.tar.gz
 		cd nginx-1.16.1
 		./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module \
 			--with-openssl=/usr/local/src/openssl-1.1.1f --with-zlib=/usr/local/src/zlib-1.2.11 --with-pcre=/usr/local/src/pcre-8.44
 		make
-		make install
+		sudo make install
+		# Do as you need.
+		#rm nginx-1.16.1.tar.gz
+		#rm -r nginx-1.16.1
 		```
-	
+	* Debian 10下安装nginx1.20.2：
+		```shell
+		# In any directory.
+		wget http://nginx.org/download/nginx-1.20.2.tar.gz
+		tar -xvz -f nginx-1.20.2.tar.gz
+		cd nginx-1.20.2
+		./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-pcre
+		make
+		sudo make install
+		# Do as you need.
+		#rm nginx-1.20.2.tar.gz
+		#rm -r nginx-1.20.2
+		```
+
 	`./configure`参数含义如下：
 	
 	* --prefix：安装目录。
@@ -79,14 +88,14 @@
 	* --with-zlib：ZLIB模块，用于支持压缩算法，需安装依赖zlib。
 	
 	注意`make install`会覆盖此前安装的所有文件，包括配置文件。
-1. 权限配置
-
+1. 权限配置：
 	```shell
-	chown -R nginxd:nginxd /usr/local/nginx
-	vi /usr/local/nginx/nginx.conf
+	sudo chown -R nginxd:nginxd /usr/local/nginx
 	```
-	
-	修改/usr/local/nginx/confi/nginx.conf的user为nginxd。
+	在/usr/local/nginx/conf/nginx.conf开头增加一行：
+	```
+	user nginxd;
+	```
 
 # 运行
 

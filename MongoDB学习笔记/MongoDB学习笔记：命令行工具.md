@@ -1,4 +1,4 @@
-本文更新于2022-01-22，使用MongoDB 4.4.5。
+本文更新于2022-04-21，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -86,6 +86,7 @@ mongodump [OPTION]
 
 OPTION可为：
 
+* --gzip：将.bson数据文件和.metadata.json元数据文件使用gzip压缩。
 * --help：查看帮助。
 * --oplog：同时转储备份过程中的操作日志oplog，以获得备份时间点的快照。如备份副本集，必需使用此选项。
 * --out|-o DUMPDIR：输出目录。默认为dump。输出目录中包含若干个名字为数据库名的目录，每个目录中包含若干个集合名开头的.bson数据文件和.metadata.json元数据文件。
@@ -132,6 +133,7 @@ OPTION可为：
 * --db|-d DBNAME：只恢复指定的数据库。
 * --dir DUMPDIR：需恢复的备份数据目录。默认为dump。
 * --drop：进行数据替换，在恢复集合前先删除之。
+* --gzip：从使用gzip压缩方式备份的数据中恢复。
 * --oplogReplay：重放操作日志oplog，以获得备份时间点的快照。
 * --port PORT：服务器的端口。
 * --version：查看版本。

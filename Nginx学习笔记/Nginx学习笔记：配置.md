@@ -1,8 +1,10 @@
-本文更新于2022-01-06，使用nginx 1.16。
+本文更新于2022-03-30，使用nginx 1.16。
 
 [TOC]
 
 官方文档：[http://nginx.org/en/docs/](http://nginx.org/en/docs/)。
+
+配置文件为：/usr/local/nginx/conf/nginx.conf。
 
 # 变量
 
@@ -12,13 +14,21 @@
 * $http_upgrade：Upgrade首部的值。
 * $request_uri：从路径开始的请求URI。
 
+# 运算符
+
+* =：等于。
+* ~：匹配正则表达式，区分大小写。
+* ~*：匹配正则表达式，不区分大小写。
+* !~：不匹配正则表达式，区分大小写。
+* !~*：不匹配正则表达式，不区分大小写。
+
 # 配置
 
 `[]`引起表示可选，大写字母需使用实际的配置值（值可使用`''`引起）。
 
 ## http
 
-HTTP。
+HTTP配置。
 
 ```
 http {
@@ -305,6 +315,21 @@ user USER;
 ```
 
 # 示例
+
+## 静态文件服务器
+
+```
+http {
+	# Other configurations...
+	server {
+		listen      80;
+		server_name www.myweb.com;
+		location / {
+			root /static/dir/;
+		}
+	}
+}
+```
 
 ## HTTP反向代理
 
