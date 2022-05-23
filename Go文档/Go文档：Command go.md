@@ -1,6 +1,6 @@
-本文更新于2021-12-22。
+本文更新于2022-05-23。
 
-翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.17。
+翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.18。
 
 [TOC]
 
@@ -46,29 +46,31 @@ go build [-o output] [build flags] [packages]
 构建标志（build flags）会被build、clean、get、install、list、run、test命令共享：
 
 * -a：强制重新构建已经是最新的包。
+* -asan：启用与Address Sanitizer的互操作。只在linux/arm64、linux/amd64上支持。
 * -asmflags '[pattern=]arg list'：传递给每次go tool asm调用的参数。
 * -buildmode mode：使用的构建模式，更多信息参阅“go help buildmode”。
+* -buildvcs：是否用版本控制信息标记二进制文件。默认情况下，如果main包和包含它的主模块在包含当前目录的仓库中（如果有仓库的话），版本控制信息会被标记入二进制文件。使用-buildvcs=false来忽略版本控制信息。
 * -compiler name：使用的编译器名，即runtime.Complier（gccgo或gc）。
 * -gccgoflags '[pattern=]arg list'：传递给每次gccgo编译器/链接器调用的参数。
 * -gcflags '[pattern=]arg list'：传递给每次go tool complie调用的参数。
-* -installsuffix suffix：在包安装目录名字中使用的后缀，以便使输出文件与默认构建分开。如使用-race标志，安装后缀会自动设置为race，或如果显式设置则在其后追加_race。对-msan也同样。使用需要使用非默认编译标志的-buildmode选项也又类似效果。
+* -installsuffix suffix：在包安装目录名字中使用的后缀，以便使输出文件与默认构建分开。如使用-race标志，安装后缀会自动设置为race，或如果显式设置则在其后追加_race。对-msan和-asan也同样。使用需要使用非默认编译标志的-buildmode选项也有类似效果。
 * -ldflags '[pattern=]arg list'：传递给每次go tool link调用的参数。
 * -linkshared：链接到的之前使用-buildmode=shared生成的共享库。
 * -mod mode：使用的模块下载模式：readonly、vendor或mod。默认情况下，如果vendor目录存在且go.mod中的go版本为1.14或更高，go命令表现如同-mod=vendor被设置一样。否则，go命令表现如同-mod=readonly被设置一样。详情参阅[https://golang.org/ref/mod#build-commands](https://golang.org/ref/mod#build-commands)。
 * -modcacherw：令保留在模块缓存中的新创建的目录可读写，而不是令它们只读。
 * -modfile file：在模块感知模式下，读取（并且可能写入）备用的go.mod文件而不是在模块根目录下的go.mod文件。名字为“go.mod”的文件仍然必须存在用来确定模块根目录，但其不会被访问。当-modfile被指定，备用的go.sum文件也会被使用：其路径从-modfile标志产生，通过去除“.mod”扩展名并追加“.sum”。
 * -overlay file：读取为构建操作提供覆盖的JSON配置文件。文件是只有一个字段的JSON结构，名为“Replace”，映射每个磁盘文件路径（一个字符串）至其后备文件路径，以使构建运行起来如同磁盘文件路径存在有后备文件路径提供的内容，或如果其后备文件路径为空则如同磁盘文件路径不存在。对-overlay标志的支持有一些限制：重要的是，从包含路径之外包含的cgo文件必需与Go包被包含于相同的目录，且当二进制和测试分别通过go run和go test运行时覆盖不会出现。
-* -msan：启用与内存清理程序的互操作，只支持linux/amd64、linux/arm64，并且只能使用clang/llvm作为宿主C编译器。在linux/arm64上，pie构建模式将被使用。
-* -n：打印实际需执行的命令，但不运行。
+* -msan：启用与Memory Sanitizer的互操作，只支持linux/amd64、linux/arm64，并且只能使用clang/llvm作为宿主C编译器。在linux/arm64上，pie构建模式将被使用。
+* -n：将实际需执行的命令打印出来但不运行。
 * -p n：可以并行运行的程序——如构建命令或测试二进制文件——的数量。默认为GOMAXPROCS，通常是可用的CPU的数量。
 * -pkgdir dir：从dir而不是通常的位置安装和加载所有包（pkg）。例如，当使用非标准设置构建时，使用-pkgdir来令在特定的目录生成包。
-* -race：启用数据竞态检测，只支持linux/amd64、freebsd/amd64、darwin/amd64、windows/amd64、linux/ppc64le、linux/arm64（只对48位VMA）。
+* -race：启用数据竞态检测，只支持linux/amd64、freebsd/amd64、darwin/amd64、darwin/arm64、windows/amd64、linux/ppc64le、linux/arm64（只对48位VMA）。
 * -tags tag,list：构建期间需满足的构建标记（tag），为逗号分隔的列表。关于构建标记，参阅go/build包文档中关于构建约束的描述。（早期Go版本使用空白分隔的列表，已经被反对使用，但仍然能识别。）
 * -toolexec 'cmd args'：用来调用如vet和asm等工具链程序的程序。例如，go命令将运行“cmd args /path/to/asm <arguments for asm>”，而不是运行asm。TOOLEXEC_IMPORTPATH环境变量将被设置，其匹配正在构建的包的“go list -f {{.ImportPath}}”。
-* -trimpath：从目标可执行文件中移除所有文件系统路径。作为文件系统绝对路径的替代，记录下的文件名将以“go”（对标准库），或“模块路径@版本”（当使用模块），或“import路径”（当使用GOPATH）开头。
+* -trimpath：从目标可执行文件中移除所有文件系统路径。作为文件系统绝对路径的替代，记录下的文件名将以“模块路径@版本”（当使用模块），或“直接的import路径”（当使用标准库，或GOPATH）开头。
 * -v：打印编译的包名。
 * -work：打印临时工作目录并在退出时不删除之。
-* -x：打印实际需执行的命令，并运行。
+* -x：同时打印实际执行的命令。
 
 -asmflags、-gccgoflags、-gcflags、-ldflags接受一个以空白分隔的参数列表，用以在构建时传递给底层工具。要在列表元素中嵌入空白，需使用单引号或双引号括起。参数列表前面可以是一个包模式和一个等号，它将该参数列表的使用限制为与该模式匹配的包（有关包模式的说明，请参阅“go help packages”）。如果没有模式，参数列表只应用于命令行中命名的包。这些标志可以使用不同的模式重复指定，以便为不同的包指定不同的参数。如果一个包与多个标志中给定的模式匹配，则使用最后一个指定的。例如：“go build -gcflags=-S fmt”只打印fmt包的反汇编，“go build -gcflags=all=-S fmt”则打印fmt包及其所有依赖包的反汇编。
 
@@ -104,12 +106,13 @@ go clean [clean flags] [build flags] [packages]
 标志：
 
 * -cache：删除整个go build缓存。
+* -fuzzcache：删除为模糊测试存储在Go构建缓存中的文件。模糊测试引擎缓存扩展代码覆盖范围的文件，因此删除它们可能令到模糊测试降低效果，直到找到提供同样覆盖范围的新的输入。这些文件不同于那些存储在testdata目录中的文件；clean不删除那些文件。
 * -i：删除相关的已安装的归档文件或二进制文件（由“go install”创建）。
 * -modcache：删除整个模块下载缓存，包括指定版本依赖的已解压的源代码。
-* -n：打印实际需执行的命令，但不运行。
+* -n：将实际需执行的命令打印出来但不运行。
 * -r：递归地应用于所有由导入路径指定的依赖包。
 * -testcache：令go build缓存中所有测试结果过期。
-* -x：打印实际需执行的命令，并运行。
+* -x：同时打印实际执行的命令。
 
 关于构建标志的更多信息，参阅“go help build”。
 
@@ -150,7 +153,7 @@ go doc [<pkg>.][<sym>.]<methodOrField>
 
 包路径必须是限定路径或者是路径的正确后缀。go工具通常的包机制不适用于：类似“.”和“...”的包路径元素，是不被go doc实现的。
 
-当使用2个参数运行时，第一个参数必须是完整的包路径（而不仅仅是后缀），第二个参数是一个符号、符号的方法或符号的结构体字段。这与godoc接受的语法类似：
+当使用2个参数运行时，第一个参数是一个包路径（完整的路径或后缀），第二个参数是一个符号、或带有方法或结构体字段的符号：
 
 ```shell
 go doc <pkg> <sym>[.<methodOrField>]
@@ -209,14 +212,18 @@ env默认像shell脚本（在Windows下，像批处理文件）一样打印信�
 # go fix——使用新的API更新包代码
 
 ```shell
-go fix [packages]
+go fix [-fix list] [packages]
 ```
 
 在通过导入路径指定的包上运行Go fix命令。
 
+标志：
+
+* -fix：设置需要运行的修复的逗号分隔的列表。默认为所有已知的修复。（其值被传递至“go tool fix -r”。）
+
 关于fix的更多信息，参阅“go doc cmd/fix”。关于指定包的更多信息，参阅“go help packages”。
 
-如需使用特定的选项，运行“go tool fix”。
+如需使用其它选项，运行“go tool fix”。
 
 参阅：go fmt，go vet。
 
@@ -233,8 +240,8 @@ go fmt [-n] [-x] [packages]
 标志：
 
 * -mod：标志的值设置要使用那种模块下载模式：readonly还是vendor。更多信息参阅“go help modules”。
-* -n：打印实际需执行的命令，但不运行。
-* -x：打印实际需执行的命令，并运行。
+* -n：将实际需执行的命令打印出来但不运行。
+* -x：同时打印实际执行的命令。
 
 如需使用特定的选项，直接运行gofmt。
 
@@ -248,7 +255,7 @@ go generate [-run regexp] [-n] [-v] [-x] [build flags] [file.go... | packages]
 
 通过在现存文件中描述的指令执行命令。命令可以运行任何进程，但目的是创建或更新Go源文件。
 
-go generate永远不会通过go build、go get、go test等自动运行。必须明确地运行。
+go generate永远不会通过go build、go test等自动运行。必须明确地运行。
 
 go generate扫描文件搜索指令，指令是如下格式的行：
 
@@ -313,9 +320,9 @@ generate按照命令行中给定的顺序处理包，一次一个。如果命令
 
 也接受标准的构建标志，包括-v、-n和-x。
 
-* -n：打印实际需执行的命令，但不运行。
+* -n：将实际需执行的命令打印出来但不运行。
 * -v：打印正在处理的包名和文件名。
-* -x：打印实际需执行的命令，并运行。
+* -x：同时打印实际执行的命令。
 
 关于构建标志的更多信息，参阅“go help build”。
 
@@ -324,10 +331,10 @@ generate按照命令行中给定的顺序处理包，一次一个。如果命令
 # go get——添加依赖包至当前模块并安装之
 
 ```shell
-go get [-d] [-t] [-u] [-v] [build flags] [packages]
+go get [-t] [-u] [-v] [build flags] [packages]
 ```
 
-get解析其命令行参数为特定模块版本的包，更新go.mod来依赖于那些版本，下载源代码至模块缓存，然后构建和安装指定名字的包。
+get解析其命令行参数为特定模块版本的包，更新go.mod来依赖于那些版本，并下载源代码至模块缓存。
 
 要添加对包的依赖或更新其至最后的版本：
 
@@ -349,7 +356,7 @@ go get example.com/mod@none
 
 详情参阅[https://golang.org/ref/mod#go-get](https://golang.org/ref/mod#go-get)。
 
-“go install”命令可以用来构建和安装包。当版本被指定时，“go install”运行在模块感知模式并忽略当前目录中的go.mod文件。例如：
+在Go的早期版本，“go get”被用于构建和安装包。现在，“go get”专用于调整go.mod中的依赖。代替之，“go install”可用于构建和安装命令。当版本被指定时，“go install”运行在模块感知模式并忽略当前目录中的go.mod文件。例如：
 
 ```
 go install example.com/pkg@v1.2.3
@@ -358,16 +365,14 @@ go install example.com/pkg@latest
 
 详情参阅“go help install”或[https://golang.org/ref/mod#go-install](https://golang.org/ref/mod#go-install)。
 
-除了构建标志（在“go help build”中列出），“go get”接受以下的标志：
+“go get”接受以下的标志：
 
-* -d：不构建和安装包。get将只更新go.mod并下载构建包所需的源代码。
 * -t：同时添加命令行中指定的包构建测试所需的模块。
 * -u：同时更新命令行中指定的包的依赖模块，令依赖模块使用较新的次版本的发布版本或补丁版本的发布版本，前提是这些版本可用。
 * -u=patch：（不是-u patch）同样更新依赖模块，但不同之处在于默认选择补丁版本的发布版本。
+* -x：同时打印实际执行的命令。当模块直接从仓库下载时，这对调试版本控制命令有用。
 
 当-t和-u一起使用时，将也会更新构建测试所需的模块的依赖模块。
-
-使用get来构建和安装包被反对使用。在将来的发布版本中，-d标志会默认启用，且“go get”将只用来调整当前模块的依赖。要从当前模块通过依赖来安装包，使用“go install”。要忽略当前模块来安装包，在每个参数后面带有如“@latest”的@version后缀来使用“go install”。
 
 关于模块的更多信息，参阅[https://golang.org/ref/mod](https://golang.org/ref/mod)。
 
@@ -405,6 +410,7 @@ go help <topic>
 * tool：运行指定的go tool。
 * version：打印Go版本。
 * vet：报告包中有可能的错误。
+* work：工作区维护。
 
 关于命令的更多信息，参阅“go help \<command>”。
 
@@ -447,8 +453,9 @@ go install [build flags] [packages]
 * 参数必需为包路径或包模式（带有“...”通配符）。不能是标准包（如fmt），元模式（std、cmd、all），相对或绝对文件路径。
 * 所有的参数带有相同的版本后缀。不同的查询是不允许的，即使它们指向相同的版本。
 * 所有的参数必需指向相同模块相同版本中的包。
-* 不能有模块被认作“main”模块。如果包含命令行中指定名字的包的模块有go.mod文件，其不能包含可能导致其被不一样地解析为主模块的指令（replace和exclude）。模块不能依赖于自身的一个更高的版本。
 * 包路径参数必需指向main包。模式参数只会匹配main包。
+* 不能有模块被认作“main”模块。如果包含命令行中指定名字的包的模块有go.mod文件，其不能包含可能导致其被不一样地解析为主模块的指令（replace和exclude）。模块不能依赖于自身的一个更高的版本。
+* vendor目录不会在任何模块中被使用。（vendor目录不会被包含在被“go install”下载的模块zip文件中。）
 
 如果参数没有版本后缀，“go install”可能运行在模块感知模式或GOPATH模式，取决于GO111MODULE环境变量和go.mod文件的存在。详情参阅“go help modules”。如果模块感知模式启用，“go install”运行在主模块的上下文中。
 
@@ -681,7 +688,7 @@ go mod提供对模块操作的访问。
 
 注意对模块的支持内置于所有go命令，不只是“go mod”。例如，依赖的日常添加、删除、升级、降级应该使用“go get”来完成。关于模块功能的概述，参阅“go help modules”。
 
-关于命令的更多信息，参阅“go help mod <command>”。
+关于command的更多信息，参阅“go help mod <command>”。
 
 ## go mod download——下载模块至本地缓存中
 
@@ -689,7 +696,9 @@ go mod提供对模块操作的访问。
 go mod download [-x] [-json] [modules]
 ```
 
-download下载指定名字的模块，可为选择主模块依赖的模块匹配模式，或path@version形式的模块查询。不带参数，download应用于主模块的所有依赖。
+download下载指定名字的模块，可为选择主模块依赖的模块匹配模式，或path@version形式的模块查询。
+
+不带参数，download应用于在主模块中构建和测试包所需的模块：这些模块被主模块明确地依赖，如果其为“go 1.17”或更高；或所有传递性依赖的模块，如果其为“go 1.16”或更低。
 
 go命令将在常规执行期间根据需要自动下载模块。“go mod download”命令主要用于预填充本地缓存或计算Go模块代理的结果。
 
@@ -712,7 +721,7 @@ go命令将在常规执行期间根据需要自动下载模块。“go mod downl
 		GoModSum string // go.mod的校验和（如go.sum中所示）
 	}
 	```
-* -x：打印实际需执行的命令，并运行。
+* -x：同时打印实际执行的命令。
 
 关于“go mod download”的更多信息，参阅[https://golang.org/ref/mod#go-mod-download](https://golang.org/ref/mod#go-mod-download)。
 	
@@ -724,12 +733,12 @@ go命令将在常规执行期间根据需要自动下载模块。“go mod downl
 go mod edit [editing flags] [-fmt|-print|-json] [go.mod]
 ```
 
-edit提供一个编辑go.mod的命令行接口，主要提供给工具或脚本使用。它只读取go.mod；不查找涉及模块的信息。默认情况下，edit读写主模块的go.mod文件，但也可以在标志后指定不同的目标文件。
+edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用。它只读取go.mod；不查找涉及模块的信息。默认情况下，edit读写主模块的go.mod文件，但也可以在标志后指定不同的目标文件。
 
 标志：
 
 * -dropexclude=path@version：删除给定模块路径和版本的排除。
-* -dropreplace=old[@v]：删除给定模块路径和版本的替代。如果@v省略，删除该模块不带版本的替代。
+* -dropreplace=old[@v]：删除给定模块路径和版本对的替代。如果@v省略，删除该模块不带版本的替代。
 * -droprequire=path：删除给定的模块路径依赖的模块。该标志主要提供给工具用以理解模块图。用户应该使用“go get path@none”，可令其它go.mod根据需要调整来满足其它模块施加的限制。
 * -dropretract=version：删除对给定版本的撤回。version可能是类似“v1.2.3”的单个版本或类似“[v1.1.0,v1.1.9]”的闭区间。
 * -exclude=path@version：添加给定模块路径和版本的排除。注意如果排除已经存在-exclude=path@version是无操作的。
@@ -835,12 +844,15 @@ go mod tidy [-e] [-v] [-go=version] [-compat=version]
 ## go mod vendor——生成依赖的vendor副本
 
 ```shell
-go mod vendor [-e] [-v]
+go mod vendor [-e] [-v] [-o outdir]
 ```
 
 重置主模块的vendor目录，使其包含构建和测试所有主模块的包所需要的所有包。不包括vendor中的包的测试代码。
 
+标志：
+
 * -e：即使有加载包时遇到的错误仍尝试继续。
+* -o：在给定的路径下而不是“vendor”创建vendor目录。go命令只能使用在模块根目录下名为“vendor”的一个vendor目录，所以此标志主要对其它工具有用。
 * -v：打印vendor的模块和包的名字至标准错误输出。
 
 关于“go mod vendor”的更多信息参阅[https://golang.org/ref/mod#go-mod-vendor](https://golang.org/ref/mod#go-mod-vendor)。
@@ -884,6 +896,151 @@ $
 
 关于“go mod why”的更多信息参阅[https://golang.org/ref/mod#go-mod-why](https://golang.org/ref/mod#go-mod-why)。
 
+# go work——工作区维护
+
+```shell
+go work <command> [arguments]
+```
+
+command可为以下命令：
+
+* edit：通过工具或脚本编辑go.work。
+* init：初始化工作区文件。
+* sync：同步工作区构建列表至模块。
+* use：添加模块至工作区文件。
+
+提供对工作区上操作的访问。
+
+注意对工作区的支持内置于许多其它命令，不只是“go work”。
+
+关于Go的模块系统——工作区是其一部分——的信息参阅“go help modules”。
+
+关于工作区深入的参考参阅[https://go.dev/ref/mod#workspaces](https://go.dev/ref/mod#workspaces)。
+
+关于工作区入门的教程参阅[https://go.dev/doc/tutorial/workspaces](https://go.dev/doc/tutorial/workspaces)。
+
+工作区被一个以“use”指令指定模块目录集合的go.work文件指定。这些模块被go命令为构建和相关操作用作根模块。一个没有指定要使用的模块的工作区不能被用来从本地模块执行构建。
+
+go.work文件是面向行的。每行持有单条指令，由一个后跟参数的关键字组成。例如：
+
+```go
+go 1.18
+
+use ../foo/bar
+use ./baz
+
+replace example.com/foo v1.2.3 => example.com/bar v1.4.5
+```
+
+开头的关键字可以从相邻的行分界出去来创建一个块，就像在Go import中一样。
+
+```go
+use (
+  ../foo/bar
+  ./baz
+)
+```
+
+use指令指定在主模块的工作区集合中需要包含的模块。use指令的参数是包含模块的go.mod文件的目录。
+
+go指令指定文件撰写于的Go版本。可能对工作区的语义将来会有变化，其可以被这个版本控制，但现在此指定的版本没有影响。
+
+replace指令与go.mod文件中的replace指令有相同的语法，且优先于go.mod文件中的replace。它主要用来覆盖在不同工作区模块中冲突的replace。
+
+要确定go命令是否运行在工作区模式下，使用“go env GOWORK”命令。这会指明正在被使用的工作区文件。
+
+关于command的更多信息，参阅“go help work <command>”。
+
+## go work edit——通过工具或脚本编辑go.work
+
+```shell
+go work edit [editing flags] [go.work]
+```
+
+edit提供一个编辑go.work的命令行接口，主要给工具或脚本使用。它只读取go.work；不查找涉及模块的信息。如果没有指定文件，edit在当前目录及其父目录查找go.work文件。
+
+标志指定一系列编辑操作：
+
+* -dropreplace=old[@v]：删除给定模块路径和版本对的替代。如果@v省略，删除该模块不带版本的替代。
+* -dropuse=path：从go.work文件的模块目录集合中删除use指令。
+* -fmt：重新格式化go.work文件，不作其他改变。使用或重写go.work文件的任何其他修改也意味着这种重新格式化。需要该标志的唯一情形是没有指定其它标志，如“go work edit -fmt”。
+* -go=version：设置期望的Go语言版本。
+* -json：以JSON格式打印最终的go.work，而不是将其写回go.work。JSON输出对应于这些Go类型：
+
+	```go
+	type GoWork struct {
+		Go      string
+		Use     []Use
+		Replace []Replace
+	}
+	
+	type Use struct {
+		DiskPath   string
+		ModulePath string
+	}
+	
+	type Replace struct {
+		Old Module
+		New Module
+	}
+	
+	type Module struct {
+		Path    string
+		Version string
+	}
+	```
+* -print：以其文本格式打印最终的go.work，而不是将其写回go.work。
+* -replace=old[@v]=new[@v]：添加给定模块路径和版本对的替代。如果old@v中的@v省略，则左侧不带版本的替代将被添加，应用于old模块路径的所有版本。如果new@v中的@v省略，新路径应为本地模块根目录，而不是模块路径。注意-replace覆盖old[@v]任何冗余的替代，因此省略@v将删除对特定版本的现有替代。
+* -use=path：在go.work文件的模块目录集合中添加use指令。
+
+-use、-dropuse、-replace、-dropreplace编辑标志可以重复，根据给定的顺序应用修改。
+
+更多信息参阅于[https://go.dev/ref/mod#workspaces](https://go.dev/ref/mod#workspaces)的工作区参考。
+
+## go work init——初始化工作区文件
+
+```shell
+go work init [moddirs]
+```
+
+在当前目录初始化并写入一个新的go.work文件，实际上是在当前目录创建一个新的工作区。
+
+可选地接受工作区模块的路径作为参数，如果参数被省略，一个没有模块的空工作区将被创建。
+
+每个参数路径被添加至go.work文件中的一个use指令。当前go版本也将在go.work文件中列出。
+
+更多信息参阅于[https://go.dev/ref/mod#workspaces](https://go.dev/ref/mod#workspaces)的工作区参考。
+
+## go work sync——同步工作区构建列表至模块
+
+```shell
+go work sync
+```
+
+同步工作区的构建列表回到工作区的模块。
+
+工作区的构建列表是在工作区中用来执行构建的所有（传递性的）依赖模块的版本集合。go work sync使用最小版本选择（Minimal Version Selection）算法生产该构建列表，并然后同步那些版本回到每个在工作区中（用use指令）指定的模块。
+
+如果依赖模块的版本不是已经和构建列表的版本相同，同步是通过按顺序地升级在工作区模块中指定的每个依赖模块至在构建列表中的版本。注意最小版本选择算法保证每个模块的构建列表的版本总是等于或高于在每个工作区模块中的值。
+
+更多信息参阅于[https://go.dev/ref/mod#workspaces](https://go.dev/ref/mod#workspaces)的工作区参考。
+
+## go work use——添加模块至工作区文件
+
+```shell
+go work use [-r] moddirs
+```
+
+提供一个命令行接口来添加目录至go.work文件中——可选地递归。
+
+对在命令行列出的每个参数目录，一个use指令将被添加至go.work文件中——如果它存在磁盘上，或从go.work文件中删除——如果它不存在磁盘上。
+
+标志：
+
+* -r：递归地搜索在参数目录中的模块，且use命令如同每个目录都被指定为参数一样工作：亦即，对存在的目录use指令将被添加，对不存在的目录将被删除。
+
+更多信息参阅于[https://go.dev/ref/mod#workspaces](https://go.dev/ref/mod#workspaces)的工作区参考。
+
 # go run——编译并运行Go程序
 
 ```shell
@@ -925,13 +1082,13 @@ ok   compress/gzip 0.033s
 
 每个失败的包后跟随详细的输出。
 
-“go test”将与名字匹配文件模式“*_test.go”的任何文件一起，重新编译每个包。这些附加的文件可以包含test函数、benchmark函数、example函数。更多信息参阅“go help testfunc”。每个列出的包都会令到执行单独的测试二进制文件。以“_”（包括“_test.go”）或“.”开头的文件会被忽略。
+“go test”将与名字匹配文件模式“*_test.go”的任何文件一起，重新编译每个包。这些附加的文件可以包含test函数、benchmark函数、fuzz测试、example函数。更多信息参阅“go help testfunc”。每个列出的包都会令到执行单独的测试二进制文件。以“_”（包括“_test.go”）或“.”开头的文件会被忽略。
 
 带后缀“_test”声明的包的测试文件将被编译为单独的包，然后与main包的测试二进制文件链接并运行。
 
 go tool将忽略名字为“testdata”的目录，令其可以持有被测试所需的辅助数据。
 
-作为构建测试二进制文件的一部分，go test在包及其测试源文件上运行go vet来发现显而易见的问题。如果go vet发现任何问题，go test报告它们且不运行测试二进制文件。只使用默认的go vet检查的高可信的子集。该子集是：“atomic”、“bool”、“buildtags”、“nilfunc”和“printf”。你可以通过“go doc cmd/vet”查看这些及其它vet测试的文档。要禁止运行go vet，使用-vet=off标志（参阅 **testflag主题——测试标志** 小节）。
+作为构建测试二进制文件的一部分，go test在包及其测试源文件上运行go vet来发现显而易见的问题。如果go vet发现任何问题，go test报告它们且不运行测试二进制文件。只使用默认的go vet检查的高可信的子集。该子集是：“atomic”、“bool”、“buildtags”、“nilfunc”和“printf”。你可以通过“go doc cmd/vet”查看这些及其它vet测试的文档。要禁止运行go vet，使用-vet=off标志。要运行所有检查，使用-vet=all标志。
 
 所有的测试输出和概要行都打印至go命令的标准输出，即使test打印它们至它自己的标准错误输出。（go命令的标准错误输出被保留为打印构建测试的错误。）
 
@@ -943,7 +1100,7 @@ go test以两种不同的模式运行：
 
 只在包列表模式，go test缓存成功的包测试结果来避免不必要的测试重复运行。当测试的结果可以从缓存恢复时，go test将重新展示之前的输出而不是再次运行测试二进制文件。当这种情况发生时，go test在概要行中打印“(cached)”取代消耗的时间。
 
-缓存匹配的规则为，运行只涉及相同的测试二进制文件，且命令行中的标志完全来自一个受限的“可缓存”测试标志集合，定义为-benchtime、-cpu、-list、-parallel、-run、-short和-v。如果go test的运行有任何不在这个集合中的测试或非测试标志，结果是不被缓存的。要禁用测试缓存，使用可缓存标志以外的测试标志或参数。显式禁用测试缓存的惯用方式为使用-count=1。在包源代码根目录（通常为$GOPATH）内打开文件或查询环境变量的测试只匹配将来的文件和环境变量未改变的测试运行。缓存的测试结果被视为立即执行的，因此一个成功的包测试结果将被缓存且重用时忽略-timeout设置。
+缓存匹配的规则为，运行只涉及相同的测试二进制文件，且命令行中的标志完全来自一个受限的“可缓存”测试标志集合，定义为-benchtime、-cpu、-list、-parallel、-run、-short、-timeout、-failfast和-v。如果go test的运行有任何不在这个集合中的测试或非测试标志，结果是不被缓存的。要禁用测试缓存，使用可缓存标志以外的测试标志或参数。显式禁用测试缓存的惯用方式为使用-count=1。在包源代码根目录（通常为$GOPATH）内打开文件或查询环境变量的测试只匹配将来的文件和环境变量未改变的测试运行。缓存的测试结果被视为立即执行的，因此一个成功的包测试结果将被缓存且重用时忽略-timeout设置。
 
 除了构建标志，“go test”自身处理的标志还有：
 
@@ -970,7 +1127,7 @@ go tool [-n] command [args...]
 
 标志：
 
-* -n：打印将会执行的命令但不执行之。
+* -n：将实际需执行的命令打印出来但不运行。
 
 关于每个tool命令的更多信息，参阅“go doc cmd/<command>”。
 
@@ -1005,14 +1162,14 @@ go vet [-n] [-x] [-vettool prog] [build flags] [vet flags] [packages]
 
 标志：
 
-* -n：打印将会执行的命令但不执行之。
+* -n：将实际需执行的命令打印出来但不运行。
 * -vettool=prog：选择带有备选或附加检查的不同的分析工具。例如，可以使用这些命令来构建和运行“shadow”分析器：
 
 	```
 	go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
 	go vet -vettool=$(which shadow)
 	```
-* -x：打印将会执行的命令并执行之。
+* -x：同时打印实际执行的命令。
 
 go vet支持的构建标志是那些控制包解析和执行的标志，如-n、-x、-v、-tags和-toolexec。关于这些标志的更多信息，参阅“go help build”。
 
@@ -1126,6 +1283,8 @@ go命令定期地删除最近未使用的缓存数据。运行“go clean -cache
 
 go命令也缓存成功的包测试结果。更多细节参阅“go help test”。运行“go clean -testcache”删除所有缓存的测试结果（不包括缓存的构建结果）。
 
+go命令也缓存以“go test -fuzz”在模糊测试中使用的值，特别地，当传递至模糊测试函数时扩展代码覆盖范围的值。这些值不被用作普通的构建和测试，但它们被存储在构建缓存的一个子目录中。运行“go clean -fuzzcache”删除所有缓存的模糊测试值。暂时地，这可能令到模糊测试降低效果。
+
 GODEBUG环境变量可以启用关于缓存状态调试信息的打印：
 
 * GODEBUG=gocacheverify=1：令go命令绕过任何缓存条目的使用，取而代之重新构建所有内容并检查结果是否与现有的缓存条目匹配。
@@ -1144,7 +1303,7 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 * GOBIN：“go install”安装命令使用的目录。
 * GOCACHE：go命令存储缓存信息用以在将来的构建中重用的目录。
 * GODEBUG：启用多种调试功能。详细信息参阅“go doc runtime”。
-* GOENV：Go环境变量配置文件位置。不能使用“go env -w”设置。
+* GOENV：Go环境变量配置文件位置。不能使用“go env -w”设置。在环境变量中设置GOENV=off禁止默认配置文件的使用。
 * GOFLAGS：一个空白分隔的-flag=value设置列表，当给定的标志被当前命令已知时，会被默认应用于go命令。每个条目必须是单独的标志。因为条目是空白分隔的，标志值必须不包含空白。在命令行列出的标志在这个列表之后应用并因此覆盖之。
 * GOINSECURE：模块路径前缀的glob模式（以Go的path.Match的语法）的逗号分隔的列表，其应总是以不安全的方式拉取。只应用于被直接拉取的依赖。GOINSECURE不禁用校验和数据库验证。GOPRIVATE或GONOSUMDB可以用来达到该目的。
 * GOMODCACHE：go命令存储下载的模块的目录。
@@ -1158,6 +1317,7 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 * GOSUMDB：使用的校验和数据库的名字，及可选的其公钥和URL。参阅[https://golang.org/ref/mod#authenticating](https://golang.org/ref/mod#authenticating)。
 * GOTMPDIR：go命令写入临时源文件、包和二进制文件的目录。
 * GOVCS：列出可与匹配的服务器一起使用的版本控制命令。参阅“go help vcs”。
+* GOWORK：在模块感知模式，使用给定的go.work文件作为工作区文件。默认情况下或当GOWORK为“auto”时，go命令在当前目录并然后在包含其的目录中查找名字为go.work的文件，直到找到一个。如果一个有效的go.work文件被找到，指定的模块将共同地被用作主模块。如果GOWORK为“off”，或在“auto”模式下找不到go.work文件，工作区模式被禁用。
 
 与cgo一起使用的环境变量：
 
@@ -1186,6 +1346,7 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 体系结构特定的环境变量：
 
 * GO386：对GOARCH=386，如何实现浮点指令。有效值为sse2（默认）、softfloat。
+* GOAMD64：对GOARCH=amd64，要为之编译的微体系结构级别。有效值为v1（默认）、v2、v3、v4。参阅[https://golang.org/wiki/MinimumRequirements#amd64](https://golang.org/wiki/MinimumRequirements#amd64)。
 * GOARM：对GOARCH=arm，要为之编译的ARM体系结构。有效值为5、6、7。
 * GOMIPS：对GOARCH=mips{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
 * GOMIPS64：对GOARCH=mips64{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
@@ -1613,11 +1774,11 @@ GOPRIVATE环境变量也被用来为GOVCS环境变量定义“public”和“pri
 
 以下的标志被“go test”命令识别并控制任何测试的执行：
 
-（译注：以下标志阐述中，测试（大多数）指test，基准测试指benchmark，范例指example；性能分析指profile。）
+（译注：以下标志阐述中，单元测试指test，基准测试指benchmark，模糊测试指fuzz，范例指example；性能分析指profile。）
 
 * -bench regexp：只运行那些匹配正则表达式的基准测试。默认情况下，不运行基准测试。要运行所有基准测试，使用“-bench .”或“-bench=.”。正则表达式由无括号的斜杠（/）字符分隔为一系列正则表达式，且基准测试的标识符的每部分必须匹配序列中对应的元素，如果有的话。匹配项的可能的父项以b.N=1运行来标识子基准测试。例如，给定-bench=X/Y，顶层基准测试匹配X且以b.N=1运行来发现任何匹配Y的子基准测试，其是之后会全部运行的项。
 * -benchtime t：为每个基准测试运行足够的迭代以消耗时间t，其被指定为time.Duration（例如，-benchtime 1h30s）。默认值为1秒（1s）。特殊的语法Nx表示运行基准测试N次（例如，-benchtime 100x）。
-* -count n：运行每个测试和基准测试n次（默认为1）。如果-cpu被设置，对每个GOMAXPROCS值（译注：-cpu设置的列表中的每个值）运行n次。范例总是只运行一次。
+* -count n：运行每个单元测试、基准测试和模糊测试种子n次（默认为1）。如果-cpu被设置，对每个GOMAXPROCS值（译注：-cpu设置的列表中的每个值）运行n次。范例总是只运行一次。-count不应用于被-fuzz匹配的模糊测试。
 * -cover：启用覆盖率分析。注意因为覆盖率分析通过在编译前注解源代码来工作，启用覆盖率分析的编译和测试失败可能报告和原来的源代码不对应的行号。
 * -covermode set,count,atomic：设置对被测试的包的覆盖率分析模式。默认为“set”除非-race被启用，这种情况下为“atomic”。值为：
 
@@ -1626,14 +1787,18 @@ GOPRIVATE环境变量也被用来为GOVCS环境变量定义“public”和“pri
 	* atomic（int）：计数，但在多线程测试中正确；明显更高消耗。
 
 	会设置-cover。
-* -coverpkg pattern1,pattern2,pattern3：对匹配模式的包的每个测试应用覆盖率分析。默认对每个测试只分析被测试的包。关于包模式的描述参阅“go help packages”。会设置-cover。
-* -cpu 1,2,4：指定GOMAXPROCS（译注：runtime.GOMAXPROCS的返回值）值列表，测试或基准测试会以此来执行。默认为GOMAXPROCS的当前值。
-* -failfast：在首个测试失败之后不再开始新的测试。
-* -list regexp：列出匹配正则表达式的测试、基准测试或范例。没有测试、基准测试或范例会被运行。这只会列出顶层测试。没有子测试或子基准测试会被展示。
-* -parallel n：允许调用t.Parallel的测试函数并行执行。这个标志的值是同时运行的测试的最大值；默认下，其设置为GOMAXPROCS的值。注意-parallel只应用于单个测试二进制中。根据-p标志的设置（参阅“go help build”），“go test”命令也可能为多个包并行运行测试。
-* -run regexp：只运行匹配正则表达式的那些测试和范例。对于测试，正则表达式由无括号的斜杠（/）字符分隔为一系列正则表达式，且测试的标识符的每部分必须匹配序列中对应的元素，如果有的话。注意匹配项的可能的父项也会运行，因此-run=X/Y匹配、运行、报告所有匹配X的测试的的结果，即使它们并没有匹配Y的子测试，因为必须运行它们来查找那些子测试。
+* -coverpkg pattern1,pattern2,pattern3：对匹配模式的包的每个单元测试应用覆盖率分析。默认对每个单元测试只分析被测试的包。关于包模式的描述参阅“go help packages”。会设置-cover。
+* -cpu 1,2,4：指定GOMAXPROCS（译注：runtime.GOMAXPROCS的返回值）值列表，单元测试、基准测试或模糊测试会以此来执行。默认为GOMAXPROCS的当前值。-cpu不应用于被-fuzz匹配的模糊测试。
+* -failfast：在首个单元测试失败之后不再开始新的单元测试。
+* -fuzz regexp：运行匹配正则表达式的模糊测试。当指定时，命令行参数必需匹配在主模块中的正好一个包，并且正则表达式必需匹配在该包中的正好一个模糊测试。模糊测试将在单元测试、基准测试、其它模糊测试的种子集之后发生，并且范例已经完成。详细信息参阅testing包文档的Fuzzing小节。
+* -fuzztime t：在模糊测试期间运行模糊测试目标的足够的迭代以消耗时间t，其被指定为一个time.Duration（例如，-fuzztime 1h30s）。默认为永远运行。特殊的语法Nx表示运行模糊测试目标N次（例如，-fuzztime 1000x）。
+* -fuzzminimizetime t：在每个最小限度的尝试期间运行模糊测试目标的足够的迭代以消耗时间t，其被指定为一个time.Duration（例如，-fuzzminimizetime 30s）。默认为60s。特殊的语法Nx表示运行模糊测试目标N次（例如，-fuzzminimizetime 100x）。
+* -json：以JSON记录详细的输出和测试结果日志。这以机器可读的格式表示与-v标志相同的信息。
+* -list regexp：列出匹配正则表达式的单元测试、基准测试、模糊测试或范例。没有单元测试、基准测试、模糊测试或范例会被运行。这只会列出顶层测试。没有子单元测试或子基准测试会被展示。
+* -parallel n：允许调用t.Parallel的单元测试函数并行执行，以及当运行种子集时调用t.Parallel的模糊测试目标并行执行。这个标志的值是同时运行的测试的最大值。当运行模糊测试时，这个标志的值是可以同时调用模糊测试函数的子线程的最大值，不管T.Parallel是否被调用。默认下，-parallel设置为GOMAXPROCS的值。由于CPU争用，设置-parallel为高于GOMAXPROCS的值可能导致降低性能，特别是当运行模糊测试时。注意-parallel只应用于单个测试二进制中。根据-p标志的设置（参阅“go help build”），“go test”命令也可能为多个包并行运行测试。
+* -run regexp：只运行匹配正则表达式的那些单元测试、范例和模糊测试。对于测试，正则表达式由无括号的斜杠（/）字符分隔为一系列正则表达式，且测试的标识符的每部分必须匹配序列中对应的元素，如果有的话。注意匹配项的可能的父项也会运行，因此-run=X/Y匹配、运行、报告所有匹配X的测试的的结果，即使它们并没有匹配Y的子测试，因为必须运行它们来查找那些子测试。
 * -short：告诉长时间运行的测试来缩短它们的运行时间。默认是关闭的，但在all.bash运行期间会设置，因此安装Go树可以运行健全的检查但不会花费时间运行详尽的测试。
-* -shuffle off,on,N：随机化测试和基准测试的执行顺序。其默认是off。如果-shuffle设置为on，那么他将使用系统时钟对随机数发生器播种。如果-shuffle设置为一个整数N，那么N将被用作种子的值。在两种情况下，种子都会被报告再现性。
+* -shuffle off,on,N：随机化单元测试和基准测试的执行顺序。其默认是off。如果-shuffle设置为on，那么他将使用系统时钟对随机数发生器播种。如果-shuffle设置为一个整数N，那么N将被用作种子的值。在两种情况下，种子都会被报告再现性。
 * -timeout d：如果测试二进制运行长于时长d，会panic。如果d是0，超时会被禁用。默认为10分钟（10m）。
 * -v：详细的输出：在测试运行时记录所有测试的日志。即使测试成功也会打印所有由Log和Logf调用产生的文本。
 * -vet list：配置“go test”运行期的“go vet”调用来使用vet检查的逗号分隔的列表。如果列表为空，“go test”以一个精心设计的被认为总是值得提及的检查列表运行“go vet”。如果列表为“off”，“go test”根本不会运行“go vet”。
@@ -1660,7 +1825,7 @@ GOPRIVATE环境变量也被用来为GOVCS环境变量定义“public”和“pri
 
 生成性能分析的测试标志（除了用于覆盖率的）也保留测试二进制在pkg.test中以在分析性能分析结果时使用。
 
-当“go test”运行测试二进制时，其会在对应的包源代码目录内运行。根据测试的不同，当直接调用生成的测试二进制时可能需要做同样的事情。
+当“go test”运行测试二进制时，其会在对应的包源代码目录内运行。根据测试的不同，当直接调用生成的测试二进制时可能需要做同样的事情。由于该目录可能位于模块缓存之中，其可能是只读的且被校验和验证，测试不得向其或在模块中的任何其它目录写入，除非被用户明确地要求（例如以-fuzz标志，其写入失败结果至testdata/fuzz）。
 
 命令行包列表，如果存在，必须出现在任何go test命令不认识的标志之前。继续上面的例子，包列表本应出现在-myflag之前，但可以出现在-v的任一侧。
 
@@ -1676,7 +1841,7 @@ GOPRIVATE环境变量也被用来为GOVCS环境变量定义“public”和“pri
 
 “go test”命令期望在与被测试的包对应的“*_test.go”文件中找到测试、基准测试和范例函数。
 
-测试函数是一个名为TestXxx（Xxx处不以小写字母开头）且应具有特征：
+单元测试函数是一个名为TestXxx（Xxx处不以小写字母开头）且应具有特征：
 
 ```go
 func TestXxx(t *testing.T) { ... }
@@ -1686,6 +1851,12 @@ func TestXxx(t *testing.T) { ... }
 
 ```go
 func BenchmarkXxx(b *testing.B) { ... }
+```
+
+模糊测试是一个名为FuzzXxx且应具有特征：
+
+```go
+func FuzzXxx(f *testing.F) { ... }
 ```
 
 范例函数类似于测试函数，但取代使用*testing.T来报告成功或失败，会打印输出至os.Stdout。如果函数中的最后的注释以“Output:”开头，那么输出会精确地与注释比较（参阅下面的例子）。如果最后的注释以“Unordered output:”开头，那么输出与注释比较，但是忽略行的顺序。没有如此注释的范例会被编译但不会被执行。“Output:”后没有文本的范例会被编译、执行并期望不产生输出。
@@ -1718,7 +1889,7 @@ func ExamplePerm() {
 }
 ```
 
-整个测试文件会作为范例展示，当其包含单个范例函数，至少一个其它函数、类型、变量或常量声明，没有测试或基准测试函数时。
+当其包含单个范例函数，至少一个其它函数、类型、变量或常量声明，没有单元测试、基准测试或模糊测试时，整个测试文件会作为范例展示。
 
 更多信息参阅testing包的文档。
 
