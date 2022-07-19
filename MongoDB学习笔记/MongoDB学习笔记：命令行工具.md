@@ -1,4 +1,4 @@
-本文更新于2022-04-21，使用MongoDB 4.4.5。
+本文更新于2022-06-27，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -53,7 +53,7 @@ OPTION可为：
 * --config|-f FILENAME：配置文件。命令行指定的选项可覆盖配置文件中的值。
 * --configsvr：作为配置服务器启动。默认端口为27019，默认数据目录为/data/configdb。
 * --fork：创建后台运行的子进程。需同时使用--logpath。
-* --directoryperdb：每个数据库存放在单独的目录种。
+* --directoryperdb：每个数据库存放在单独的目录中。
 * --help：查看帮助。
 * --journalCommitInterval MICROSECONDS：日记系统进行提交的时间间隔。单位为毫秒，最小为2，最大为500。
 * --logappend：以追加方式写入日志文件。需同时使用--logpath。

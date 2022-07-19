@@ -1,4 +1,4 @@
-本文更新于2021-12-04，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2022-06-28，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
@@ -14,7 +14,7 @@ make
 sudo make install
 ```
 
-执行`make`后，可执行文件编译于redis-6.0.8/src中。官方文档无`sudo make install`这一步，其执行后会将可执行文件拷贝至/usr/local/bin目录下，用户为root，用户组为staff。可执行文件包括：
+执行`make`后，可执行文件编译于redis-6.0.8/src中。官方文档无`sudo make install`这一步，其执行后会将可执行文件拷贝至/usr/local/bin目录下。可执行文件包括：
 
 * redis-benchmark：性能测试。
 * redis-check-aof：检查AOF文件。
@@ -23,9 +23,13 @@ sudo make install
 * redis-sentinel：哨兵。
 * redis-server：服务器。
 
-另外，redis-6.0.8/src下还有以下可执行文件，不会被`sudo make install`拷贝至/usr/local/bin目录下：
+redis-6.0.8/src下还有以下可执行文件，不会被`sudo make install`拷贝至/usr/local/bin目录下：
 
 * redis-trib.rb：Cluster集群管理。
+
+redis-6.0.8下还有以下文件，不会被`sudo make install`拷贝至/usr/local/bin目录下：
+
+* redis.conf：默认配置文件。
 
 # 配置
 
@@ -35,7 +39,7 @@ sudo make install
 * appendonly yes|no：是否开启AOF，不使用快照。
 * auto-aof-rewrite-min-size SIZE：AOF文件超过此大小，且比上一次重写后增长超过auto-aof-rewrite-percentage指定的百分比时，进行重写。如：auto-aof-rewrite-min-size 64mb。
 * auto-aof-rewrite-percentage PERCENTAGE：AOF文件比上一次重写后增长超过此百分比，且超过auto-aof-rewrite-min-size指定的大小时，进行重写。如：auto-aof-rewrite-percentage 100。
-* bind IP [...]：监听的IP地址。
+* bind IP [...]：监听的IP地址。缺省为本机所有IP。
 * client-output-buffer-limit pubsub HARDSIZE SOFTSIZE SOFTSECONDS：发布/订阅连接的输出缓冲区限制，不超过HARDSIZE且在SOFTSECONDS秒内不超过SOFTSIZE，否则关闭连接。全0为无限制。如：client-output-buffer-limit pubsub 32mb 8mb 60。
 * dbfilename FILENAME：快照文件名。如：dbfilename dump.rdb。
 * dir DIR：快照文件和AOF文件保存的目录。如：dir ./。
@@ -46,6 +50,7 @@ sudo make install
 * lua-time-limit MILLSECONDS：Lua脚本执行的最长毫秒数，超时则使用`SCRIPT KILL`将脚本杀死。
 * no-appendfsync-on-rewrite yes|no：当重写AOF文件时是否停止将写操作刷新至磁盘。
 * rdbcompression yes|no：保存快照时是否进行压缩。
+* requirepass PASSWORD：身份验证密码。
 * save SECONDS WRITETIMES：距离上一次创建快照超过SECONDS秒且达到WRITETIMES次写操作时触发`BGSAVE`命令保存快照，可设置多个。如：save 60 1000。
 * slave-read-only yes|no：从服务器是否只读不允许写入。默认为yes。
 * set-max-intset-entries AMOUNT：集合被编码为整数集合时允许的最大元素数量。
@@ -104,6 +109,7 @@ OPTIONS可为：
 * --eval LUAFILENAME [LUAKEY <...> [, LUAARGV [...]]]：执行Lua脚本文件。LUAKEY为脚本中使用到的键，依次以`KEYS[1]`等形式使用。LUAARGV为脚本中使用到的附加参数，依次以`ARGV[1]`等形式使用。脚本中可使用`VALUE = redis.call(COMMAND, KEYS[1] <...>)`或`VALUE = redis.pcall(COMMAND, KEYS[1] <...>)`的形式调用命令。
 * --help：打印帮助信息。
 * --ldb：开启Lua脚本的调试。与--eval一起使用。
+* --raw：使用原始数据格式显示结果。结果没有行号，不进行转义。当标准输出不是TTY终端时，为默认选项。
 
 ## redis-sentinel
 
@@ -114,7 +120,7 @@ OPTIONS可为：
 服务器。
 
 ```shell
-redis-server
+redis-server [CONFIGFILENAME]
 ```
 
 ## redis-trib.rb

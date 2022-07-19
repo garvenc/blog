@@ -1,4 +1,4 @@
-本文更新于2021-07-19，使用Docker 19.03.12。
+本文更新于2022-06-18，使用Docker 19.03.12。
 
 [TOC]
 
@@ -12,12 +12,22 @@ Dockerfile由一系列指令和参数构成，以“#”开头的行视为注释
 
 ```
 # Version: 0.0.1
+
 FROM ubuntu:14.04
+
 MAINTAINER GV "gv@example.com"
+
 ENV REFRESHED_AT 2014-07-01
+
 ADD ./index.html /usr/share/nginx/html/index.html
+
 RUN apt-get update && \
 	apt-get install -y nginx
+
+WORKDIR /usr/local/nginx/sbin
+
+ENTRYPOINT ./nginx
+
 EXPOSE 80
 ```
 
@@ -104,7 +114,7 @@ ENV name=value <...>
 说明容器内的应用程序需公开那个端口。Docker并不会自动开放端口，需要在运行容器时指定。
 
 ```
-EXPOSE port
+EXPOSE port</protocol> <...>
 ```
 
 # FROM image
@@ -185,7 +195,7 @@ VOLUME mountdir
 
 # WORKDIR
 
-指定构建镜像时容器内部的工作目录。`ENTRYPOINT`、`CMD`指令和根目录`/`都会在此目录下执行。
+指定构建镜像时容器内部的工作目录。如目录不存在，则会自动创建。`ENTRYPOINT`、`CMD`指令和根目录`/`都会在此目录下执行。
 
 ```
 WORKDIR dir

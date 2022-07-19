@@ -1,4 +1,4 @@
-本文更新于2021-11-17，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2022-07-16，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
@@ -1058,6 +1058,18 @@ EXISTS key [...]
 返回存在的键数量：
 
 > (integer) 1
+
+## FLUSHALL
+
+删除所有键。
+
+```
+FLUSHALL [ASYNC]
+```
+
+返回：
+
+> OK
 
 ## KEYS
 

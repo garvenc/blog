@@ -1,4 +1,4 @@
-本文更新于2022-01-22，使用MongoDB 4.4.5。
+本文更新于2022-06-30，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -1076,6 +1076,7 @@ QUERY_DOC见`DBCollection.prototype.find`。
 也可以在MODIFIER_DOC使用更新修改器修改部分字段。更新修改器可使用：
 
 * $inc：增加或减少键的值，键不存在则先创建为0。`$inc: {KEY: NUMBER <, ...>}`。只能用于数值类型的键。
+* $rename：重命名键。`$rename: {KEY: NEWKEY}`。
 * $set：设置键的值，键不存在则创建。`$set: {KEY: VALUE <, ...>}`。
 * $setOnInsert：当更新需插入文档时，同时设置键的值；只更新不插入文档时，不进行设置。`$setOnInsert: {KEY: VALUE <, ...>}`。
 * $unset：删除键。`$unset: {KEY: 1 <, ...>}`。值是无关的。

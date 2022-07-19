@@ -1,4 +1,4 @@
-本文更新于2021-07-31，使用Docker 19.03.12，操作系统为Debian 10。
+本文更新于2022-06-18，使用Docker 19.03.12，操作系统为Debian 10。
 
 [TOC]
 
@@ -117,7 +117,7 @@ OPTIONS可为：
 
 ### docker container cp
 
-在容器和宿主机之间复制文件。等同于`docker cp`。
+在容器和宿主机之间复制文件，容器停止运行时也可复制。等同于`docker cp`。
 
 ```shell
 docker container cp [OPTIONS] CONTAINER:CONTAINER_PATH HOST_PATH
@@ -195,6 +195,7 @@ docker container ls [OPTIONS]
 OPTIONS可为：
 
 * -a：列出所有容器，不指定默认只列出运行中的容器。
+* -f|--filter KEY=VALUE：根据条件过滤。
 * -l：列出最后创建的一个容器，无论其是否运行中。
 * -n N：列出最后创建的N个容器，无论其是否运行中。
 * -q：安静模式，只列出容器ID。
@@ -349,7 +350,7 @@ OPTIONS可为：
 
 * -t|--time SECONDS：等待秒数，超时则强制停止。
 
-## docker container wait
+### docker container wait
 
 等待容器退出，并返回退出码。等同于`docker wait`。
 

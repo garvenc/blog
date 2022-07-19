@@ -1,4 +1,4 @@
-本文更新于2020-11-30。
+本文更新于2022-06-16。
 
 **说明：下文中，大写为自定义变量（个别大写的类型除外），根据实际情况填写。使用`<>`引起表示内容可选，`|`表示使用左侧或右侧内容，`...`表示重复之前内容。**
 
@@ -141,7 +141,7 @@ var ELEMENT = ARRAY.pop();
 向数组尾部追加元素。
 
 ```js
-var LENGTH = ARRAY.PUSH(ELEMENT <, ...>);
+var LENGTH = ARRAY.push(ELEMENT <, ...>);
 ```
 
 ## Array.prototype.reduce

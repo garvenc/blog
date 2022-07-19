@@ -1,4 +1,4 @@
-本文更新于2022-02-23。
+本文更新于2022-05-23。
 
 [TOC]
 
@@ -40,8 +40,8 @@
 * [MongoDB学习笔记：概述](https://www.cnblogs.com/garvenc/p/mongodb_learning_summary.html)
 * [MongoDB学习笔记：安装](https://www.cnblogs.com/garvenc/p/mongodb_learning_install.html)
 * [MongoDB学习笔记：JavaScript shell](https://www.cnblogs.com/garvenc/p/mongodb_learning_javascript_shell.html)
-* [MongoDB学习笔记：副本集](https://www.cnblogs.com/garvenc/p/mongodb_learning_replica_set.html)
-* [MongoDB学习笔记：分片](https://www.cnblogs.com/garvenc/p/mongodb_learning_sharding.html)
+* [MongoDB学习笔记：副本集搭建](https://www.cnblogs.com/garvenc/p/mongodb_learning_replica_set.html)
+* [MongoDB学习笔记：分片搭建](https://www.cnblogs.com/garvenc/p/mongodb_learning_sharding.html)
 * [MongoDB学习笔记：命令行工具](https://www.cnblogs.com/garvenc/p/mongodb_learning_cli.html)
 * [MongoDB学习笔记：默认数据库与集合](https://www.cnblogs.com/garvenc/p/mongodb_learning_default_databases_and_collections.html)
 * [MongoDB学习笔记：应用程序设计](https://www.cnblogs.com/garvenc/p/mongodb_learning_application_design.html)

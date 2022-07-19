@@ -1,4 +1,4 @@
-本文更新于2022-04-25
+本文更新于2022-07-07。
 
 [TOC]
 
@@ -244,41 +244,6 @@ cp [-adfprR] SRC[ ...] DST
 
 若DST为目录，则将SRC复制进目录中。若有多个SRC，则DST必须为目录。
 
-## chgrp
-
-修改文件/目录的用户组。
-
-```shell
-chgrp [-R] GROUP NAMEGLOB[ ...]
-```
-
-* -R：递归更改子目录和文件。
-
-## chmod
-
-修改文件/目录的权限。
-
-```shell
-chmod [-R] MODE NAMEGLOB[ ...]
-```
-
-* -R：递归更改子目录和文件。
-
-MODE可取如下形式：
-
-* 数字类型: 如0770。
-* 符号类型：{{ugoa}{=+-}{rwxst}}[,...]，a表示所有，s只能用于u（SUID）g（SGID），t只能用于o（SBIT）。如u=rw,go=r、a+w,o-x。
-
-## chown
-
-修改文件/目录的所有者。
-
-```shell
-chown [-R] [GROUP:]OWNER NAMEGLOB[ ...]
-```
-
-* -R：递归更改子目录和文件。
-
 ## dd
 
 复制文件/设备。
@@ -397,7 +362,7 @@ test OPTEST
 
 若为真，则命令执行返回码为0；否则为1。注意，上述两种表示是等价的，第二种`[`和`]`间必须有空格。OPTEST中的变量和常量建议使用`""`引起，使用方法如下：
 
-检测文件或目录，如`test OP NAME`：
+检测文件或目录，如`test OP NAME`或`[ OP NAME ]`：
 
 * -b：检测是否存在且为块设备。
 * -c：检测是否存在且为字符设备。
@@ -409,7 +374,7 @@ test OPTEST
 * -S：检测是否存在且为套接字（Socket）文件。
 * -p：检测是否存在且为管道（FIFO）文件。
 
-检测文件或目录权限（但root用户常有例外），如`test OP NAME`：
+检测文件或目录权限（但root用户常有例外），如`test OP NAME`或`[ OP NAME ]`：
 
 * -g：检测是否存在且有SGID属性。
 * -k：检测是否存在且有SBIT属性。
@@ -418,13 +383,13 @@ test OPTEST
 * -w：检测是否存在且有写权限。
 * -x：检测是否存在且有执行权限。
 
-文件或目录比较，如`test NAME1 OP NAME2`：
+文件或目录比较，如`test NAME1 OP NAME2`或`[ NAME1 OP NAME2 ]`：
 
 * -ef：比较是否同一个文件。可用于检测硬连接，如指向同一个inode则为同一个文件。
 * -nt：比较NAME1是否比NAME2新。
 * -ot：比较NAME1是否比NAME2老。
 
-整数比较，如`test N1 OP N2`：
+整数比较，如`test N1 OP N2`或`[ N1 OP N2 ]`：
 
 * -eq：比较是否相等。
 * -ge：比较N1是否大于等于N2。
@@ -433,19 +398,19 @@ test OPTEST
 * -lt：比较N1是否小于N2。
 * -ne：比较是否不等。
 
-字符串比较，如`test OP STR`：
+字符串比较，如`test OP STR`或`[ OP STR ]`：
 
 * -n：比较字符串是否不为空串。`-n`也可省略。
 * -z：比较字符串是否为空串。
 
 或：
 
-* test STR1 = STR2：比较字符串是否相等。`=`也可为`==`。
+* test STR1 = STR2：比较字符串是否相等。`[ OPTEST ]`中可使用`==`。
 * test STR1 != STR2：比较字符串是否不等。
 
 也可以对`test`进行多重判定：
 
-* !：取反，如`test ! OPTEST`。
+* !：取反，如`test ! OPTEST`或`[ ! OPTEST ]`。
 * -a：两个条件同时成立，如`test OPTEST1 -a OPTEST2`。
 * -o：任意一个条件成立，如`test OPTEST1 -o OPTEST2`。
 
@@ -469,6 +434,68 @@ touch [-acmt] FILENAME
 ```shell
 tree [DIR]
 ```
+
+# 文件权限
+
+## chgrp
+
+修改文件/目录的用户组。
+
+```shell
+chgrp [-R] GROUPNAME NAMEGLOB[ ...]
+```
+
+* -R：递归更改子目录和文件。
+
+## chmod
+
+修改文件/目录的权限。
+
+```shell
+chmod [-R] MODE NAMEGLOB[ ...]
+```
+
+* -R：递归更改子目录和文件。
+
+MODE可取如下形式：
+
+* 数字类型: 如0770。
+* 符号类型：{{[u][g][o][a]}{=|+|-}{[r][w][x][s][t]}}[,...]，a表示所有，s只能用于u（SUID）g（SGID），t只能用于o（SBIT）。如u=rw,go=r、a+w,o-x。
+
+## chown
+
+修改文件/目录的所有者。
+
+```shell
+chown [-R] [GROUPNAME:]USERNAME NAMEGLOB[ ...]
+```
+
+* -R：递归更改子目录和文件。
+
+## getfacl
+
+查看ACL权限。
+
+```shell
+getfacl NAME
+```
+
+## setfacl
+
+设置ACL权限。
+
+```shell
+setfacl -m {[d:]u:USERNAME:[r][w][x]}|{[d:]g:GROUPNAME:[r][w][x]}|{m:[r][w][x]} NAME
+```
+
+* -b：删除所有的ACL权限。
+* -d：设置默认的ACL权限。只对目录有效，在改目录下新建的目录和文件会使用此默认ACL权限。
+* -k：删除默认的ACL权限。
+* -m：添加指定的ACL权限。d表示设置默认权限，u表示为用户设置，g表示为用户组设置，m表示设置权限掩码。
+* -R：递归设置子目录和文件。
+* -x：删除指定的ACL权限。
+
+如不指定USERNAME，则为文件的所有者；如不指定GROUPNAME，则为文件的用户组。
 
 ## umask
 
@@ -912,7 +939,7 @@ sed [-nri] 's/OLDREGEXP/NEWREGEXP/g' FILENAME[ ...]|STDIN
 * -r：使用扩展正则表达式。
 * -i：直接修改文件的内容。
 
-操作的行包括N1和N2。N1和N2都缺省表示所有行。如有多个文件，则将所有文件组合在一起再计算行号。
+操作的行包括N1和N2（从1开始），N1和N2都缺省表示所有行。如有多个文件，则将所有文件组合在一起再计算行号。
 
 操作的含义：
 
@@ -1056,6 +1083,16 @@ RHEL系列为`useradd`的软连接，参看其使用。Debian系列此命令较`
 ```shell
 adduser USERNAME
 ```
+
+## chpasswd
+
+修改密码。
+
+```shell
+chpasswd STDIN
+```
+
+STDIN每行的内容为：USERNAME:PASSWORD。
 
 ## groupadd
 
@@ -1303,7 +1340,7 @@ crontab [-elr -u USERNAME]
 * N：指定时刻执行。
 * N,M：指定多个时刻执行
 * N-M：指定时间段执行。
-* /X：每隔一定时间间隔执行，配合*/X，N-M/X等实现。
+* /X：每隔一定时间间隔执行，需配合*/X，N-M/X等实现。
 
 ## fg
 
@@ -2104,6 +2141,20 @@ tshark [-i ETH -w FILENAME] [CAPTUREFILTER]
 * -i ETH：指定网络接口。
 * -w FILENAME：数据包写入的文件名。
 
+## ufw
+
+设置防火墙。
+
+```shell
+ufw [delete] allow|deny PORT[/tcp]
+ufw status [verbose]
+```
+
+* allow：允许访问。
+* delete：删除规则。
+* deny：禁止访问。
+* status：查看状态。
+
 # HTTP
 
 ## ab
@@ -2150,6 +2201,8 @@ wget [-O FILENAME] URL
 ```
 
 * -O FILENAME：指定保存响应内容的文件名。
+
+URL可放在参数的前面。
 
 # 证书
 
@@ -2217,6 +2270,7 @@ wget [-O FILENAME] URL
 查询、管理APT包。
 
 ```shell
+apt autoremove
 apt edit-sources
 apt install APTPACKAGE
 apt list APTPACKAGE|--installed
@@ -2232,6 +2286,7 @@ apt upgrade
 
 子命令：
 
+* autoremove：删除所有自动安装且不再使用的软件包。同apt-get autoremove。
 * edit-sources：编辑apt源列表。
 * install：安装apt包，同apt-get install。
 * list：列出指定的apt包。
@@ -2266,6 +2321,7 @@ apt-cache show APTPACKAGE
 
 ```shell
 apt-get autoclean
+apt-get autoremove
 apt-get clean
 apt-get install APTPACKAGE
 apt-get purge APTPACKAGE
@@ -2280,6 +2336,7 @@ apt-get upgrade
 子命令：
 
 * autoclean：清理apt缓存。
+* autoremove：删除所有自动安装且不再使用的软件包。
 * clean：清理apt缓存，比autoclean更彻底。
 * install：安装apt包。
 * purge：删除apt包，同时删除配置文件。同`remove --purge`。
@@ -2373,6 +2430,21 @@ rpm --import KEYFILENAME|URL
 ```
 
 * --import：安装数字证书。
+
+## scl
+
+多版本包管理。
+
+```shell
+scl --list
+scl enable COLLECTION COMMAND
+```
+
+* --list：列出已安装的包集合。
+
+子命令：
+
+* enable COLLECTION COMMAND：执行命令COMMAND并激活包集合COLLECTION。
 
 ## yum
 
@@ -2646,10 +2718,11 @@ alias NEW=OLD
 打印回显。
 
 ```shell
-echo [-e] CONTENT[ ...]
+echo [-en] CONTENT[ ...]
 ```
 
 * -e：使用转义字符。
+* -n：不打印结尾的换行符。
 
 ## exit
 
