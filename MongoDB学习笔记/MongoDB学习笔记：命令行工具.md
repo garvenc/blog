@@ -1,4 +1,4 @@
-本文更新于2022-06-27，使用MongoDB 4.4.5。
+本文更新于2022-08-24，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -15,20 +15,21 @@ bsondump BSONFILENAME
 JavaScript shell。
 
 ```shell
-mongo [OPTION] [DB_NAME|HOST[:PORT][/DB_NAME]|MONGODB_URI] [JS_FILENAME[ ...]]
+mongo [OPTION] [DBNAME|HOST[:PORT][/DBNAME]|MONGODB_URI] [JS_FILENAME[ ...]]
 ```
 
-OPTION可为：
+OPTION可为（身份验证相关的选项--authenticationDatabase、--password|-p、--username|-u在其它命令行工具中有相同的用法，不再赘述）：
 
+* --authenticationDatabase AUTHDBNAME：身份校验使用的数据库。
 * --nodb：启动shell时不连接到任何mongod。
 * --norc：启动shell时不加载用户主目录下的.mongorc.js。默认会加载。
 * --password|-p [PASSWORD]：指定密码。如不指定PASSWORD，则于交互界面提示输入密码。
 * --quiet：不打印连接成功后的提示信息。
 * --username|-u USERNAME：指定用户名。
 
-如不指定DB_NAME或HOST[:PORT][/DB_NAME或MONGODB_URI，默认连接到localhost:27017/test。
+如不指定DBNAME或HOST[:PORT][/DBNAME或MONGODB_URI，默认连接到localhost:27017/test。
 
-MONGODB_URI的格式为：`mongodb://[USERNAME[:PASSWORD]@]HOST[:PORT][,...,HOST1[:PORT1]][/[DB_NAME]][?NAME=VALUE[&...&NAME1=VALUE1]]`。NAME=VALUE可为：
+MONGODB_URI的格式为：`mongodb://[USERNAME[:PASSWORD]@]HOST[:PORT][,...,HOST1[:PORT1]][/[DBNAME]][?NAME=VALUE[&...&NAME1=VALUE1]]`。NAME=VALUE可为：
 
 * replicaSet=REPLSET_NAME：副本集名字。如使用此参数，可指定任意个（并不需要所有）HOST[:PORT]，会自动选择主节点连接。
 
@@ -86,6 +87,8 @@ mongodump [OPTION]
 
 OPTION可为：
 
+* --db|-d DBNAME：只备份指定的数据库。
+* --excludeCollection COLLECTIONNAME：不进行备份的集合。可指定多次。
 * --gzip：将.bson数据文件和.metadata.json元数据文件使用gzip压缩。
 * --help：查看帮助。
 * --oplog：同时转储备份过程中的操作日志oplog，以获得备份时间点的快照。如备份副本集，必需使用此选项。

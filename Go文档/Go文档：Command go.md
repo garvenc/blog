@@ -1,6 +1,6 @@
-本文更新于2022-05-23。
+本文更新于2022-08-31。
 
-翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.18。
+翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.19。
 
 [TOC]
 
@@ -46,10 +46,10 @@ go build [-o output] [build flags] [packages]
 构建标志（build flags）会被build、clean、get、install、list、run、test命令共享：
 
 * -a：强制重新构建已经是最新的包。
-* -asan：启用与Address Sanitizer的互操作。只在linux/arm64、linux/amd64上支持。
+* -asan：启用与Address Sanitizer的互操作。只支持linux/arm64或linux/amd64，且只支持GCC 7及更高版本或Clang/LLVM 9及更高版本。
 * -asmflags '[pattern=]arg list'：传递给每次go tool asm调用的参数。
 * -buildmode mode：使用的构建模式，更多信息参阅“go help buildmode”。
-* -buildvcs：是否用版本控制信息标记二进制文件。默认情况下，如果main包和包含它的主模块在包含当前目录的仓库中（如果有仓库的话），版本控制信息会被标记入二进制文件。使用-buildvcs=false来忽略版本控制信息。
+* -buildvcs：是否用版本控制信息标记二进制文件（“true”、“false”，或“auto”）。默认情况下（“auto”），如果main包，包含它的主模块，以及当前目录全都在同一个仓库中，版本控制信息会被标记入二进制文件。使用-buildvcs=false来总是忽略版本控制信息，或-buildvcs=true则如果版本控制信息是可用的但因为缺少工具或不明确的目录结构而不能被包含，就会出错。
 * -compiler name：使用的编译器名，即runtime.Complier（gccgo或gc）。
 * -gccgoflags '[pattern=]arg list'：传递给每次gccgo编译器/链接器调用的参数。
 * -gcflags '[pattern=]arg list'：传递给每次go tool complie调用的参数。
@@ -65,7 +65,7 @@ go build [-o output] [build flags] [packages]
 * -p n：可以并行运行的程序——如构建命令或测试二进制文件——的数量。默认为GOMAXPROCS，通常是可用的CPU的数量。
 * -pkgdir dir：从dir而不是通常的位置安装和加载所有包（pkg）。例如，当使用非标准设置构建时，使用-pkgdir来令在特定的目录生成包。
 * -race：启用数据竞态检测，只支持linux/amd64、freebsd/amd64、darwin/amd64、darwin/arm64、windows/amd64、linux/ppc64le、linux/arm64（只对48位VMA）。
-* -tags tag,list：构建期间需满足的构建标记（tag），为逗号分隔的列表。关于构建标记，参阅go/build包文档中关于构建约束的描述。（早期Go版本使用空白分隔的列表，已经被反对使用，但仍然能识别。）
+* -tags tag,list：构建期间需满足的额外构建标记的逗号分隔的列表。关于构建标记的更多信息，参阅“go help buildconstraint”。（早期Go版本使用空白分隔的列表，已经被反对使用，但仍然能识别。）
 * -toolexec 'cmd args'：用来调用如vet和asm等工具链程序的程序。例如，go命令将运行“cmd args /path/to/asm <arguments for asm>”，而不是运行asm。TOOLEXEC_IMPORTPATH环境变量将被设置，其匹配正在构建的包的“go list -f {{.ImportPath}}”。
 * -trimpath：从目标可执行文件中移除所有文件系统路径。作为文件系统绝对路径的替代，记录下的文件名将以“模块路径@版本”（当使用模块），或“直接的import路径”（当使用标准库，或GOPATH）开头。
 * -v：打印编译的包名。
@@ -286,6 +286,7 @@ go generate在运行生成器时会设置几个环境变量：
 * $GOFILE：文件的基本名（base name）。
 * $GOLINE：指令在源文件中的行号。
 * $GOPACKAGE：包含指令的文件的包名。
+* $GOROOT：给调用生成器的“go”命令的GOROOT目录，包含Go工具链和标准库。
 * $DOLLAR：一个美元符号。
 
 除了变量替换和带引号的字符串求值，在命令行上不会执行诸如“globbing”（文件名通配符匹配）之类的特殊处理。
@@ -491,7 +492,7 @@ golang.org/x/net/html
 * -complied：将CompiledGoFiles设置为提交给编译器的Go源文件。通常，这意味着其会重复GoFiles列出的文件，然后也会添加通过处理CgoFiles和SwigFiles生成的Go代码。Imports列表包含来自GoFiles和CompiledGoFiles所有导入的并集。
 * -deps：不只是遍历指定名字的包，也会遍历它们的依赖。list以深度优先后序遍历的方式遍历它们，因此一个包会在它的所有依赖之后列出。未在命令行中显式列出的包将有一个设置为true的DepOnly字段。
 * -e：改变对错误包的处理方式，那些错误包或者不存在或者内容残缺。默认情况下，list命令为每个错误包打印一条错误信息至标准错误输出中，然后在普通的打印中忽略这些错误包。使用-e标志，list命令将不会打印错误信息至标准错误输出中，而是以普通打印的方式处理错误包。错误包将有非空的ImportPath和非nil的Error字段；其他信息可能会也可能不会缺失（置为零值）。
-* -export：将Export字段设置为包含指定包最新导出信息的文件名。
+* -export：将Export字段设置为包含指定包最新导出信息的文件名，并且BuildID字段为被编译的包的构建ID。
 * -f：指定list使用的替换格式，使用template包的语法。默认的输出等同于-f '{{.ImportPath}}'。传递给模板的结构体为：
 
 	```go
@@ -604,26 +605,30 @@ golang.org/x/net/html
 	
 	默认情况下，GoFiles、CgoFiles等列表中的名字为Dir目录中的文件（亦即，相对于Dir的路径，而不是绝对路径）。当使用-compiled和-test标志时添加的生成文件为指向生成的Go源代码的缓存副本的绝对路径。即使它们为Go源文件，路径可能不是以“.go”结尾。
 * -find：找出指定名字的包但不解析它们的依赖：Imports和Deps列表将会为空。
-* -json：包数据以JSON格式打印，而不是使用template包的格式。
+* -json：包数据以JSON格式打印，而不是使用template包的格式。JSON标志能可选地被提供一组逗号分隔的输出时的必填字段名。如果这样，那些必填字段将总是出现在JSON输出中，但其它可能被忽略来节省计算JSON结构的工作。
 * -m：列出模块而不是包。
 
 	当列出模块时，-f标志仍然指定一个应用于Go结构体的格式模板，但现在为一个Module结构体：
 	
 	```go
 	type Module struct {
-		Path      string       // 模块路径
-		Version   string       // 模块版本
-		Versions  []string     // 可获得的模块版本（当使用-versions时）
-		Replace   *Module      // 被此模块替代
-		Time      *time.Time   // 版本创建的时间
-		Update    *Module      // 可获得的更新，如果有的话（当使用-u时）
-		Main      bool         // 是否为主模块？
-		Indirect  bool         // 该模块是否只为主模块的间接依赖？
-		Dir       string       // 该模块保存文件的目录，如果有的话
-		GoMod     string       // 该模块go.mod文件的路径，如果有的话
-		GoVersion string       // 模块中使用的go版本
-		Retracted string       // 撤回信息，如果有的话（当使用-retracted或-u时）
-		Error     *ModuleError // 加载模块时的错误
+		Path       string       // 模块路径
+		Query      string       // 对应此版本的版本查询
+		Version    string       // 模块版本
+		Versions   []string     // 可获得的模块版本
+		Replace    *Module      // 被此模块替代
+		Time       *time.Time   // 版本创建的时间
+		Update     *Module      // 可获得的更新（当使用-u时）
+		Main       bool         // 是否为主模块？
+		Indirect   bool         // 模块只是被主模块间接依赖
+		Dir        string       // 保存文件本地副本的目录，如果有的话
+		GoMod      string       // 描述模块的go.mod文件的路径，如果有的话
+		GoVersion  string       // 模块中使用的go版本
+		Retracted  []string     // 撤回的信息，如果有的话（当使用-retracted或-u时）
+		Deprecated string       // 弃用的信息，如果有的话（当使用-u时）
+		Error      *ModuleError // 加载模块时的错误
+		Origin     any          // 模块来源
+		Reuse      bool         // 重用旧模块信息是安全的
 	}
 	
 	type ModuleError struct {
@@ -649,6 +654,7 @@ golang.org/x/net/html
 	
 	模板函数“module”使用单个字符串参数，必须为模块路径或查询，并以Module结构体的形式返回指定的模块。如果发生错误，结果将是带有非nil的Error字段的Module结构体。
 * -retracted：报告关于被撤回的模块版本的信息。当-retracted与-f或-json一起使用，Retracted字段将被设置为一个字符串用以解释为什么版本被撤回。该字符串从模块的go.mod文件中的retract指令的注释中提取。当-retracted和-versions一起使用时，被撤回的版本和未被撤回的版本一起列出。-retracted标志可与或者不与-m一起使用。
+* -reuse：当使用-m时，-reuse=old.json标志接受包含前一次以相同的修饰标志（例如-r、-retracted和-versions）集合进行的“go list -m -json”调用的JSON输出的文件名。go命令可使用此文件来决定自前一次调用以来模块没有变化，并避免重新下载关于它的信息。未被重新下载的模块将通过设置Reuse字段为true来在新输出中标记。通常模块缓存自动地提供这种重用；-reuse标志在不保存模块缓存的系统上是有用的。
 * -test：不只是报告指定名字的包，也报告它们的测试二进制文件（对带有测试的包），从而将测试二进制文件是怎样构建的准确地传递给源代码分析工具。测试二进制文件的报告的导入路径为包的导入路径添加“.test”后缀，如“math/rand.test”。当构建测试时，有时候需要重新构建测试特定的某些依赖（最常见的是被测试的包本身）。为特定的测试二进制文件重新编译的包的报告的导入路径，会添加一个空格和以括号括起的测试二进制文件的名字，如“math/rand [math/rand.test]”或“regexp [sort.test]”。ForTest也会设置为正在被测试的包名（在此前的例子中为“math/rand”或“sort”）。
 * -u：添加关于可用升级的信息。当给定模块的最后版本比当前模块较新时，-u设置Module的Update字段为关于较新模块的信息。如果当前版本被撤回，-u也会设置Module的Retracted字段。通过在当前版本后面格式化以括号括起的较新版本，Module的String方法表示一个可获得的升级。如果版本被撤回，其后跟字符串“(retracted)”。例如，“go list -m -u all”可能打印：
 	
@@ -693,7 +699,7 @@ go mod提供对模块操作的访问。
 ## go mod download——下载模块至本地缓存中
 
 ```shell
-go mod download [-x] [-json] [modules]
+go mod download [-x] [-json] [-reuse=old.json] [modules]
 ```
 
 download下载指定名字的模块，可为选择主模块依赖的模块匹配模式，或path@version形式的模块查询。
@@ -711,6 +717,7 @@ go命令将在常规执行期间根据需要自动下载模块。“go mod downl
 	```go
 	type Module struct {
 		Path     string // 模块路径
+		Query    string // 对应此版本的版本查询
 		Version  string // 模块版本
 		Error    string // 加载模块时的错误
 		Info     string // 缓存的.info文件绝对路径
@@ -719,8 +726,11 @@ go命令将在常规执行期间根据需要自动下载模块。“go mod downl
 		Dir      string // 缓存的源文件根目录绝对路径
 		Sum      string // 路径、版本的校验和（如go.sum中所示）
 		GoModSum string // go.mod的校验和（如go.sum中所示）
+		Origin   any    // 模块来源
+		Reuse    bool   // 重用旧模块信息是安全的
 	}
 	```
+* -reuse：接受包含前一次“go mod download -json”调用的JSON输出的文件名。go命令可使用此文件来决定自前一次调用以来模块没有变化，并避免重新下载它。未被重新下载的模块将通过设置Reuse字段为true来在新输出中标记。通常模块缓存自动地提供这种重用；-reuse标志在不保存模块缓存的系统上是有用的。
 * -x：同时打印实际执行的命令。
 
 关于“go mod download”的更多信息，参阅[https://golang.org/ref/mod#go-mod-download](https://golang.org/ref/mod#go-mod-download)。
@@ -896,6 +906,142 @@ $
 
 关于“go mod why”的更多信息参阅[https://golang.org/ref/mod#go-mod-why](https://golang.org/ref/mod#go-mod-why)。
 
+# go run——编译并运行Go程序
+
+```shell
+go run [build flags] [-exec xprog] package [arguments...]
+```
+
+编译并运行指定名字的main Go包。通常包是作为一个单独的目录中的.go源文件列表指定的，但也可以是导入路径、文件系统路径、或匹配单独的已知包的模式，例如“go run .”或“go run my/cmd”。
+
+如果package参数有版本后缀（如@latest或@v1.0.0），“go run”以模块感知模式构建程序，忽略在当前目录或任何父目录的go.mod文件，如果有的话。这在运行程序而不影响主模块的依赖时有用。
+
+如果package参数没有版本后缀，“go run”可能以模块感知模式或GOPATH模式运行，取决于GO111MODULE环境变量和go.mod文件的存在。详细信息参阅“go help modules”。如果模块感知模式启用，“go run”运行在主模块的上下文中。
+
+标志：
+
+* -exec：默认情况下，“go run”直接运行编译的二进制文件：“a.out arguments...”。如果给定-exec标志，“go run”使用xprog调用二进制文件：“xprog a.out arguments...”。
+
+	如果-exec标志未给定，GOOS或GOARCH与系统默认值不同，且一个名字为go_$GOOS_$GOARCH_exec的程序可在当前查找目录下找到，“go run”使用该程序调用二进制文件，如“go_js_wasm_exec a.out arguments...”。当模拟器或其他执行方法可用时，这允许交叉编译的程序的执行。
+
+默认情况下，“go run”编译二进制但不生成被调试器使用的信息，来减少构建时间。要在二进制中包含调试器信息，使用“go build”。
+	
+run的退出状态不是编译的二进制文件的退出状态。
+
+关于构建标志的更多信息，参阅“go help build”。关于指定包的更多信息，参阅“go help packages”。
+
+参阅：go build。
+
+# go test——测试包
+
+```shell
+go test [build/test flags] [packages] [build/test flags & test binary flags]
+```
+
+“go test”自动测试以导入路径命名的包。它以如下格式打印测试结果概要：
+
+```
+ok   archive/tar   0.011s
+FAIL archive/zip   0.022s
+ok   compress/gzip 0.033s
+...
+```
+
+每个失败的包后跟随详细的输出。
+
+“go test”将与名字匹配文件模式“*_test.go”的任何文件一起，重新编译每个包。这些附加的文件可以包含test函数、benchmark函数、fuzz测试、example函数。更多信息参阅“go help testfunc”。每个列出的包都会令到执行单独的测试二进制文件。以“_”（包括“_test.go”）或“.”开头的文件会被忽略。
+
+带后缀“_test”声明的包的测试文件将被编译为单独的包，然后与main包的测试二进制文件链接并运行。
+
+go tool将忽略名字为“testdata”的目录，令其可以持有被测试所需的辅助数据。
+
+作为构建测试二进制文件的一部分，go test在包及其测试源文件上运行go vet来发现显而易见的问题。如果go vet发现任何问题，go test报告它们且不运行测试二进制文件。只使用默认的go vet检查的高可信的子集。该子集是：“atomic”、“bool”、“buildtags”、“nilfunc”和“printf”。你可以通过“go doc cmd/vet”查看这些及其它vet测试的文档。要禁止运行go vet，使用-vet=off标志。要运行所有检查，使用-vet=all标志。
+
+所有的测试输出和概要行都打印至go命令的标准输出，即使test打印它们至它自己的标准错误输出。（go命令的标准错误输出被保留为打印构建测试的错误。）
+
+go test以两种不同的模式运行：
+
+第一种，称为本地目录模式，发生在当go test不使用包参数调用时（例如，“go test”或“go test -v”）。在这种模式下，go test编译在当前目录下找到的包源文件和测试文件，然后运行生成的测试二进制文件。在这种模式下，缓存（在下面讨论）被禁用。包测试完成后，go test打印一行概要行展示测试状态（“ok”或“FAIL”）、包名和消耗的时间。
+
+第二种，称为包列表模式，发生在当go test使用显式的包参数调用时（例如“go test math”、“go test ./...”甚至“go test .”）。在这种模式下，go test编译并测试每个在命令行列出的包。如果一个包测试通过，go test只打印最终的“ok”概要行。如果一个包测试失败，go test打印完整的测试输出。如果使用-bench或-v标志调用（参阅 **testflag主题——测试标志** 小节），即使通过了包测试，go test也打印完整的输出，以便展示要求的基准测试结果或详细日志。对所有列出的包的包测试完成后，且它们的输出被打印，如果任一个包测试失败，go test打印最终的“FAIL”状态。
+
+只在包列表模式，go test缓存成功的包测试结果来避免不必要的测试重复运行。当测试的结果可以从缓存恢复时，go test将重新展示之前的输出而不是再次运行测试二进制文件。当这种情况发生时，go test在概要行中打印“(cached)”取代消耗的时间。
+
+缓存匹配的规则为，运行只涉及相同的测试二进制文件，且命令行中的标志完全来自一个受限的“可缓存”测试标志集合，定义为-benchtime、-cpu、-list、-parallel、-run、-short、-timeout、-failfast和-v。如果go test的运行有任何不在这个集合中的测试或非测试标志，结果是不被缓存的。要禁用测试缓存，使用可缓存标志以外的测试标志或参数。显式禁用测试缓存的惯用方式为使用-count=1。在包源代码根目录（通常为$GOPATH）内打开文件或查询环境变量的测试只匹配将来的文件和环境变量未改变的测试运行。缓存的测试结果被视为立即执行的，因此一个成功的包测试结果将被缓存且重用时忽略-timeout设置。
+
+除了构建标志，“go test”自身处理的标志还有：
+
+* -args：传递命令行中余下的参数（所有在-args后面的参数）至测试二进制文件，不解析且不修改。因为该标志使用命令行中余下的参数，包列表（如果有）必须出现在该标志之前。
+* -c：编译测试二进制文件为pkg.test但不运行之（pkg是包的导入路径的最后的元素）。文件名可以被-o标识修改。
+* -exec xprog：使用xprog运行测试二进制文件。其行为与“go run”相同。详细信息参阅“go help run”。
+* -i：安装测试的依赖包。不运行测试。-i标志被反对使用。已编译的包会被自动缓存。
+* -json：转换测试输出为适合自动化执行的JSON格式。关于编码的详细信息参阅“go doc test2json”。
+* -o file：编译测试二进制文件至指定名字的文件。测试仍会运行（除非指定-c或-i）。
+
+测试二进制文件也接受控制测试执行的标志；这些参数也可被“go test”使用。详细信息参阅“go help testflag”。
+
+关于构建标志的更多信息，参阅“go help build”。关于指定包的更多信息，参阅“go help packages”。
+
+参阅：go build、go vet。
+
+# go tool——运行指定的go tool
+
+```shell
+go tool [-n] command [args...]
+```
+
+运行参数指定的go tool命令。不带参数则打印已知的工具列表。
+
+标志：
+
+* -n：将实际需执行的命令打印出来但不运行。
+
+关于每个tool命令的更多信息，参阅“go doc cmd/<command>”。
+
+# go version——打印Go版本
+
+```shell
+go version [-m] [-v] [file ...]
+```
+
+打印Go可执行文件的构建信息。
+
+go version报告用来构建每个指定名字的可执行文件的Go版本。
+
+如果命令行中没有指定文件，go version打印其自身的版本信息。
+
+标志：
+
+* -m：当可以获得的时候，令go version打印每个可执行文件的内嵌的模块版本信息。在输出中，模块信息包含跟在版本行之后的多行，每行由前导制表符缩进。
+* -v：如果指定一个目录，go version递归地遍历该目录，查找可以识别的Go二进制文件并报告它们的版本。默认情况下，go version不报告在目录扫描期间发现的无法识别的文件。-v标志令其报告无法识别的文件。
+
+参阅：go doc runtime/debug.BuildInfo。
+
+# go vet——报告包中有可能的错误
+
+```shell
+go vet [-n] [-x] [-vettool prog] [build flags] [vet flags] [packages]
+```
+
+在通过导入路径指定名字的包上运行go vet命令。
+
+关于vet和其标志的更多信息，参阅“go doc cmd/vet”。关于指定包的更多信息，参阅“go help packages”。关于检查程序及其标志的列表，参阅“go tool vet help”。关于诸如“printf”的特定检查程序的详细信息，参阅“go tool vet help printf”。
+
+标志：
+
+* -n：将实际需执行的命令打印出来但不运行。
+* -vettool=prog：选择带有备选或附加检查的不同的分析工具。例如，可以使用这些命令来构建和运行“shadow”分析器：
+
+	```
+	go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+	go vet -vettool=$(which shadow)
+	```
+* -x：同时打印实际执行的命令。
+
+go vet支持的构建标志是那些控制包解析和执行的标志，如-n、-x、-v、-tags和-toolexec。关于这些标志的更多信息，参阅“go help build”。
+
+参阅：go fmg、go fix。
+
 # go work——工作区维护
 
 ```shell
@@ -1041,153 +1187,19 @@ go work use [-r] moddirs
 
 更多信息参阅于[https://go.dev/ref/mod#workspaces](https://go.dev/ref/mod#workspaces)的工作区参考。
 
-# go run——编译并运行Go程序
-
-```shell
-go run [build flags] [-exec xprog] package [arguments...]
-```
-
-编译并运行指定名字的main Go包。通常包是作为一个单独的目录中的.go源文件列表指定的，但也可以是导入路径、文件系统路径、或匹配单独的已知包的模式，例如“go run .”或“go run my/cmd”。
-
-如果package参数有版本后缀（如@latest或@v1.0.0），“go run”以模块感知模式构建程序，忽略在当前目录或任何父目录的go.mod文件，如果有的话。这在运行程序而不影响主模块的依赖时有用。
-
-如果package参数没有版本后缀，“go run”可能以模块感知模式或GOPATH模式运行，取决于GO111MODULE环境变量和go.mod文件的存在。详细信息参阅“go help modules”。如果模块感知模式启用，“go run”运行在主模块的上下文中。
-
-标志：
-
-* -exec：默认情况下，“go run”直接运行编译的二进制文件：“a.out arguments...”。如果给定-exec标志，“go run”使用xprog调用二进制文件：“xprog a.out arguments...”。
-
-	如果-exec标志未给定，GOOS或GOARCH与系统默认值不同，一个名字为go_$GOOS_$GOARCH_exec的程序可在当前查找目录下找到，“go run”使用该程序调用二进制文件，如“go_nacl_386_exec a.out arguments...”。当模拟器或其他执行方法可用时，这允许交叉编译的程序执行。
-	
-run的退出状态不是编译的二进制文件的退出状态。
-
-关于构建标志的更多信息，参阅“go help build”。关于指定包的更多信息，参阅“go help packages”。
-
-参阅：go build。
-
-# go test——测试包
-
-```shell
-go test [build/test flags] [packages] [build/test flags & test binary flags]
-```
-
-“go test”自动测试以导入路径命名的包。它以如下格式打印测试结果概要：
-
-```
-ok   archive/tar   0.011s
-FAIL archive/zip   0.022s
-ok   compress/gzip 0.033s
-...
-```
-
-每个失败的包后跟随详细的输出。
-
-“go test”将与名字匹配文件模式“*_test.go”的任何文件一起，重新编译每个包。这些附加的文件可以包含test函数、benchmark函数、fuzz测试、example函数。更多信息参阅“go help testfunc”。每个列出的包都会令到执行单独的测试二进制文件。以“_”（包括“_test.go”）或“.”开头的文件会被忽略。
-
-带后缀“_test”声明的包的测试文件将被编译为单独的包，然后与main包的测试二进制文件链接并运行。
-
-go tool将忽略名字为“testdata”的目录，令其可以持有被测试所需的辅助数据。
-
-作为构建测试二进制文件的一部分，go test在包及其测试源文件上运行go vet来发现显而易见的问题。如果go vet发现任何问题，go test报告它们且不运行测试二进制文件。只使用默认的go vet检查的高可信的子集。该子集是：“atomic”、“bool”、“buildtags”、“nilfunc”和“printf”。你可以通过“go doc cmd/vet”查看这些及其它vet测试的文档。要禁止运行go vet，使用-vet=off标志。要运行所有检查，使用-vet=all标志。
-
-所有的测试输出和概要行都打印至go命令的标准输出，即使test打印它们至它自己的标准错误输出。（go命令的标准错误输出被保留为打印构建测试的错误。）
-
-go test以两种不同的模式运行：
-
-第一种，称为本地目录模式，发生在当go test不使用包参数调用时（例如，“go test”或“go test -v”）。在这种模式下，go test编译在当前目录下找到的包源文件和测试文件，然后运行生成的测试二进制文件。在这种模式下，缓存（在下面讨论）被禁用。包测试完成后，go test打印一行概要行展示测试状态（“ok”或“FAIL”）、包名和消耗的时间。
-
-第二种，称为包列表模式，发生在当go test使用显式的包参数调用时（例如“go test math”、“go test ./...”甚至“go test .”）。在这种模式下，go test编译并测试每个在命令行列出的包。如果一个包测试通过，go test只打印最终的“ok”概要行。如果一个包测试失败，go test打印完整的测试输出。如果使用-bench或-v标志调用（参阅 **testflag主题——测试标志** 小节），即使通过了包测试，go test也打印完整的输出，以便展示要求的基准测试结果或详细日志。对所有列出的包的包测试完成后，且它们的输出被打印，如果任一个包测试失败，go test打印最终的“FAIL”状态。
-
-只在包列表模式，go test缓存成功的包测试结果来避免不必要的测试重复运行。当测试的结果可以从缓存恢复时，go test将重新展示之前的输出而不是再次运行测试二进制文件。当这种情况发生时，go test在概要行中打印“(cached)”取代消耗的时间。
-
-缓存匹配的规则为，运行只涉及相同的测试二进制文件，且命令行中的标志完全来自一个受限的“可缓存”测试标志集合，定义为-benchtime、-cpu、-list、-parallel、-run、-short、-timeout、-failfast和-v。如果go test的运行有任何不在这个集合中的测试或非测试标志，结果是不被缓存的。要禁用测试缓存，使用可缓存标志以外的测试标志或参数。显式禁用测试缓存的惯用方式为使用-count=1。在包源代码根目录（通常为$GOPATH）内打开文件或查询环境变量的测试只匹配将来的文件和环境变量未改变的测试运行。缓存的测试结果被视为立即执行的，因此一个成功的包测试结果将被缓存且重用时忽略-timeout设置。
-
-除了构建标志，“go test”自身处理的标志还有：
-
-* -args：传递命令行中余下的参数（所有在-args后面的参数）至测试二进制文件，不解析且不修改。因为该标志使用命令行中余下的参数，包列表（如果有）必须出现在该标志之前。
-* -c：编译测试二进制文件为pkg.test但不运行之（pkg是包的导入路径的最后的元素）。文件名可以被-o标识修改。
-* -exec xprog：使用xprog运行测试二进制文件。其行为与“go run”相同。详细信息参阅“go help run”。
-* -i：安装测试的依赖包。不运行测试。-i标志被反对使用。已编译的包会被自动缓存。
-* -json：转换测试输出为适合自动化执行的JSON格式。关于编码的详细信息参阅“go doc test2json”。
-* -o file：编译测试二进制文件至指定名字的文件。测试仍会运行（除非指定-c或-i）。
-
-测试二进制文件也接受控制测试执行的标志；这些参数也可被“go test”使用。详细信息参阅“go help testflag”。
-
-关于构建标志的更多信息，参阅“go help build”。关于指定包的更多信息，参阅“go help packages”。
-
-参阅：go build、go vet。
-
-# go tool——运行指定的go tool
-
-```shell
-go tool [-n] command [args...]
-```
-
-运行参数指定的go tool命令。不带参数则打印已知的工具列表。
-
-标志：
-
-* -n：将实际需执行的命令打印出来但不运行。
-
-关于每个tool命令的更多信息，参阅“go doc cmd/<command>”。
-
-# go version——打印Go版本
-
-```shell
-go version [-m] [-v] [file ...]
-```
-
-打印Go可执行文件的构建信息。
-
-go version报告用来构建每个指定名字的可执行文件的Go版本。
-
-如果命令行中没有指定文件，go version打印其自身的版本信息。
-
-标志：
-
-* -m：当可以获得的时候，令go version打印每个可执行文件的内嵌的模块版本信息。在输出中，模块信息包含跟在版本行之后的多行，每行由前导制表符缩进。
-* -v：如果指定一个目录，go version递归地遍历该目录，查找可以识别的Go二进制文件并报告它们的版本。默认情况下，go version不报告在目录扫描期间发现的无法识别的文件。-v标志令其报告无法识别的文件。
-
-参阅：go doc runtime/debug.BuildInfo。
-
-# go vet——报告包中有可能的错误
-
-```shell
-go vet [-n] [-x] [-vettool prog] [build flags] [vet flags] [packages]
-```
-
-在通过导入路径指定名字的包上运行go vet命令。
-
-关于vet和其标志的更多信息，参阅“go doc cmd/vet”。关于指定包的更多信息，参阅“go help packages”。关于检查程序及其标志的列表，参阅“go tool vet help”。关于诸如“printf”的特定检查程序的详细信息，参阅“go tool vet help printf”。
-
-标志：
-
-* -n：将实际需执行的命令打印出来但不运行。
-* -vettool=prog：选择带有备选或附加检查的不同的分析工具。例如，可以使用这些命令来构建和运行“shadow”分析器：
-
-	```
-	go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
-	go vet -vettool=$(which shadow)
-	```
-* -x：同时打印实际执行的命令。
-
-go vet支持的构建标志是那些控制包解析和执行的标志，如-n、-x、-v、-tags和-toolexec。关于这些标志的更多信息，参阅“go help build”。
-
-参阅：go fmg、go fix。
-
 # buildconstraint主题——构建约束
 
-构建约束（constraint），也被认为是构建标记（tag），是以此开始的一行：
+构建约束（constraint），也被认为是构建标记（tag），是文件应该被包含在包当中的条件。构建约束由以此开头的行注释给出：
 
 ```go
 //go:build
 ```
 
-其列出文件应该被包含在包中的条件。约束可以出现在任何类型的源文件中（不只是Go），但它们必须出现在文件的顶部附近，在其前面只有空行或其它行注释。这些规则意味着在Go文件中构建约束必须出现在package语句之前。
+约束可以出现在任何类型的源文件中（不只是Go），但它们必须出现在文件的顶部附近，在其前面只有空行或其它行注释。这些规则意味着在Go文件中构建约束必须出现在package语句之前。
 
 为了区分构建约束和包文档，构建约束应该后接一个空行。
 
-构建约束视作包含被||、&&、!操作符和圆括号组合的选项的表达式。操作符和Go中有相同的意义。
+构建约束注释视作包含被||、&&、!操作符和圆括号组合的构建标记的表达式。操作符和Go中有相同的意义。
 
 例如，以下构建约束约束文件当“linux”和“386”约束被满足，或当“darwin”被满足且“cgo”不被满足时进行构建。
 
@@ -1197,13 +1209,14 @@ go vet支持的构建标志是那些控制包解析和执行的标志，如-n、
 
 对一个文件有多于一个//go:build行是错误的。
 
-在特定的构建期间，以下的词汇是可用的：
+在特定的构建期间，以下的构建标记是可用的：
 
 * 目标操作系统，即为runtime.GOOS显示的值，使用GOOS环境变量设置。
 * 目标体系结构，即为runtime.GOARCH显示的值，使用GOARCH环境变量设置。
+* “unix”，如果GOOS是Unix或类Unix系统。
 * 使用的编译器，“gc”或“gccgo”之一。
 * “cgo”，如果支持cgo命令（参阅“go help environment”中的CGO_ENABLED）。
-* 可表示直到当前版本的每一个Go主版本（译注：示例不是次版本？）的发布版本的项：“go1.1”为从Go版本1.1开始，“go1.12”为从Go版本1.12开始，依次类推。
+* 对每个Go主发布版本的措辞，从当前版本起：“go1.1”从Go版本1.1开始，“go1.12”从Go版本1.12开始，依次类推。
 * 被-tags标志指定的任何额外的标记（参阅“go help build”）。
 
 beta或次版本（译注：不是修订版本？）的发布版本没有单独的构建标记。
