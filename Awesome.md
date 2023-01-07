@@ -1,4 +1,4 @@
-本文更新于2022-08-25。
+本文更新于2023-01-04。
 
 [TOC]
 
@@ -13,6 +13,26 @@
 * [Docker学习笔记：docker命令](https://www.cnblogs.com/garvenc/p/docker_learning_docker_cli.html)
 * [Docker学习笔记：Dockerfile](https://www.cnblogs.com/garvenc/p/docker_learning_dockerfile.html)
 * [Docker学习笔记：docker-compose](https://www.cnblogs.com/garvenc/p/docker_learning_docker_compose.html)
+
+# FreeSWITCH
+
+* [FreeSWITCH学习笔记：基本概念](https://www.cnblogs.com/garvenc/p/freeswitch_learning_concepts.html)
+* [FreeSWITCH学习笔记：安装](https://www.cnblogs.com/garvenc/p/freeswitch_learning_install.html)
+* [FreeSWITCH学习笔记：系统架构](https://www.cnblogs.com/garvenc/p/freeswitch_learning_architecture.html)
+* [FreeSWITCH学习笔记：模块](https://www.cnblogs.com/garvenc/p/freeswitch_learning_module.html)
+* [FreeSWITCH学习笔记：内部命令（API）](https://www.cnblogs.com/garvenc/p/freeswitch_learning_api.html)
+* [FreeSWITCH学习笔记：应用程序（APP）](https://www.cnblogs.com/garvenc/p/freeswitch_learning_app.html)
+* [FreeSWITCH学习笔记：通道变量](https://www.cnblogs.com/garvenc/p/freeswitch_learning_channel_variables.html)
+* [FreeSWITCH学习笔记：XML配置文件](https://www.cnblogs.com/garvenc/p/freeswitch_learning_xml_configuration_file.html)
+* [FreeSWITCH学习笔记：日志](https://www.cnblogs.com/garvenc/p/freeswitch_learning_log.html)
+* [FreeSWITCH学习笔记：Lua脚本](https://www.cnblogs.com/garvenc/p/freeswitch_learning_lua.html)
+* [FreeSWITCH学习笔记：EventSocket](https://www.cnblogs.com/garvenc/p/freeswitch_learning_event_socket.html)
+* [在同一台主机启动多个FreeSWITCH实例](https://www.cnblogs.com/garvenc/p/start_multiple_freeswitch_instances_on_the_same_host.html)
+* [FreeSWITCH编译加载新模块](https://www.cnblogs.com/garvenc/p/compile_and_load_new_module_for_freeswitch.html)
+* [FreeSWITCH使用ODBC](https://www.cnblogs.com/garvenc/p/use_odbc_in_freeswitch.html)
+* [FreeSWITCH给Say模块增加中文语音](https://www.cnblogs.com/garvenc/p/add_zh_support_to_say_module_for_freeswitch.html)
+* [使用SIPp进行压力测试](https://www.cnblogs.com/garvenc/p/stress_testing_with_sipp.html)
+* [使用Windows TTS API从文本生成语音](https://www.cnblogs.com/garvenc/p/use_windows_tts_api_to_generate_voice_from_text.html)
 
 # Git
 
