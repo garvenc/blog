@@ -1,4 +1,4 @@
-本文更新于2022-06-30，使用MongoDB 4.4.5。
+本文更新于2022-12-07，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -294,6 +294,14 @@ QUERY_DOC见`DBCollection.prototype.find`，为返回的inprog数组元素指定
 	* opid：操作的ID。
 	* secs_running：操作执行的时间。单位为秒。
 	* waitingForLock：操作是否正在等待锁。
+
+## DB.prototype.dropUser
+
+在当前数据库删除用户。
+
+```js
+var BOOL = DATABASE.dropUser(USER);
+```
 
 ## DB.prototype.fsyncLock
 
@@ -614,7 +622,8 @@ var DOCS = DBCOLLECTION.aggregate(PIPELINE_DOC <, ...>);
 
 PIPELINE_DOC可使用以下管道操作符：
 
-* $group：分组。`$group: {_id: "$INPUT_KEY"|{KEY: "$INPUT_KEY" <, ...>} <, OTHER_KEY: EXPR_DOC <, ...>>}`。`_id`指定分组键，也是输出文档的`_id`值。"$INPUT_KEY"见`DBCollection.prototype.find`。EXPR_DOC可以使用以下分组表达式，其EXPR可以直接指定值，可以使用"$INPUT_KEY"来指定键的值：
+* $count：计数。`$count: "INPUT_KEY"`。输出只包含一个文档，此文档只有INPUT_KEY字段。
+* $group：分组。`$group: {_id: "$INPUT_KEY"|{KEY: "$INPUT_KEY" <, ...>} <, OTHER_KEY: EXPR_DOC <, ...>>}`。`_id`指定分组键，也是输出文档的`_id`值。"$INPUT_KEY"使用输入文档指定的键进行分组。EXPR_DOC可以使用以下分组表达式，其EXPR可以直接指定值，可以使用"$INPUT_KEY"来指定键的值：
 
 	算数操作符：
 

@@ -1,4 +1,4 @@
-本文更新于2022-04-21，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2022-11-10，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -829,10 +829,10 @@ git rebase BRANCH
 git rebase BRANCHTO BRANCHFROM
 ```
 
-取出BRANCHFROM分支，找出BRANCHFROM和BRANCH共同祖先之后的修改，然后在BRANCHTO分支上重放：
+取出BRANCHFROM分支，找出BRANCHFROM和BRANCHBASE共同祖先之后的修改，然后在BRANCHTO分支上重放：
 
 ```shell
-git rebase --onto BRANCHTO BRANCH BRANCHFROM
+git rebase --onto BRANCHTO BRANCHBASE BRANCHFROM
 ```
 
 交互式变基，将指定提交及之后的提交重写：

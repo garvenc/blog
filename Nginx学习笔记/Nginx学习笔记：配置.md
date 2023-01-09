@@ -1,4 +1,4 @@
-本文更新于2022-07-07，使用nginx 1.16。
+本文更新于2022-11-22，使用nginx 1.16。
 
 [TOC]
 
@@ -184,6 +184,24 @@ http {
 ```
 
 VALUE可使用`$http_upgrade`。
+
+## http.server.location.rewrite
+
+路径重写。
+
+```
+http {
+	server {
+		location PATH_REGEXP {
+			rewrite REGEXP NEW [last|break|redirect|permanent];
+		}
+	}
+}
+```
+
+NEW可使用以下变量：
+
+* $N
 
 ## http.server.location.root
 
