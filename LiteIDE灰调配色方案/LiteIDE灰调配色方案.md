@@ -1,6 +1,6 @@
 # 说明
 
-本文修改于2018-06-26，使用LiteIDE X33.3，操作系统为Windows。
+本文修改于2023-02-08，使用LiteIDE X33.3，操作系统为Windows。
 
 # 使用
 
@@ -37,7 +37,7 @@
   <style name="Float" foreground="#800080"/>
   <style name="Char" foreground="#800000"/>
   <style name="String" foreground="#008000"/>
-  <style name="Comment" foreground="#008000"/>
+  <style name="Comment" foreground="#cc8800"/>
   <style name="Alert" foreground="#ff0000"/>
   <style name="Error" foreground="#ff0000"/>
   <style name="Function" foreground="#000000"/>

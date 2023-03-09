@@ -1,8 +1,8 @@
-本文更新于2022-06-28，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2023-03-01，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
-# 安装
+# Linux下安装
 
 官方文档参看：[https://redis.io/download](https://redis.io/download)。
 
@@ -30,6 +30,17 @@ redis-6.0.8/src下还有以下可执行文件，不会被`sudo make install`拷�
 redis-6.0.8下还有以下文件，不会被`sudo make install`拷贝至/usr/local/bin目录下：
 
 * redis.conf：默认配置文件。
+
+# Docker下运行
+
+```shell
+docker container create -p 6379:6379 --name redis redis
+docker start redis
+```
+
+# 端口
+
+默认端口为6379。
 
 # 配置
 

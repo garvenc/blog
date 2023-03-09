@@ -1,4 +1,4 @@
-本文更新于2022-11-10，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2023-02-09，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -522,6 +522,12 @@ git fetch [REMOTE REMOTEBRANCH]
 git fetch --all
 ```
 
+从远程仓库拉取所有标签：
+
+```shell
+git fetch --tags
+```
+
 ## git gc
 
 清理垃圾文件。
@@ -614,7 +620,7 @@ OPTIONS可使用如下选项：
 	* -L :FUNCNAME:FILENAME或-L '/REGEXP/':FILENAME：行日志搜索，查看指定函数的提交历史。
 	* --decorate：查看各个分支当前所指的对象。
 * 提交范围选项：
-	* -(n)：最近n次提交。
+	* -(N)：最近n次提交。如：-20。
 	* -g：显示引用日志，即类似git reflog。
 	* --after TIME：显示指定时间之后的提交，同--since。
 	* --all：显示所有分支的提交信息。
@@ -642,9 +648,10 @@ OPTIONS可使用如下选项：
 	* --shortstat：只显示--stat中最后的行数修改添加移除统计。
 	* --stat：显示每次提交的简略的统计信息。
 
-常用命令：
+常用功能：
 
-* 查看分支历史图表：git log --oneline --graph --all
+* 查看分支历史图表：git log --oneline --graph --all -(N)
+* 搜索文件内容：git log -S WORD --all
 
 ## git ls-remote
 

@@ -1,4 +1,4 @@
-本文更新于2022-03-29。
+本文更新于2023-03-01。
 
 [TOC]
 
@@ -135,3 +135,16 @@
 1. 响应Content-Length，如无则为0。
 1. 请求Referer。
 1. 请求User-Agent。
+
+# Docker下运行
+
+```shell
+docker container create --network host --name nginx nginx
+docker start nginx
+```
+
+容器中的目录结构：
+
+* /etc/nginx/：配置文件、证书文件目录。
+	* nginx.conf：配置文件。
+* /usr/share/nginx/html：静态文件目录。

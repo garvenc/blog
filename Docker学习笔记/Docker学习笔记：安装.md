@@ -1,40 +1,39 @@
-本文更新于2021-06-29。
+本文更新于2023-02-18。
 
 [TOC]
 
 # 安装
 
-官方文档参看：[https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)。
-
-可从[https://download.docker.com/](https://download.docker.com/)选择相应版本的安装包。
+官方文档参看：[https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)。可从[https://download.docker.com/](https://download.docker.com/)选择相应版本的安装包。
 
 安装后的服务名为docker。
 
-## 使用dpkg包安装
+## 在Debian安装
 
-### 在Debian 8.9安装
+安装文档：[https://docs.docker.com/engine/install/debian/](https://docs.docker.com/engine/install/debian/)。
 
-使用Docker 18.06.3。
+### 在Debian 11安装
+
+使用Docker 23.0.1。
 
 ```shell
-sudo apt install libltdl7
+wget https://download.docker.com/linux/debian/dists/bullseye/pool/stable/amd64/containerd.io_1.6.9-1_amd64.deb
+wget https://download.docker.com/linux/debian/dists/bullseye/pool/stable/amd64/docker-ce-cli_23.0.1-1~debian.11~bullseye_amd64.deb
+wget https://download.docker.com/linux/debian/dists/bullseye/pool/stable/amd64/docker-ce_23.0.1-1~debian.11~bullseye_amd64.deb
+wget https://download.docker.com/linux/debian/dists/bullseye/pool/stable/amd64/docker-buildx-plugin_0.10.2-1~debian.11~bullseye_amd64.deb
+wget https://download.docker.com/linux/debian/dists/bullseye/pool/stable/amd64/docker-compose-plugin_2.6.0~debian-bullseye_amd64.deb
 
-wget https://download.docker.com/linux/debian/dists/jessie/pool/stable/amd64/docker-ce_18.06.3~ce~3-0~debian_amd64.deb
-sudo dpkg -i docker-ce_18.06.3~ce~3-0~debian_amd64.deb
+sudo dpkg -i containerd.io_1.6.9-1_amd64.deb
+sudo dpkg -i docker-ce-cli_23.0.1-1~debian.11~bullseye_amd64.deb
+sudo dpkg -i docker-ce_23.0.1-1~debian.11~bullseye_amd64.deb
+sudo dpkg -i docker-buildx-plugin_0.10.2-1~debian.11~bullseye_amd64.deb
+sudo dpkg -i docker-compose-plugin_2.6.0~debian-bullseye_amd64.deb
 ```
 
-### 在Debian 10.5安装
+如出错，可能需要安装依赖包：
 
-使用Docker 20.10.7。
-
-```shell
-wget https://download.docker.com/linux/debian/dists/buster/pool/stable/amd64/containerd.io_1.4.6-1_amd64.deb
-wget https://download.docker.com/linux/debian/dists/buster/pool/stable/amd64/docker-ce-cli_20.10.7~3-0~debian-buster_amd64.deb
-wget https://download.docker.com/linux/debian/dists/buster/pool/stable/amd64/docker-ce_20.10.7~3-0~debian-buster_amd64.deb
-
-sudo dpkg -i containerd.io_1.4.6-1_amd64.deb
-sudo dpkg -i docker-ce-cli_20.10.7~3-0~debian-buster_amd64.deb
-sudo dpkg -i docker-ce_20.10.7~3-0~debian-buster_amd64.deb
+```
+apt install iptables
 ```
 
 ## 使用脚本安装

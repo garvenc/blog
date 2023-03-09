@@ -1,4 +1,4 @@
-本文更新于2022-06-18，使用Docker 19.03.12，操作系统为Debian 10。
+本文更新于2023-03-02，使用Docker 23.0.1，操作系统为Debian 11。
 
 [TOC]
 
@@ -6,7 +6,7 @@
 
 # 基本概念
 
-* 注册服务器（registry）：存储仓库。如：Docker Hub。
+* 注册服务器（registry）：存储仓库。如：Docker Hub（[https://hub.docker.com/](https://hub.docker.com/)）。
 * 仓库（repository）：存储镜像。
 * 镜像（image）：创建容器。
 * 容器（container）：应用运行的实例。只当容器有命令处于运行状态时，容器才处于运行状态。
@@ -124,17 +124,61 @@ docker container cp [OPTIONS] CONTAINER:CONTAINER_PATH HOST_PATH
 docker container cp [OPTIONS] HOST_PATH CONTAINER:CONTAINER_PATH
 ```
 
+在容器创建的文件的所有者为容器中启动进程的用户，在宿主机创建的文件的所有者为宿主机的当前用户。
+
 ### docker container create
 
 创建容器，不会启动容器。等同于`docker create`。
 
 ```shell
 docker container create [OPTIONS] IMAGE [COMMAND [ARG[ ...]]
-docker container create -d IMAGE [COMMAND [ARG[ ...]]
-docker container create -i -t IMAGE [COMMAND [ARG[ ...]]
 ```
 
-OPTIONS用法参看`docker container run`。
+OPTIONS可为：
+
+* --add-host HOSTNAME:IP：添加主机至IP的解析至容器中。
+* -a|--attach STREAM：附着标准流至容器，可为stdin、stdout、stderr，可使用多次。
+* --cidfile FILENAME：将容器ID保存至文件。
+* --cpus N：容器的CPU个数。
+* --dns SERVER：设置DNS服务器。
+* --dns-option OPTION：设置DNS选项。
+* --dns-search DOMAIN：设置DNS搜索域。
+* --entrypoint COMMAND [ARG[ ...]]：设置入口点，覆盖构建镜像时的ENTRYPOINT指令。
+* -e|--env VAR[=VALUE]：设置环境变量，如不使用=VALUE则取$VAR的值。该选项优先级比--env-file高。可使用多次。
+* --env-file FILENAME：从文件中读取环境变量。每行的格式为VAR=VALUE。该选项优先级比--env低。
+* --expose PORT：容器需公开的端口。可使用多次。
+* --health-cmd：（检测容器健康的命令。）
+* --health-interval：（检测容器健康的时间间隔。可使用的单位有ns、us、ms、s、m、h。）
+* --health-retries：（连接失败指定的次数则汇报为不健康状态。）
+* --health-start-period：（容器初始化之前的启动时间，超时后计入健康检测的重试次数。可使用的单位有ns、us、ms、s、m、h。）
+* --health-timeout：（执行健康检测命令的超时时间。可使用的单位有ns、us、ms、s、m、h。）
+* -h|--hostname HOSTNAME：容器的主机名。默认使用容器ID作为主机名。
+* -i|--interactive：始终开启标准输入。创建交互式容器必需该选项。
+* --ip IP：容器的IP。
+* --keynel-memory N：内核内存字节限制。
+* -l|--label KEY[=VALUE]：设置容器的标签，如不使用=VALUE则为空字符串。
+* --link SERVICE_CONTAINER:SERVICE_CONTAINER_ALIAS：连接至另一个容器，SERVICE_CONTAINER_ALIAS为服务容器对当前容器在连接中的别名。可使用多次。
+* --log-driver DRIVER：容器的日志驱动。json-file为`docker logs`提供基础，syslog为将日志输出到syslogd并禁用`docker logs`，none为禁用日志并禁用`docker logs`。默认为json-file。
+* --log-opt KEY=VALUE：日志驱动选项。可使用多次。max-size为每份日志的最大大小，可使用的单位有k、m、g，默认为-1，即无限制。max-file为最大的日志份数，与max-size同时使用，默认为1。
+* --mount MOUNT：关联文件系统并挂载到服务中。可为type=volume[,source=VOLUME_NAME],destination=CONTAINER_PATH[,volume-lobel="KEY=VALUE"[,...]]或type=bind,source=HOST_PATH,destination=CONTAINER_PATH[,volume-lobel="KEY=VALUE"[,...]]。
+* --name NAME：容器名称，不指定自动生成名称。只能使用大小写字母、数字、圆点、横线、下划线（即匹配正则表达式：`^[a-zA-Z0-9.-_]+$`），且必需唯一。
+* --network NETWORK：容器使用的网络模式。bridge为NAT桥接宿主机网络，host为共享宿主机网络，container:CONTAINER为共享其他容器网络，none为未配置网络，overlay为隧道技术。
+* --no-healthcheck：禁用指定了HEALTHCHECK的容器。默认为false。
+* --privileged：使用特权模式运行容器。容器对宿主机拥有root权限，有一定的安全风险，需在确保可信时使用。默认为false。
+* -p|--publish [[HOST_IP:][HOST_PORT]:]CONTAINER_PORT[/PROTOCOL]：映射容器中的端口至宿主机端口。如不指定HOST_PORT，则宿主机使用32768~61000间的随机端口。可使用多次。
+* -P|--publish-all：映射在Dockerfile中使用EXPOSE指令指定的所有端口至宿主机端口，使用32768~61000间的随机端口。默认为false。
+* --read-only：挂载容器的root文件系统为只读模式。默认为false。
+* --restart WHEN：当容器停止运行时，何时自动重启容器。no为不自动重启；on-failure[:N]为当退出码不为0时才自动重启，并可指定最多重启的次数；always为总是重启，无论退出码为何值，且总是在引擎启动时启动容器，不管容器是否被主动停止；unless-stopped为总是重启，无论退出码为何值，且总是在引擎启动时启动容器，除非容器被主动停止。默认为no。
+* --rm：容器运行退出后自动删除容器。
+* --stop-signal SIGNAL：停止容器的信号。默认为SIGTERM。
+* --storage-opt KEY=VALUE：存储驱动选项。仅对devicemapper、btrfs、overlay2、windowsfilter、zfs文件系统有效。
+* --tmpfs CONTAINER_DIR[:ro|rw[,noexec][,nosuid][,size=SIZE]]：挂载空的虚拟内存文件系统。
+* -t|--tty：分配伪tty终端。创建交互式容器必需该选项。默认为false。
+* --ulimit TYPE=SOFT_LIMIT[:HARD_LIMIT]：设置ulimit限制，如未设置HARD_LIMIT，则其与SOFT_LIMIT相同。
+* -u|--user USER|UID[:GROUP|GID]：以容器内部哪个用户运行，覆盖构建镜像时的USER指令。默认为root。
+* -v|--volume [VOLUME|HOST_DIR:]CONTAINER_DIR[:ro|rw]：将宿主机的目录作为卷挂载到容器中。宿主机和容器的目录不存在都会自动创建，容器目录必需为绝对路径。
+* --volumes-from CONTAINER[:ro|rw]：将指定的容器中所有磁盘卷都加入新创建的容器。可使用多次。
+* -w|--workdir DIR：设置容器启动时的工作目录，覆盖构建镜像时的WORKDIR指令。
 
 ### docker container exec
 
@@ -181,7 +225,7 @@ OPTIONS可为：
 * --details：显示详细信息。默认为false。
 * -f|--follow：持续跟踪日志输出，类似`tail -f`。通过Ctrl+C退出跟踪。默认为false。
 * --since TIMESTAMP|DURATION：显示最近时间的日志。TIMESTAMP格式为2006-01-02T15:04:05，DURATION格式为15h|4m|5s。
-* --tail N|all：只获取最后的若干条日志，N可为0。默认为all。
+* -n|--tail N|all：只获取最后的若干条日志，N可为0。默认为all。
 * -t|--timestamp：为每条日志加上时间戳。
 
 ### docker container ls
@@ -268,53 +312,9 @@ docker container run -d IMAGE [COMMAND [ARG[ ...]]
 docker container run -i -t IMAGE [COMMAND [ARG[ ...]]
 ```
 
-OPTIONS可为：
+OPTIONS可使用`docker container create`的所有OPTIONS，还可为：
 
-* --add-host HOSTNAME:IP：添加主机至IP的解析至容器中。
-* -a|--attach STREAM：附着标准流至容器，可为stdin、stdout、stderr，可使用多次。
-* --cidfile FILENAME：将容器ID保存至文件。
-* --cpus N：容器的CPU个数。
 * -d|--detach：创建守护式容器，只会打印容器ID。默认为false。
-* --dns SERVER：设置DNS服务器。
-* --dns-option OPTION：设置DNS选项。
-* --dns-search DOMAIN：设置DNS搜索域。
-* --entrypoint COMMAND [ARG[ ...]]：设置入口点，覆盖构建镜像时的ENTRYPOINT指令。
-* -e|--env VAR[=VALUE]：设置环境变量，如不使用=VALUE则取$VAR的值。该选项优先级比--env-file高。可使用多次。
-* --env-file FILENAME：从文件中读取环境变量。每行的格式为VAR=VALUE。该选项优先级比--env低。
-* --expose PORT：容器需公开的端口。可使用多次。
-* --health-cmd：（检测容器健康的命令。）
-* --health-interval：（检测容器健康的时间间隔。可使用的单位有ns、us、ms、s、m、h。）
-* --health-retries：（连接失败指定的次数则汇报为不健康状态。）
-* --health-start-period：（容器初始化之前的启动时间，超时后计入健康检测的重试次数。可使用的单位有ns、us、ms、s、m、h。）
-* --health-timeout：（执行健康检测命令的超时时间。可使用的单位有ns、us、ms、s、m、h。）
-* -h|--hostname HOSTNAME：容器的主机名。默认使用容器ID作为主机名。
-* -i|--interactive：始终开启标准输入。创建交互式容器必需该选项。
-* --ip IP：容器的IP。
-* --keynel-memory N：内核内存字节限制。
-* -l|--label KEY[=VALUE]：设置容器的标签，如不使用=VALUE则为空字符串。
-* --link SERVICE_CONTAINER:SERVICE_CONTAINER_ALIAS：连接至另一个容器，SERVICE_CONTAINER_ALIAS为服务容器对当前容器在连接中的别名。可使用多次。
-* --log-driver DRIVER：容器的日志驱动。json-file为`docker logs`提供基础，syslog为将日志输出到syslogd并禁用`docker logs`，none为禁用日志并禁用`docker logs`。默认为json-file。
-* --log-opt KEY=VALUE：日志驱动选项。
-* --mount MOUNT：关联文件系统并挂载到服务中。可为type=volume[,source=VOLUME_NAME],destination=CONTAINER_PATH[,volume-lobel="KEY=VALUE"[,...]]或type=bind,source=HOST_PATH,destination=CONTAINER_PATH[,volume-lobel="KEY=VALUE"[,...]]。
-* --name NAME：容器名称，不指定自动生成名称。只能使用大小写字母、数字、圆点、横线、下划线（即匹配正则表达式：`^[a-zA-Z0-9.-_]+$`），且必需唯一。
-* --net NET：定容器使用的网络模式。bridge为NAT桥接宿主机网络，host为共享宿主机网络，container:CONTAINER为共享其他容器网络，none为未配置网络，overlay为隧道技术。默认为default。
-* --network NETWORK：容器连接至的网络。
-* --no-healthcheck：禁用指定了HEALTHCHECK的容器。默认为false。
-* --privileged：使用特权模式运行容器。容器对宿主机拥有root权限，有一定的安全风险，需在确保可信时使用。默认为false。
-* -p|--publish [[HOST_IP:][HOST_PORT]:]CONTAINER_PORT[/PROTOCOL]：映射容器中的端口至宿主机端口。如不指定HOST_PORT，则宿主机使用32768~61000间的随机端口。可使用多次。
-* -P|--publish-all：映射在Dockerfile中使用EXPOSE指令指定的所有端口至宿主机端口，使用32768~61000间的随机端口。默认为false。
-* --read-only：挂载容器的root文件系统为只读模式。默认为false。
-* --restart WHEN：当容器停止运行时，何时自动重启容器。no为不自动重启；on-failure[:N]为当退出码不为0时才自动重启，并可指定最多重启的次数；always为总是重启，无论退出码为何值，且总是在引擎启动时启动容器，不管容器是否被主动停止；unless-stopped为总是重启，无论退出码为何值，且总是在引擎启动时启动容器，除非容器被主动停止。默认为no。
-* --rm：容器运行退出后自动删除容器。
-* --stop-signal SIGNAL：停止容器的信号。默认为SIGTERM。
-* --storage-opt KEY=VALUE：存储驱动选项。仅对devicemapper、btrfs、overlay2、windowsfilter、zfs文件系统有效。
-* --tmpfs CONTAINER_DIR[:ro|rw[,noexec][,nosuid][,size=SIZE]]：挂载空的虚拟内存文件系统。
-* -t|--tty：分配伪tty终端。创建交互式容器必需该选项。默认为false。
-* --ulimit TYPE=SOFT_LIMIT[:HARD_LIMIT]：设置ulimit限制，如未设置HARD_LIMIT，则其与SOFT_LIMIT相同。
-* -u|--user USER|UID[:GROUP|GID]：以容器内部哪个用户运行，覆盖构建镜像时的USER指令。默认为root。
-* -v|--volume [VOLUME|HOST_DIR:]CONTAINER_DIR[:ro|rw]：将宿主机的目录作为卷挂载到容器中。宿主机和容器的目录不存在都会自动创建，容器目录必需为绝对路径。
-* --volumes-from CONTAINER[:ro|rw]：将指定的容器中所有磁盘卷都加入新创建的容器。可使用多次。
-* -w|--workdir DIR：设置容器启动时的工作目录，覆盖构建镜像时的WORKDIR指令。
 
 ### docker container start
 
@@ -367,13 +367,14 @@ docker cp [OPTIONS] CONTAINER:CONTAINER_PATH HOST_PATH
 docker cp [OPTIONS] HOST_PATH CONTAINER:CONTAINER_PATH
 ```
 
+在容器创建的文件的所有者为容器中启动进程的用户，在宿主机创建的文件的所有者为宿主机的当前用户。
+
 ## docker create
 
 创建容器，不会启动容器。等同于`docker container create`。
 
 ```shell
 docker create [OPTIONS] IMAGE [COMMAND [ARG[ ...]]
-docker create -d IMAGE [COMMAND [ARG[ ...]]
 docker create -i -t IMAGE [COMMAND [ARG[ ...]]
 ```
 
@@ -402,7 +403,7 @@ SUBCMD即本文描述的子命令。`docker help SUBCMD`等同于`docker SUBCMD 
 查看镜像的历史信息，可得知构建镜像的每一层。等同于`docker image history`。
 
 ```shell
-docker history [OPTIONS] CONTAINER
+docker history [OPTIONS] IMAGE
 ```
 
 ## docker image
@@ -453,7 +454,7 @@ OPTIONS可为：
 查看镜像的历史信息，可得知构建镜像的每一层。等同于`docker history`。
 
 ```shell
-docker image history [OPTIONS] CONTAINER
+docker image history [OPTIONS] IMAGE
 ```
 
 返回依次为从顶部到底部的各镜像层，包括以下列：
@@ -1199,6 +1200,31 @@ OPTIONS可为：
 * --max-snapshots N：保留的最多快照数。
 * --snapshot-interval N：（快照的间隔时间。）
 * --task-history-limit N：任务的最大历史记录。
+
+## docker system
+
+系统管理。
+
+### docker system df
+
+查看磁盘使用。
+
+```shell
+docker system df
+```
+
+### docker system prune
+
+删除未使用的数据。
+
+```shell
+docker system prune [OPTIONS]
+```
+
+OPTIONS可为：
+
+* -a：删除所有未使用的镜像。
+* -f：强制删除。
 
 ## docker tag
 

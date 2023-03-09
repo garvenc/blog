@@ -1,4 +1,4 @@
-本文更新于2022-08-24，使用MongoDB 4.4.5。
+本文更新于2023-03-04，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -11,6 +11,10 @@ bsondump BSONFILENAME
 ```
 
 # mongo
+
+同mongosh。MongoDB 6.0使用mongosh替换mongo。
+
+# mongosh
 
 JavaScript shell。
 
@@ -29,8 +33,9 @@ OPTION可为（身份验证相关的选项--authenticationDatabase、--password|
 
 如不指定DBNAME或HOST[:PORT][/DBNAME或MONGODB_URI，默认连接到localhost:27017/test。
 
-MONGODB_URI的格式为：`mongodb://[USERNAME[:PASSWORD]@]HOST[:PORT][,...,HOST1[:PORT1]][/[DBNAME]][?NAME=VALUE[&...&NAME1=VALUE1]]`。NAME=VALUE可为：
+MONGODB_URI为连接字符串。官方文档为：[https://www.mongodb.com/docs/v6.0/reference/connection-string/](https://www.mongodb.com/docs/v6.0/reference/connection-string/)。格式为：`mongodb://[USERNAME[:PASSWORD]@]HOST[:PORT][,...,HOST1[:PORT1]][/[DBNAME]][?NAME=VALUE[&...&NAME1=VALUE1]]`。NAME=VALUE可为：
 
+* authSource=AUTHDBNAME：身份校验使用的数据库。
 * replicaSet=REPLSET_NAME：副本集名字。如使用此参数，可指定任意个（并不需要所有）HOST[:PORT]，会自动选择主节点连接。
 
 如指定JS_FILENAME，则依次执行脚本文件然后退出（相对路径根据shell运行目录）。否则，以交互方式使用shell。
@@ -134,7 +139,7 @@ OPTION可为：
 
 * --collection|-c COLLECTIONNAME：只恢复指定的集合。
 * --db|-d DBNAME：只恢复指定的数据库。
-* --dir DUMPDIR：需恢复的备份数据目录。默认为dump。
+* --dir DUMPDIR：需恢复的备份数据目录。默认为dump。根据不同情况，此目录需包含若干个名字为数据库名的目录，或需包含若干个集合名开头的.bson数据文件和.metadata.json元数据文件。
 * --drop：进行数据替换，在恢复集合前先删除之。
 * --gzip：从使用gzip压缩方式备份的数据中恢复。
 * --oplogReplay：重放操作日志oplog，以获得备份时间点的快照。

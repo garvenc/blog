@@ -1,4 +1,4 @@
-本文更新于2022-06-18，使用Docker 19.03.12。
+本文更新于2023-02-28，使用Docker 23.0.1。
 
 [TOC]
 
@@ -53,6 +53,8 @@ src也可以使用URL。如果src是gzip、bzip2、xz归档文件，则会自动
 ARG name<=value>
 ```
 
+在Dockerfile中使用$name引用变量。
+
 Docker预定义了以下变量：
 
 * HTTP_PROXY
@@ -83,7 +85,9 @@ CMD command arg <...>
 COPY src dst
 ```
 
-dst必需为绝对路径。如dst以/结尾，则认为是复制至目录；否则，则认为是复制至文件。如dst不存在，则会自动创建，创建的文件和目录的权限都是0755，且GID和UID都是0。
+src为目录，则复制目录下的内容。
+
+dst必需为绝对路径。如dst以/结尾，则认为是复制至目录下；否则，则认为是复制至文件。如dst不存在，则会自动创建，创建的文件和目录的权限都是0755，且GID和UID都是0。
 
 # ENTRYPOINT
 

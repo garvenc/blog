@@ -1,4 +1,4 @@
-本文更新于2022-11-22，使用nginx 1.16。
+本文更新于2023-03-01，使用nginx 1.16。
 
 [TOC]
 
@@ -217,7 +217,7 @@ http {
 }
 ```
 
-假设原始请求的路径为/PATH，则使用DIR/PATH文件内容作为响应。如DIR不以/开头，则为安装目录的相对路径。
+假设原始请求的路径为/PATH，则使用DIR/PATH文件内容作为响应。如DIR不以/开头，则为安装目录下html目录的相对路径。
 
 ## http.server.rewrite
 
@@ -262,6 +262,8 @@ http {
 }
 ```
 
+如CERT.PEM不以/开头，则为安装目录下conf目录的相对路径。
+
 ## http.server.ssl_certificate_key
 
 HTTPS证书KEY文件路径。
@@ -273,6 +275,8 @@ http {
 	}
 }
 ```
+
+如CERT.KEY不以/开头，则为安装目录下conf目录的相对路径。
 
 ## http.server.ssl_ciphers
 

@@ -1,4 +1,4 @@
-本文更新于2022-11-08。
+本文更新于2023-02-27。
 
 [TOC]
 
@@ -133,6 +133,7 @@ mkfs [-t FSTYPE] PARTITIONDEV
 挂载分区。
 
 ```shell
+mount
 mount -a
 mount [-l]
 mount [-L LABEL] [-n] [-o OPTION] [-t FSTYPE] PARTITIONDEV DIR
@@ -172,13 +173,14 @@ mount [-L LABEL] [-n] [-o OPTION] [-t FSTYPE] PARTITIONDEV DIR
 parted [DEV]
 ```
 
-使用如下子命令：
+交互界面可使用如下子命令：
 
-* mklabel LABELTYPE：转换分区格式。LABELTYPE为分区格式，可为gpt等。
-* mkpart PARTTYPE [FSTYPE] START END：创建分区。PARTTYPE为分区类型，可为primary（主分区）等；FSTYPE为文件系统类型；START为开始位置，END为结束位置，默认以M为单位，可使用百分比N%。
-* align-check TYPE PARTITIONDEV：检查分区是否对齐，显示“PARTITIONDEV aligned”表示已对齐。TYPE必须为minimal（最小）或optimal（最优）；PARTITIONDEV为分区的编号，从1开始。
+* mklabel LABELTYPE：转换分区格式。LABELTYPE可为：gpt。
+* mkpart PARTTYPE [FSTYPE] START END：创建分区。PARTTYPE可为：primary（主分区）、logical、extended。FSTYPE可为：ext3、ext4等。START和END默认以M为单位，可使用百分比N%。
+* align-check TYPE PARTITIONNUMBER：检查分区是否对齐。TYPE可为：minimal（最小）、optimal（最优）。PARTITIONNUMBER为分区的编号，从1开始。
 * print：打印分区表。
 * quit：退出`parted`。
+* rm PARTITIONNUMBER：删除分区。
 
 ## partprobe
 
@@ -803,7 +805,7 @@ diff [-bBi] FROMNAME TONAME
 * {N1[,N2]}d{N3}：TONAME的N3行后删除FROMNAME的N1（含）至N2（含）行。
 * {N1[,N2]}c{N3[,N4]}：FROMNAME的N1（含）至N2（含）行修改为TONAME的N3（含）至N4（含）行。
 * <：从FROMNAME删除的行。
-* >：添加到TONAME的行。
+* \>：添加到TONAME的行。
 
 ## egrep
 
@@ -1077,9 +1079,7 @@ unzip [-l] FILENAME
 
 ## adduser
 
-增加用户。
-
-RHEL系列为`useradd`的软连接，参看其使用。Debian系列此命令较`useradd`更易用。
+交互式增加用户。
 
 ```shell
 adduser USERNAME
@@ -1156,8 +1156,11 @@ gpasswd [-a USERNAME -d USERNAME] GROUPNAME
 查看UID/GID等信息。
 
 ```shell
-id [USERNAME]
+id [-g|-u] [USERNAME[ ...]]
 ```
+
+* -g：查看GID。
+* -u：查看UID。
 
 ## last
 
@@ -1226,8 +1229,6 @@ sudo -s
 ## useradd
 
 增加用户。
-
-Debian系列建议使用`adduser`。
 
 ```shell
 useradd [-DmMr -g GROUPNAME -G GROUPNAME[,...]] USERNAME
@@ -2653,11 +2654,15 @@ read [-p PROMPT -t TIMEOUT] VARIABLE STDIN
 
 ## set
 
-查看所有变量，包括环境变量和自定义变量。
-
 ```shell
-set
+set [-eux]
 ```
+
+如不指定选项，则查看所有变量，包括环境变量和自定义变量。
+
+* -e：设置若有命令执行错误，即返回码不等于0，则立即退出shell。
+* -u：设置若有命令使用未定义变量，则视为执行错误。
+* -x：设置执行命令前，先打印命令的内容。
 
 ## typeset
 
@@ -2724,6 +2729,14 @@ echo [-en] CONTENT[ ...]
 
 * -e：使用转义字符。
 * -n：不打印结尾的换行符。
+
+## exec
+
+用被执行的命令替换当前进程，执行完命令后进程退出。
+
+```shell
+exec COMMAND [ARG[ ...]]
+```
 
 ## exit
 

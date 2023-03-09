@@ -1,4 +1,4 @@
-本文更新于2023-01-04。
+本文更新于2023-03-09。
 
 [TOC]
 
@@ -13,6 +13,7 @@
 * [Docker学习笔记：docker命令](https://www.cnblogs.com/garvenc/p/docker_learning_docker_cli.html)
 * [Docker学习笔记：Dockerfile](https://www.cnblogs.com/garvenc/p/docker_learning_dockerfile.html)
 * [Docker学习笔记：docker-compose](https://www.cnblogs.com/garvenc/p/docker_learning_docker_compose.html)
+* [以宿主机用户身份运行Docker容器](https://www.cnblogs.com/garvenc/p/run_docker_container_with_host_user.html)
 
 # FreeSWITCH
 

@@ -1,4 +1,4 @@
-本文更新于2022-12-07，使用MongoDB 4.4.5。
+本文更新于2023-02-22，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -205,6 +205,14 @@ var RESULT = db.auth(USERNAME, PASSWORD);
 
 验证通过返回1，不通过返回0。
 
+## DB.prototype.changeUserPassword
+
+修改用户密码。
+
+```shell
+var OBJ = DATABASE.changeUserPassword(USERNAME, PASSWORD);
+```
+
 ## DB.prototype.createCollection
 
 创建集合。
@@ -225,8 +233,8 @@ COLLECTION_OPTION_DOC可使用以下字段：
 在当前数据库添加用户。
 
 ```shell
-db.createUser({
-	user: USER,
+var OBJ = db.createUser({
+	user: USERNAME,
 	pwd: PASSWORD,
 	roles: [ROLE|{role: ROLE, db: DBNAME} <, ...>]
 });
@@ -347,7 +355,7 @@ var OBJ = DATABASE.getLastError();
 
 ## DB.prototype.getMongo
 
-获取连接。
+获取MongoDB连接。
 
 ```js
 var MONGO = DATABASE.getMongo();
@@ -1288,6 +1296,64 @@ SORT_DOC可使用`{KEY: 1|-1 <, ...>}`。1为升序，-1为降序。按照各KEY
 var ARR = DBQUERY.toArray();
 ```
 
+# DriverSession
+
+会话类型。
+
+示例：
+
+```js
+var mongo = db.getMongo();
+var session = mongo.startSession();
+session.startTransaction();
+var test = session.getDatabase("test");
+test.foo.insertOne({});
+session.commitTransaction();
+session.endSession();
+```
+
+## DRIVERSESSION.abortTransaction
+
+回滚事务。
+
+```js
+DRIVERSESSION.abortTransaction();
+```
+
+## DRIVERSESSION.commitTransaction
+
+提交事务。
+
+```js
+DRIVERSESSION.commitTransaction();
+```
+
+## DRIVERSESSION.endSession
+
+结束会话。
+
+```js
+DRIVERSESSION.endSession();
+```
+
+## DRIVERSESSION.getDatabase
+
+获取数据库。
+
+```js
+var DATABASE = DRIVERSESSION.getDatabase(DB_NAME);
+```
+
+返回`DB`类型。
+
+## DRIVERSESSION.startTransaction
+
+开始事务。
+
+```js
+DRIVERSESSION.startTransaction();
+```
+
 # EDITOR
 
 `edit`辅助扩展使用的编辑器路径。也可在环境变量中设置。
@@ -1329,7 +1395,7 @@ load(JS_FILENAME);
 
 # Mongo
 
-连接类型。
+MongoDB连接类型。
 
 ## new Mongo
 
@@ -1366,6 +1432,16 @@ MONGO.setSlaveOk()
 ```
 
 默认不允许连接从备份节点读取数据，否则会出现“not master and slaveOk=false”的错误。
+
+## Mongo.prototype.startSession
+
+开启会话。需要在副本集中执行。
+
+```js
+var DRIVERSESSION = MONGO.startSession();
+```
+
+返回`DriverSession`类型。
 
 # NumberInt
 
