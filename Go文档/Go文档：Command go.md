@@ -1,6 +1,6 @@
-本文更新于2022-08-31。
+本文更新于2023-04-06。
 
-翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.19。
+翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.20。
 
 [TOC]
 
@@ -50,7 +50,10 @@ go build [-o output] [build flags] [packages]
 * -asmflags '[pattern=]arg list'：传递给每次go tool asm调用的参数。
 * -buildmode mode：使用的构建模式，更多信息参阅“go help buildmode”。
 * -buildvcs：是否用版本控制信息标记二进制文件（“true”、“false”，或“auto”）。默认情况下（“auto”），如果main包，包含它的主模块，以及当前目录全都在同一个仓库中，版本控制信息会被标记入二进制文件。使用-buildvcs=false来总是忽略版本控制信息，或-buildvcs=true则如果版本控制信息是可用的但因为缺少工具或不明确的目录结构而不能被包含，就会出错。
+* -C dir：在运行命令前切换至dir目录。在命令行上指定名字的任何文件都在切换目录之后被解析。
 * -compiler name：使用的编译器名，即runtime.Complier（gccgo或gc）。
+* -cover：启用代码覆盖率检测（需要设置GOEXPERIMENT=coverageredesign）。
+* -coverpkg pattern1,pattern2,pattern3：对于以“main”包为目标的构建（例如构建一个Go可执行文件），应用覆盖率分析至每个匹配模式的包。默认为应用覆盖率分析至在主Go模块中的包。关于包模式的描述参阅“go help packages”。会设置-cover。
 * -gccgoflags '[pattern=]arg list'：传递给每次gccgo编译器/链接器调用的参数。
 * -gcflags '[pattern=]arg list'：传递给每次go tool complie调用的参数。
 * -installsuffix suffix：在包安装目录名字中使用的后缀，以便使输出文件与默认构建分开。如使用-race标志，安装后缀会自动设置为race，或如果显式设置则在其后追加_race。对-msan和-asan也同样。使用需要使用非默认编译标志的-buildmode选项也有类似效果。
@@ -60,9 +63,10 @@ go build [-o output] [build flags] [packages]
 * -modcacherw：令保留在模块缓存中的新创建的目录可读写，而不是令它们只读。
 * -modfile file：在模块感知模式下，读取（并且可能写入）备用的go.mod文件而不是在模块根目录下的go.mod文件。名字为“go.mod”的文件仍然必须存在用来确定模块根目录，但其不会被访问。当-modfile被指定，备用的go.sum文件也会被使用：其路径从-modfile标志产生，通过去除“.mod”扩展名并追加“.sum”。
 * -overlay file：读取为构建操作提供覆盖的JSON配置文件。文件是只有一个字段的JSON结构，名为“Replace”，映射每个磁盘文件路径（一个字符串）至其后备文件路径，以使构建运行起来如同磁盘文件路径存在有后备文件路径提供的内容，或如果其后备文件路径为空则如同磁盘文件路径不存在。对-overlay标志的支持有一些限制：重要的是，从包含路径之外包含的cgo文件必需与Go包被包含于相同的目录，且当二进制和测试分别通过go run和go test运行时覆盖不会出现。
-* -msan：启用与Memory Sanitizer的互操作，只支持linux/amd64、linux/arm64，并且只能使用clang/llvm作为宿主C编译器。在linux/arm64上，pie构建模式将被使用。
+* -msan：启用与Memory Sanitizer的互操作，只支持linux/amd64、linux/arm64、freebsd/amd64，并且只能使用clang/llvm作为宿主C编译器。PIE构建模式将在除了linux/amd64的所有平台上使用。
 * -n：将实际需执行的命令打印出来但不运行。
 * -p n：可以并行运行的程序——如构建命令或测试二进制文件——的数量。默认为GOMAXPROCS，通常是可用的CPU的数量。
+* -pgo file：为profile-guided optimization（PGO）指定profile的文件路径。特定的名字“auto”让go命令选择在main包的目录中名为“default.pgo”的文件，如果该文件存在。特定的名字“off”关闭PGO。
 * -pkgdir dir：从dir而不是通常的位置安装和加载所有包（pkg）。例如，当使用非标准设置构建时，使用-pkgdir来令在特定的目录生成包。
 * -race：启用数据竞态检测，只支持linux/amd64、freebsd/amd64、darwin/amd64、darwin/arm64、windows/amd64、linux/ppc64le、linux/arm64（只对48位VMA）。
 * -tags tag,list：构建期间需满足的额外构建标记的逗号分隔的列表。关于构建标记的更多信息，参阅“go help buildconstraint”。（早期Go版本使用空白分隔的列表，已经被反对使用，但仍然能识别。）
@@ -317,7 +321,8 @@ generate按照命令行中给定的顺序处理包，一次一个。如果命令
 
 标志：
 
-* -run=""：如果非空，指定一个正则表达式来选择执行的指令，该指令的完整原始源文本（忽略结尾处的空白和换行）匹配正则表达式。
+* -run=""：如果非空，指定一个正则表达式来选择指令，该指令的完整原始源文本（忽略结尾处的空白和最后的换行）匹配正则表达式。
+* -skip=""：如果非空，指定一个正则表达式来禁止指令，该指令的完整原始源文本（忽略结尾处的空白和最后的换行）匹配正则表达式。如果指令既匹配-run也匹配-skip参数，其会被忽略。
 
 也接受标准的构建标志，包括-v、-n和-x。
 
@@ -460,11 +465,9 @@ go install [build flags] [packages]
 
 如果参数没有版本后缀，“go install”可能运行在模块感知模式或GOPATH模式，取决于GO111MODULE环境变量和go.mod文件的存在。详情参阅“go help modules”。如果模块感知模式启用，“go install”运行在主模块的上下文中。
 
-当模块感知模式禁用，其它包被安装在目录$GOPATH/pkg/$GOOS_$GOARCH中。当模块感知模式启用，其它包被构建和缓存但不会被安装。
+当模块感知模式禁用，非main包被安装在目录$GOPATH/pkg/$GOOS_$GOARCH中。当模块感知模式启用，非main包被构建和缓存但不会被安装。
 
-标志：
-
-* -i：同时安装指定名字的包的依赖。-i标志被反对使用。已编译的包会被自动缓存。
+在Go 1.20之前，标准库被安装至$GOROOT/pkg/$GOOS_$GOARCH。从Go 1.20起，标准库被构建和缓存但不会被安装。设置GODEBUG=installgoroot=all恢复$GOROOT/pkg/$GOOS_$GOARCH的使用。
 
 关于构建标志的更多信息，参阅“go help build”。关于指定包的更多信息，参阅“go help packages”。
 
@@ -802,6 +805,8 @@ edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用�
 
 -require、-droprequire、-exclude、-dropexclude、-replace、-dropreplace、-retract、-dropretract编辑标志可以重复，根据给定的顺序应用修改。
 
+也提供-C、-n、-x构建标志。
+
 注意这只描述go.mod文件自身，不描述其他间接引用的模块。对于构建可使用的的模块的完整集合，使用“go list -m -json all”。
 
 关于“go mod edit”的更多信息参阅[https://golang.org/ref/mod#go-mod-edit](https://golang.org/ref/mod#go-mod-edit)。
@@ -809,7 +814,7 @@ edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用�
 ## go mod graph——打印模块依赖图
 
 ```shell
-go mod graph [-go=version]
+go mod graph [-go=version] [-x]
 ```
 
 以文本形式打印模块依赖图（已应用替代）。输出的每行有两个空格分隔的字段：模块和其依赖中的一个。每个模块都被标记为path@version形式的字符串，除了主模块，因其没有@version后缀。
@@ -817,6 +822,7 @@ go mod graph [-go=version]
 标志：
 
 * -go：令其报告如同被指定的Go版本加载的模块图，而不是被在go.mod文件中的“go”指令标示的版本。
+* -x：令其打印执行的命令。
 
 关于“go mod graph”的更多信息参阅[https://golang.org/ref/mod#go-mod-graph](https://golang.org/ref/mod#go-mod-graph)。
 
@@ -837,7 +843,7 @@ go mod init [module-path]
 ## go mod tidy——添加缺少的模块并删除未使用的模块
 
 ```shell
-go mod tidy [-e] [-v] [-go=version] [-compat=version]
+go mod tidy [-e] [-v] [-x] [-go=version] [-compat=version]
 ```
 
 确保go.mod与模块中的源代码一致。它添加构建当前模块的包和依赖所必须的任何缺少的模块，删除不提供任何有价值的包的未使用的模块。它也会添加任何缺少的条目至go.mod并删除任何不需要的条目。
@@ -848,6 +854,7 @@ go mod tidy [-e] [-v] [-go=version] [-compat=version]
 * -e：即使有加载包时遇到的错误仍尝试继续。
 * -go：更新go.mod文件中的“go”指令为给定的版本，其可能改变go.mod文件中哪些模块依赖被保留为显式的要求。（Go版本1.17及更高版本保留更多的要求以为了支持延迟模块加载。）
 * -v：打印被删除的模块的信息至标准错误输出。
+* -x：令其打印执行的命令。
 
 关于“go mod tidy”的更多信息参阅[https://golang.org/ref/mod#go-mod-tidy](https://golang.org/ref/mod#go-mod-tidy)。
 
@@ -974,7 +981,6 @@ go test以两种不同的模式运行：
 * -args：传递命令行中余下的参数（所有在-args后面的参数）至测试二进制文件，不解析且不修改。因为该标志使用命令行中余下的参数，包列表（如果有）必须出现在该标志之前。
 * -c：编译测试二进制文件为pkg.test但不运行之（pkg是包的导入路径的最后的元素）。文件名可以被-o标识修改。
 * -exec xprog：使用xprog运行测试二进制文件。其行为与“go run”相同。详细信息参阅“go help run”。
-* -i：安装测试的依赖包。不运行测试。-i标志被反对使用。已编译的包会被自动缓存。
 * -json：转换测试输出为适合自动化执行的JSON格式。关于编码的详细信息参阅“go doc test2json”。
 * -o file：编译测试二进制文件至指定名字的文件。测试仍会运行（除非指定-c或-i）。
 
@@ -1004,15 +1010,15 @@ go tool [-n] command [args...]
 go version [-m] [-v] [file ...]
 ```
 
-打印Go可执行文件的构建信息。
+为Go二进制文件打印的构建信息。
 
-go version报告用来构建每个指定名字的可执行文件的Go版本。
+go version报告用来构建每个指定名字的文件的Go版本。
 
 如果命令行中没有指定文件，go version打印其自身的版本信息。
 
 标志：
 
-* -m：当可以获得的时候，令go version打印每个可执行文件的内嵌的模块版本信息。在输出中，模块信息包含跟在版本行之后的多行，每行由前导制表符缩进。
+* -m：当可以获得的时候，令go version打印每个文件的内嵌的模块版本信息。在输出中，模块信息包含跟在版本行之后的多行，每行由前导制表符缩进。
 * -v：如果指定一个目录，go version递归地遍历该目录，查找可以识别的Go二进制文件并报告它们的版本。默认情况下，go version不报告在目录扫描期间发现的无法识别的文件。-v标志令其报告无法识别的文件。
 
 参阅：go doc runtime/debug.BuildInfo。
@@ -1020,7 +1026,7 @@ go version报告用来构建每个指定名字的可执行文件的Go版本。
 # go vet——报告包中有可能的错误
 
 ```shell
-go vet [-n] [-x] [-vettool prog] [build flags] [vet flags] [packages]
+go vet [-C dir] [-n] [-x] [-vettool prog] [build flags] [vet flags] [packages]
 ```
 
 在通过导入路径指定名字的包上运行go vet命令。
@@ -1029,11 +1035,12 @@ go vet [-n] [-x] [-vettool prog] [build flags] [vet flags] [packages]
 
 标志：
 
+* -C：在运行“go vet”命令前切换目录。
 * -n：将实际需执行的命令打印出来但不运行。
 * -vettool=prog：选择带有备选或附加检查的不同的分析工具。例如，可以使用这些命令来构建和运行“shadow”分析器：
 
 	```
-	go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+	go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
 	go vet -vettool=$(which shadow)
 	```
 * -x：同时打印实际执行的命令。
@@ -1209,10 +1216,11 @@ go work use [-r] moddirs
 
 对一个文件有多于一个//go:build行是错误的。
 
-在特定的构建期间，以下的构建标记是可用的：
+在特定的构建期间，以下的构建标记是被满足的：
 
 * 目标操作系统，即为runtime.GOOS显示的值，使用GOOS环境变量设置。
 * 目标体系结构，即为runtime.GOARCH显示的值，使用GOARCH环境变量设置。
+* 任何体系结构特性，格式为GOARCH.feature（例如，“amd64.v2”），如下所详述。
 * “unix”，如果GOOS是Unix或类Unix系统。
 * 使用的编译器，“gc”或“gccgo”之一。
 * “cgo”，如果支持cgo命令（参阅“go help environment”中的CGO_ENABLED）。
@@ -1235,13 +1243,29 @@ beta或次版本（译注：不是修订版本？）的发布版本没有单独�
 
 使用GOOS=ios匹配关于GOOS=darwin的构建标记和文件，并加上ios标记和文件。
 
-要使文件在构建时不被考虑：
+已定义的体系结构特性构建标记为：
+
+* 对GOARCH=386，GO386=387和GO386=sse2分别设置386.387和386.sse2构建标记。
+* 对GOARCH=amd64，GOAMD64=v1、v2和v3对应amd64.v1、amd64.v2和amd64.v3特性构建标记。
+* 对GOARCH=arm，GOARM=5、6和7对应 arm.5、arm.6和arm.7特性构建标记。
+* 对GOARCH=mips或mipsle，GOMIPS=hardfloat和softfloat对应mips.hardfloat和mips.softfloat（或mipsle.hardfloat和mipsle.softfloat）特性构建标记。
+* 对GOARCH=mips64或mips64le，GOMIPS64=hardfloat和softfloat对应mips64.hardfloat和mips64.softfloat（或mips64le.hardfloat或mips64le.softfloat）特性构建标记。
+* 对GOARCH=ppc64或ppc64le，GOPPC64=power8、power9和power10对应ppc64.power8、ppc64.power9和ppc64.power10（或ppc64le.power8、ppc64le.power9和ppc64le.power10）特性构建标记。
+* 对GOARCH=wasm，GOWASM=satconv和signext对应wasm.satconv和wasm.signext特性构建标记。
+
+对GOARCH=amd64、arm、ppc64和ppc64le，一个特定的特性等级也为所有之前的等级设置特性构建标记。例如，GOAMD64=v2设置amd64.v1和amd64.v2特性标记。这保证使用v2特性的代码在引入GOAMD64=v4时能继续编译。处理特定特性等级缺失的代码应使用否定：
+
+```go
+//go:build !amd64.v2
+```
+
+要使文件在任何构建时都不被考虑：
 
 ```go
 //go:build ignore
 ```
 
-（任何其它不满足规则的词汇也会同样工作，但“ignore”是按照惯例的。）
+（任何其它不满足规则的词也会如此工作，但“ignore”是按照惯例的。）
 
 要只在使用cgo时，以及只在Linux和OS X上构建文件：
 
@@ -1363,8 +1387,12 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 * GOARM：对GOARCH=arm，要为之编译的ARM体系结构。有效值为5、6、7。
 * GOMIPS：对GOARCH=mips{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
 * GOMIPS64：对GOARCH=mips64{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
-* GOPPC64：对GOARCH=ppc64{,le}，目标ISA（指令集架构，Instruction Set Architecture）。有效值为power8（默认）、power9。
+* GOPPC64：对GOARCH=ppc64{,le}，目标ISA（指令集架构，Instruction Set Architecture）。有效值为power8（默认）、power9、power10。
 * GOWASM：对GOARCH=wasm，要使用的实验性WebAssembly特性的逗号分隔的列表。有效值为satconv、signext。
+
+与代码覆盖率一起使用的环境变量：
+
+* GOCOVERDIR：写入由运行“go build -cover”二进制程序而生成的代码覆盖率数据文件的目录。需要启用GOEXPERIMENT=coverageredesign。
 
 特殊用途的环境变量：
 
@@ -1809,9 +1837,10 @@ GOPRIVATE环境变量也被用来为GOVCS环境变量定义“public”和“pri
 * -json：以JSON记录详细的输出和测试结果日志。这以机器可读的格式表示与-v标志相同的信息。
 * -list regexp：列出匹配正则表达式的单元测试、基准测试、模糊测试或范例。没有单元测试、基准测试、模糊测试或范例会被运行。这只会列出顶层测试。没有子单元测试或子基准测试会被展示。
 * -parallel n：允许调用t.Parallel的单元测试函数并行执行，以及当运行种子集时调用t.Parallel的模糊测试目标并行执行。这个标志的值是同时运行的测试的最大值。当运行模糊测试时，这个标志的值是可以同时调用模糊测试函数的子线程的最大值，不管T.Parallel是否被调用。默认下，-parallel设置为GOMAXPROCS的值。由于CPU争用，设置-parallel为高于GOMAXPROCS的值可能导致降低性能，特别是当运行模糊测试时。注意-parallel只应用于单个测试二进制中。根据-p标志的设置（参阅“go help build”），“go test”命令也可能为多个包并行运行测试。
-* -run regexp：只运行匹配正则表达式的那些单元测试、范例和模糊测试。对于测试，正则表达式由无括号的斜杠（/）字符分隔为一系列正则表达式，且测试的标识符的每部分必须匹配序列中对应的元素，如果有的话。注意匹配项的可能的父项也会运行，因此-run=X/Y匹配、运行、报告所有匹配X的测试的的结果，即使它们并没有匹配Y的子测试，因为必须运行它们来查找那些子测试。
+* -run regexp：只运行匹配正则表达式的那些单元测试、范例和模糊测试。对于单元测试，正则表达式由无括号的斜杠（/）字符分隔为一系列正则表达式，且测试的标识符的每部分必须匹配序列中对应的元素，如果有的话。注意匹配项的可能的父项也会运行，因此-run=X/Y匹配、运行、报告所有匹配X的单元测试的的结果，即使它们并没有匹配Y的子单元测试，因为必须运行它们来查找那些子单元测试。参阅-skip。
 * -short：告诉长时间运行的测试来缩短它们的运行时间。默认是关闭的，但在all.bash运行期间会设置，因此安装Go树可以运行健全的检查但不会花费时间运行详尽的测试。
 * -shuffle off,on,N：随机化单元测试和基准测试的执行顺序。其默认是off。如果-shuffle设置为on，那么他将使用系统时钟对随机数发生器播种。如果-shuffle设置为一个整数N，那么N将被用作种子的值。在两种情况下，种子都会被报告再现性。
+* -skip regexp：只运行不匹配正则表达式的那些单元测试、范例、模糊测试和基准测试。类似于-run和-bench，对单元测试和基准测试，正则表达式由无括号的斜杠（/）字符分隔为一系列正则表达式，且测试的标识符的每部分必须匹配序列中对应的元素，如果有的话。
 * -timeout d：如果测试二进制运行长于时长d，会panic。如果d是0，超时会被禁用。默认为10分钟（10m）。
 * -v：详细的输出：在测试运行时记录所有测试的日志。即使测试成功也会打印所有由Log和Logf调用产生的文本。
 * -vet list：配置“go test”运行期的“go vet”调用来使用vet检查的逗号分隔的列表。如果列表为空，“go test”以一个精心设计的被认为总是值得提及的检查列表运行“go vet”。如果列表为“off”，“go test”根本不会运行“go vet”。

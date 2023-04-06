@@ -1,4 +1,4 @@
-本文更新于2023-02-22，使用MongoDB 4.4.5。
+本文更新于2023-03-22，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -1103,7 +1103,7 @@ QUERY_DOC见`DBCollection.prototype.find`。
 * $addToSet：将数组作为集合，保证元素不重复，向末尾推入元素，键不存在则先创建为空数组。`$addToSet: {ARR_KEY: ELEMENT|EACH_DOC <, ...>}`。只能用于数组类型的键。EACH_DOC可使用以下子操作符：
 	* $each：推入多个元素。`$each: [ELEMENT <, ...>]`。
 * $pop：从数组弹出单个元素。`$pop: {ARR_KEY: 1|-1}`。1为从开头弹出，-1为从结尾弹出。只能用于数组类型的键。
-* $pull：从数组彻底删除元素，即使元素出现多次。`$pull: {ARR_KEY: ELEMENT}`。
+* $pull：从数组彻底删除元素，即使元素出现多次。键可不存在。`$pull: {ARR_KEY: ELEMENT}`。
 * $push: 向数组末尾推入元素，键不存在则先创建为空数组。`$push: {ARR_KEY: ELEMENT|PUSH_EACH_DOC <, ...>}`。只能用于数组类型的键。PUSH_EACH_DOC可使用以下子操作符：
 	* $each: 推入多个元素。`$each: [ELEMENT <, ...>]`。
 	* $slice：推入元素按需排序后，保留多少个元素。`$slice: N`。正数则保留开头元素，负数则保留末尾元素，0则清空。需与`$each`一起使用。
@@ -1651,6 +1651,7 @@ REPL_CONFIG包括以下字段：
 	* slaveDelay：是否为延迟备份节点。可选，`priority`必需为0。
 	* tags：分类标签。`tags: {REPL_TAG_KEY: VALUE <, ...>}`。可选。
 	* votes：投票数量。为0，则阻止节点在选举中投赞成票，但仍可投否决票。可选，应该只在创建包含7个（不含）以上节点的副本集或者希望阻止自动故障转移时使用。
+* protocolVersion：副本集协议版本。自MongoDB 4.0起只支持1。
 * settings：包括以下字段：
 	* allowChaining：是否允许复制链。如为false，则强制每个备份节点都从主节点进行复制。可选，默认为true。
 	* getLastErrorModes：自定义复制保证规则。`getLastErrorModes: {GET_LAST_ERROR_MODES_NAME: {REPL_TAG_KEY: N} <, ...>}`。可选，表示保证复制至分类标签REPL_TAG_KEY中至少N个不同的分类，每个分类的至少一个节点中。
