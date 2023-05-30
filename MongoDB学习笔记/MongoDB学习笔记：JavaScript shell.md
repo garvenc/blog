@@ -1,4 +1,4 @@
-本文更新于2023-03-22，使用MongoDB 4.4.5。
+本文更新于2023-04-17，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -907,6 +907,34 @@ PROJECTION_DOC见`DBCollection.prototype.find`。
 
 返回的文档经过格式化。如找不到，则返回`null`。
 
+## DBCollection.prototype.findOneAndUpdate
+
+查找单个文档并更新。
+
+```js
+var DOC = DBCOLLECTION.findOneAndUpdate(
+	QUERY_DOC,
+	MODIFIER_DOC,
+	<{
+		<projection: PROJECTION_DOC>
+		<, sort: SORT_DOC>
+		<, upsert: BOOL>
+		<, returnDocument: "before"|"after">
+	}>
+);
+```
+
+QUERY_DOC见`DBCollection.prototype.find`。
+
+MODIFIER_DOC见`DBCollection.prototype.update`。
+
+OPTION可使用以下字段：
+
+* projection：投射方式。PROJECTION_DOC见`DBCollection.prototype.find`。
+* returnDocument："before"为返回更新前的文档，"after"为返回更新后的文档。
+* sort：排序方式。SORT_DOC见`DBQuery.prototype.sort`。
+* upsert：是否执行upsert。即，查询条件QUERY_DOC匹配不到文档时，先使用QUERY_DOC创建文档，再使用MODIFIER_DOC修改文档。
+
 ## DBCollection.prototype.getIndexes
 
 查看集合的所有索引信息。
@@ -1111,7 +1139,7 @@ QUERY_DOC见`DBCollection.prototype.find`。
 
 上述KEY等键可以使用a.b的形式指定内嵌文档（可为数组）的字段；可以使用a.INDEX的形式通过下标指定数组元素；若QUERY_DOC使用a.b进行查询，则可以通过定位操作符$以a.$的形式指定已匹配的数组元素，但只能更新第一个匹配的数组元素。
 
-如BOOL_UPSERT为true（缺省为false），则执行upsert。即，查询条件QUERY_DOC匹配不到文档时，先使用QUERY_DOC创建文档，再使用DOC或MODIFIER_DOC修改文档，最后将文档插入。
+如BOOL_UPSERT为true（缺省为false），则执行upsert。即，查询条件QUERY_DOC匹配不到文档时，先使用QUERY_DOC创建文档，再使用DOC或MODIFIER_DOC修改文档。
 
 如BOOL_MANY为true（缺省为false），则更新所有匹配查询条件QUERY_DOC的文档，否则只更新第一个文档。
 
@@ -1520,6 +1548,14 @@ var prompt = function() {return "STR";};
 ```
 
 为字符串或返回字符串的函数。如为函数，建议处理异常。
+
+# quit
+
+退出。
+
+```js
+quit();
+```
 
 # run
 

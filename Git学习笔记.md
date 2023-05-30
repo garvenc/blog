@@ -1,4 +1,4 @@
-本文更新于2023-02-09，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2023-04-28，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -383,6 +383,7 @@ git config [--global] alias.ALIAS SOURCE
 git config [--global] core.autocrlf true|input|false
 git config --bool core.bare true|false
 git config [--global] core.editor EDITOR
+git config [--global] core.ignorecase true|false
 git config [--global] core.quotepath true|false
 git config [--global] credential.helper cache|store|osxkeychain
 git config --system --unset credential.helper
@@ -397,9 +398,10 @@ git config [--global] user.name NAME
 ```
 
 * alias：如果SOURCE是外部命令，则需在前面加!。
-* core.autocrlf：为true则checkout时转换为CRLF，commit时转换为LF；为input则checkout时不做转换，commit时转换为LF；为false则checkout和commit时都不做转换。
+* core.autocrlf：为true则checkout时转换为CRLF，commit时转换为LF；为input则checkout时不做转换，commit时转换为LF；为false则checkout和commit时都不做转换。**强烈建议将此值设置为--global的false。**
 * core.bare：是否设为裸仓库。裸仓库可作为远程仓库往其push。
 * core.editor：默认编辑器。
+* core.ignorecase：是否忽略文件路径中大小写的不同。
 * core.quotepath：是否将文件路径中0x80以上的字符转义为八进制。
 * credential.helper：凭证存储方式。cache为保存在内存中，可附加参数--timeout SECONDS；store为明文保存在磁盘中，可附加参数--file FILENAME；osxkeychain在Mac下使用，密文保存在磁盘中。如需清除之前保持的凭证（例如：提示“You are not allowed to push code to this project.”），则使用--system --unset。
 * gui.encoding：GUI中的字符编码，如：utf-8。
