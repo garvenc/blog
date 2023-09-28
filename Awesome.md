@@ -1,4 +1,4 @@
-本文更新于2023-03-09。
+本文更新于2023-09-28。
 
 [TOC]
 
@@ -14,6 +14,13 @@
 * [Docker学习笔记：Dockerfile](https://www.cnblogs.com/garvenc/p/docker_learning_dockerfile.html)
 * [Docker学习笔记：docker-compose](https://www.cnblogs.com/garvenc/p/docker_learning_docker_compose.html)
 * [以宿主机用户身份运行Docker容器](https://www.cnblogs.com/garvenc/p/run_docker_container_with_host_user.html)
+
+# EMQX
+
+* [EMQX学习笔记：安装](https://www.cnblogs.com/garvenc/p/emqx_learning_install.html)
+* [EMQX学习笔记：配置文件](https://www.cnblogs.com/garvenc/p/emqx_learning_configuration_file.html)
+* [EMQX学习笔记：命令行工具](https://www.cnblogs.com/garvenc/p/emqx_learning_cli.html)
+* [EMQX学习笔记：常用功能](https://www.cnblogs.com/garvenc/p/emqx_learning_useful_features.html)
 
 # FreeSWITCH
 
@@ -60,6 +67,7 @@
 
 * [MongoDB学习笔记：概述](https://www.cnblogs.com/garvenc/p/mongodb_learning_summary.html)
 * [MongoDB学习笔记：安装](https://www.cnblogs.com/garvenc/p/mongodb_learning_install.html)
+* [MongoDB学习笔记：配置文件](https://www.cnblogs.com/garvenc/p/mongodb_learning_configuration_file.html)
 * [MongoDB学习笔记：JavaScript shell](https://www.cnblogs.com/garvenc/p/mongodb_learning_javascript_shell.html)
 * [MongoDB学习笔记：副本集搭建](https://www.cnblogs.com/garvenc/p/mongodb_learning_replica_set.html)
 * [MongoDB学习笔记：分片搭建](https://www.cnblogs.com/garvenc/p/mongodb_learning_sharding.html)
