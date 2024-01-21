@@ -1,4 +1,4 @@
-本文更新于2023-04-28，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2023-10-08，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -412,6 +412,17 @@ git config [--global] user.name NAME
 * user.email：作者邮箱。
 * user.name：作者名字。
 
+常用配置：
+
+```shell
+git config core.autocrlf false
+git config core.ignorecase false
+git config core.quotepath false
+git config gui.encoding utf-8
+git config user.name NAME
+git config user.email NAME@EMAIL.COM
+```
+
 删除配置：
 
 ```shell
@@ -595,6 +606,12 @@ git init DIR
 git log [OPTIONS] [BRANCH ...]
 ```
 
+查看指定文件的提交历史：
+
+```shell
+git log [OPTIONS] FILENAME[ ...]
+```
+
 双点（..为命令行输入的字符）查看提交区间，查看在BRANCH2中而不在BRANCH1中的提交历史：
 
 ```shell
@@ -607,7 +624,7 @@ git log [OPTIONS] BRANCH1..BRANCH2
 git log [OPTIONS] [--left-right] BRANCH1...BRANCH2
 ```
 
---left-right使用“<”和“>”表示提交属于左侧的分支还是右侧的分支。
+指定--left-right后，输出使用“<”和“>”表示提交属于左侧的分支还是右侧的分支。
 
 多点查看提交区间，使用^或--not指定提交不在其中的分支：
 
@@ -657,10 +674,16 @@ OPTIONS可使用如下选项：
 
 ## git ls-remote
 
-查看并更新远程仓库的所有引用：
+更新远程仓库的所有引用至本地并显示：
 
 ```shell
 git ls-remote [REMOTE]
+```
+
+更新远程仓库的标签至本地并显示：
+
+```shell
+git ls-remote --tags [REMOTE]
 ```
 
 ## git merge
@@ -754,7 +777,7 @@ kdiff3可通过设置修改字符编码：“Settings -> Configure KDiff3... -> 
 
 ## git mv
 
-移动文件：
+移动文件（即使在大小写不敏感的文件系统中也可修改大小写）：
 
 ```shell
 git mv FROM TO

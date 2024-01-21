@@ -1,4 +1,4 @@
-本文更新于2023-04-17，使用MongoDB 4.4.5。
+本文更新于2024-01-19，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -658,6 +658,16 @@ PIPELINE_DOC可使用以下管道操作符：
 
 返回的DOCS实现了`forEach`方法。
 
+示例：
+
+```js
+var DOCS = db.EIData.aggregate(
+	{$match: {"user.firstname": "Tom"}},
+	{$group: {_id: "$user.lastname", amount: {$sum: 1}}},
+	{$sort: {amount: 1}}
+);
+```
+
 ## DBCollection.prototype.convertToCapped
 
 将集合转换成固定集合。
@@ -869,6 +879,12 @@ PROJECTION_DOC为查找结果字段的投射方式。`{KEY: VALUE, <, ...>}`。�
 
 返回`DBQuery`类型。如不接收返回，则默认打印前20个文档，若需继续遍历则使用辅助扩展`it`。
 
+示例：
+
+```js
+DBCOLLECTION.find({firstname: "Tom"}, {_id: 0});
+```
+
 ## DBCollection.prototype.findAndModify
 
 查找并更新文档。只会更新一个文档。
@@ -898,12 +914,16 @@ var RESULT_DOC = DBCOLLECTION.findAndModify({
 查找单个文档。
 
 ```js
-var DOC = DBCOLLECTION.findOne(<QUERY_DOC <, PROJECTION_DOC>>);
+var DOC = DBCOLLECTION.findOne(<QUERY_DOC <, PROJECTION_DOC <, OPTION>>>);
 ```
 
 QUERY_DOC见`DBCollection.prototype.find`。
 
 PROJECTION_DOC见`DBCollection.prototype.find`。
+
+OPTION可使用以下字段：
+
+* sort：排序方式。`sort: SORT_DOC`。SORT_DOC见`DBQuery.prototype.sort`。
 
 返回的文档经过格式化。如找不到，则返回`null`。
 
@@ -915,12 +935,7 @@ PROJECTION_DOC见`DBCollection.prototype.find`。
 var DOC = DBCOLLECTION.findOneAndUpdate(
 	QUERY_DOC,
 	MODIFIER_DOC,
-	<{
-		<projection: PROJECTION_DOC>
-		<, sort: SORT_DOC>
-		<, upsert: BOOL>
-		<, returnDocument: "before"|"after">
-	}>
+	<OPTION>
 );
 ```
 
@@ -930,9 +945,9 @@ MODIFIER_DOC见`DBCollection.prototype.update`。
 
 OPTION可使用以下字段：
 
-* projection：投射方式。PROJECTION_DOC见`DBCollection.prototype.find`。
+* projection：投射方式。`projection: PROJECTION_DOC`。PROJECTION_DOC见`DBCollection.prototype.find`。
 * returnDocument："before"为返回更新前的文档，"after"为返回更新后的文档。
-* sort：排序方式。SORT_DOC见`DBQuery.prototype.sort`。
+* sort：排序方式。`sort: SORT_DOC`。SORT_DOC见`DBQuery.prototype.sort`。
 * upsert：是否执行upsert。即，查询条件QUERY_DOC匹配不到文档时，先使用QUERY_DOC创建文档，再使用MODIFIER_DOC修改文档。
 
 ## DBCollection.prototype.getIndexes
@@ -1144,6 +1159,12 @@ QUERY_DOC见`DBCollection.prototype.find`。
 如BOOL_MANY为true（缺省为false），则更新所有匹配查询条件QUERY_DOC的文档，否则只更新第一个文档。
 
 返回`WriteResult`类型。
+
+示例：
+
+```js
+DBCOLLECTION.update({firstname: "Tom"}, {$inc: {age: 1}});
+```
 
 ## DBCollection.prototype.updateMany
 

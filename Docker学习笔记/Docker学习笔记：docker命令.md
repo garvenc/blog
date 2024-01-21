@@ -1,4 +1,4 @@
-本文更新于2023-03-02，使用Docker 23.0.1，操作系统为Debian 11。
+本文更新于2023-11-08，使用Docker 23.0.1，操作系统为Debian 11。
 
 [TOC]
 
@@ -350,6 +350,14 @@ OPTIONS可为：
 
 * -t|--time SECONDS：等待秒数，超时则强制停止。
 
+### docker container top
+
+查看容器内运行的进程。等同于`docker top`。
+
+```shell
+docker container top CONTAINER
+```
+
 ### docker container wait
 
 等待容器退出，并返回退出码。等同于`docker wait`。
@@ -537,14 +545,6 @@ docker image tag IMAGE TARGET_IMAGE
 ```
 
 如推送至非Docker Hub的注册服务器，需先使用`docker image tag`。
-
-### docker container top
-
-查看容器内运行的进程。等同于`docker top`。
-
-```shell
-docker container top CONTAINER
-```
 
 ## docker images
 
@@ -1107,6 +1107,21 @@ docker start [OPTIONS] CONTAINER[ ...]
 docker stats [OPTIONS] CONTAINER[ ...]
 ```
 
+OPTIONS可为：
+
+* --no-stream：不持续显示，只打印第一次的结果。
+
+返回包括以下列：
+
+* CONTAINER ID：容器ID。
+* NAME：容器名。
+* CPU %：CPU使用率。
+* MEM USAGE / LIMIT：内存用量与内存限制的比值。
+* MEM %：内存使用率。
+* NET I/O
+* BLOCK I/O
+* PIDS
+
 ## docker stop
 
 停止容器。会向Docker容器进程发送SIGTERM信号，如果想强制杀死容器，需使用`docker kill`。等同于`docker container stop`。
@@ -1223,7 +1238,7 @@ docker system prune [OPTIONS]
 
 OPTIONS可为：
 
-* -a：删除所有未使用的镜像。
+* -a：并且删除所有未使用的镜像。
 * -f：强制删除。
 
 ## docker tag

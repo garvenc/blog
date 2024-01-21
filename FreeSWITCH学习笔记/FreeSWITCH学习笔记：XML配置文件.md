@@ -1,4 +1,4 @@
-本文更新于2022-12-20，使用FreeSWITCH 1.10.7。
+本文更新于2023-11-17，使用FreeSWITCH 1.10.7。
 
 [TOC]
 
@@ -587,6 +587,8 @@ SIP核心配置。这是文件内容的一部分：
 
 * core-db-dsn：core数据库的DSN。格式为：[odbc://]NAME:[USERNAME]:[PASSWORD]。
 * max-sessions：呼叫最大并发数。
+* rtp-end-port：RTP结束端口（含）。
+* rtp-start-port：RTP起始端口（含）。
 * sessions-per-second：每秒最大呼叫数。
 
 ## autoload_configs/tts_commandline.conf.xml

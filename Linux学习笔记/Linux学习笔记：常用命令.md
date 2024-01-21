@@ -1,8 +1,100 @@
-本文更新于2023-02-27。
+本文更新于2023-12-18。
 
 [TOC]
 
 **说明：下文中，大写为自定义变量，根据实际情况填写（个别大写的参数除外）。使用`[]`引起表示内容可选，使用`{}`引起表示内容为一个整体，`|`表示使用左侧或右侧内容，`...`表示重复之前内容。**
+
+# 系统信息
+
+## date
+
+查看或设置时间。
+
+```shell
+date [-d TIME] [+FORMAT]
+date -s TIME
+```
+
+* -d：指定时间。
+* -s：设置系统时间。
+
+FORMAT可使用如下格式：
+
+* %%：%字面值。
+* %a：星期几（Sun-Sat）。
+* %A：星期几（Sunday-Saturday）。
+* %b：月份（Jan-Dec）。
+* %B：月份（January-December）。
+* %c：本地日期时间。
+* %C：世纪。
+* %d：日（01-31）。
+* %D：即“%m/%d/%y”。
+* %e：即“%_d”。
+* %F：即“%Y-%m-%d”。
+* %g：该周所属ISO年份的最后两位数字，一月前几天可能属于上一年的一周（00-99）。
+* %G：该周所属ISO年份，一月前几天可能属于上一年的一周（0000-9999）。
+* %h：同%b。
+* %H：小时（00-23）。
+* %I：小时（01-12）。
+* %j：一年中的第几天（001-366）。
+* %k：小时（0-23）。
+* %l：小时（1-12）。
+* %m：月份（01-12）。
+* %M：分钟（00-59）。
+* %n：换行符。
+* %N：纳秒（000000000-999999999）。
+* %p：本地AM/PM。
+* %P：本地am/pm。
+* %r：即“%H:%M:%S %p”。
+* %R：即“%H:%M”。
+* %s：从1970-01-01 00:00:00 UTC到目前为止的秒数。
+* %S：秒（00-60）。
+* %t：制表符。
+* %T：即“%H:%M:%S”。
+* %u：一周中的第几天，以周一开始一周（1-7）。
+* %U：一年中的第几周，以周日开始一周（00-53）。
+* %V：一年中的第几周，以周一开始一周，以ISO规范计算（01-53）。
+* %w：一周中的第几天，以周日开始一周（0-6）。
+* %W：一年中的第几周，以周一开始一周（00-53）。
+* %x：本地日期。
+* %X：本地时间。
+* %y：年份最后两位数字（00-99）。
+* %Y：年份（0000-9999）。
+* %z：+hhmm形式的数值时区。
+* %:z：+hh:mm形式的数值时区。
+* %::z：+hh:mm:ss形式的数值时区。
+* %:::z：数值时区，只使用必要的“:”。
+* %Z：字母时区。
+
+TIME可使用如下格式：
+
+* 2006-01-02 15:04:05
+
+## dmesg
+
+查看开机后产生的内核信息。
+
+```shell
+dmesg
+```
+
+## hostname
+
+查看主机名。
+
+```shell
+hostname
+```
+
+## uname
+
+查看内核信息。
+
+```shell
+uname [-a]
+```
+
+* -a：列出所有信息。
 
 # 关机
 
@@ -685,16 +777,35 @@ nl [-b a|t -n ln|rn|rz -w N] FILENAME[ ...]
 显示二进制。
 
 ```shell
-od [-t TYPE] FILENAME[ ...]|STDIN
+od [-abcdfilosx -v -j BYTES -N BYTES -t TYPE -w[BYTES] --endian big|little] FILENAME[ ...]|STDIN
 ```
 
-* -t：指定显示的类型。
-	* a：默认。
-	* c：ASCII。
-	* d[SIZE]：十进制，每个数占用SIZE字节。
+* -j BYTES：跳过的字节数。
+* -N BYTES：显示的字节数。
+* -t TYPE：显示的类型。TYPE可为：
+	* a：字符名，忽略最高位。默认。
+	* c：可打印字符或字符转义。
+	* d[SIZE]：有符号十进制，每个数占用SIZE字节。
 	* f[SIZE]：浮点数，每个数占用SIZE字节。
 	* o[SIZE]：八进制，每个数占用SIZE字节。
+	* u[SIZE]：无符号十进制，每个数占用SIZE字节。
 	* x[SIZE]：十六进制，每个数占用SIZE字节。
+* -v：显示详细内容，不使用“*”显示重复的行。
+* -w[BYTES]：每行显示的字节数。BYTES默认为32。
+* --endian big|little：端序。
+
+以下是与-t TYPE等同的选项：
+
+* -a：等同于-t a，字符名，忽略最高位。
+* -b：等同于-t o1，八进制字节。
+* -c：等同于-t c，可打印字符或字符转义。
+* -d：等同于-t u2，2字节无符号十进制整数。
+* -f：等同于-t fF，4字节单精度浮点数。
+* -i：等同于-t dI，4字节十进制整数。
+* -l：等同于-t dL，8字节十进制长整数。
+* -o：等同于-t o2，2字节八进制整数。
+* -s：等同于-t d2，2字节十进制短整数。
+* -x：等同于-t x2，2字节十六进制整数。
 	
 输出的第一列表示该行的第一个字节是该文件的第几个字节（八进制，以0开始）。
 
@@ -732,10 +843,11 @@ tail [-f -n COUNT] FILENAME[ ...]|STDIN
 以行为单位操作文本列。
 
 ```shell
-awk [-F 'REGEXP'] '[CONDITION] {ACTION} [[CONDITION] {ACTION} ...]' FILENAME[ ...]|STDIN
+awk [-F 'REGEXP' -v VAR=VALUE] '[CONDITION] {ACTION} [[CONDITION] {ACTION} ...]' FILENAME[ ...]|STDIN
 ```
 
 * -F 'REGEXP'：指定分隔符，以正则表达式匹配，支持扩展正则表达式。默认为任意个（大于等于1个）Space或Tab。
+* -v VAR=VALUE：设置变量。
 
 CONDITION和ACTION中的字符串都需要用""括起。可使用逻辑运算符（<、>、<=、>=、==、!=），赋值运算符（=）。
 
@@ -744,7 +856,7 @@ CONDITION可使用的特殊值：BEGIN、END。
 ACTION有多个命令，可使用;或Enter键隔开。ACTION可使用的函数：
 
 * print：`print ARG[ ...]`，没有空格分隔，自动换行。
-* printf：`printf "FORMAT"[, ARG, ARG ...]`，不自动换行。FORMAT的变量格式如下：
+* printf：`printf "STR"|VAR[...][, ARG, ...]`，不自动换行。STR可指定如下格式：
 	* %[N]s：占位为N的字符串。
 	* %[N]d：占位为N的十进制整数。
 	* %[N][.M]f：占位为N小数位为M的浮点数。
@@ -760,7 +872,7 @@ ACTION有多个命令，可使用;或Enter键隔开。ACTION可使用的函数�
 示例：
 
 ```shell
-awk -F ':' 'BEGIN {total = 0} NR <= 5 {total = total + NF; printf "%d %d %10s %s\n", total, NF, $1, $0}' /etc/passwd
+awk -F ':' -v prefix="*" 'BEGIN {total = 0} NR <= 5 {total = total + NF; printf prefix" %d %d %10s %s\n", total, NF, $1, $0}' /etc/passwd
 ```
 
 ## cmp
@@ -1433,6 +1545,16 @@ pidstat [-urd -p PID]
 * -r：查看内存使用状态。
 * -u：查看CPU使用状态。
 
+## pkill
+
+根据条件向进程发送信号，可杀死进程。
+
+```shell
+pkill [-F PIDFILENAME]
+```
+
+* -F PIDFILENAME：从文件中读取进程ID。
+
 ## pmap
 
 查看进程中各个模块占用内存的情况。
@@ -1579,161 +1701,6 @@ top执行过程中可使用如下命令（以下所述排序均为降序），�
 * u：显示指定用户的进程。会提示输入用户名。
 * q：离开top。
 
-# 服务
-
-## service
-
-服务管理。新系统应使用`systemctl`。
-
-```shell
-service SERVICE restart
-service SERVICE start
-service SERVICE status
-service SERVICE stop
-```
-
-子命令：
-
-* restart：重启服务。
-* start：启动服务。
-* status：查看服务状态。
-* stop：停止服务。
-
-## systemctl
-
-systemd系统服务管理。
-
-单元文件存放目录按优先级从高至低为：`/etc/systemd/system/`（系统管理员安装的单元）、`/usr/lib/systemd/system/`或`/lib/systemd/system/`（软件包安装的单元）。
-
-```shell
-systemctl enable UNIT
-systemctl daemon-reload
-systemctl disable UNIT
-systemctl is-enabled UNIT
-systemctl list-unit-files
-systemctl [list-units] [--all --failed --state STATE[,...] --type TYPE]
-systemctl mask UNIT
-systemctl reload UNIT
-systemctl restart UNIT
-systemctl start UNIT
-systemctl status [UNIT]
-systemctl stop UNIT
-systemctl umask UNIT
-```
-
-子命令：
-
-* enable：设置单元开机自动启动。
-* daemon-reload：重新加载systemd。扫描新的或有变动的单元配置。
-* disable：取消单元开机自动启动。
-* is-enabled：查看单元是否未开机自动启动。
-* list-unit-files：查看所有已安装单元。
-* list-units：查看单元。默认子命令。
-* mask：禁用单元。禁用后，也不能间接启动。
-* reload：重新加载单元配置。
-* restart：重启单元。
-* start：启动单元。
-* status：查看单元状态。如不指定单元，则以树形查看单元。
-* stop：停止单元。
-* umask：取消禁用单元。
-
-* --all：查看所有单元。
-* --failed：查看执行失败的单元。
-* --state STATE[,...]：查看指定状态的单元：可为active、failed、running、enabled。
-* --type TYPE：查看指定类型的单元。可为service。
-
-# 系统信息
-
-## date
-
-查看或设置时间。
-
-```shell
-date [-d TIME] [+FORMAT]
-date -s TIME
-```
-
-* -d：指定时间。
-* -s：设置系统时间。
-
-FORMAT可使用如下格式：
-
-* %%：%字面值。
-* %a：星期几（Sun-Sat）。
-* %A：星期几（Sunday-Saturday）。
-* %b：月份（Jan-Dec）。
-* %B：月份（January-December）。
-* %c：本地日期时间。
-* %C：世纪。
-* %d：日（01-31）。
-* %D：即“%m/%d/%y”。
-* %e：即“%_d”。
-* %F：即“%Y-%m-%d”。
-* %g：该周所属ISO年份的最后两位数字，一月前几天可能属于上一年的一周（00-99）。
-* %G：该周所属ISO年份，一月前几天可能属于上一年的一周（0000-9999）。
-* %h：同%b。
-* %H：小时（00-23）。
-* %I：小时（01-12）。
-* %j：一年中的第几天（001-366）。
-* %k：小时（0-23）。
-* %l：小时（1-12）。
-* %m：月份（01-12）。
-* %M：分钟（00-59）。
-* %n：换行符。
-* %N：纳秒（000000000-999999999）。
-* %p：本地AM/PM。
-* %P：本地am/pm。
-* %r：即“%H:%M:%S %p”。
-* %R：即“%H:%M”。
-* %s：从1970-01-01 00:00:00 UTC到目前为止的秒数。
-* %S：秒（00-60）。
-* %t：制表符。
-* %T：即“%H:%M:%S”。
-* %u：一周中的第几天，以周一开始一周（1-7）。
-* %U：一年中的第几周，以周日开始一周（00-53）。
-* %V：一年中的第几周，以周一开始一周，以ISO规范计算（01-53）。
-* %w：一周中的第几天，以周日开始一周（0-6）。
-* %W：一年中的第几周，以周一开始一周（00-53）。
-* %x：本地日期。
-* %X：本地时间。
-* %y：年份最后两位数字（00-99）。
-* %Y：年份（0000-9999）。
-* %z：+hhmm形式的数值时区。
-* %:z：+hh:mm形式的数值时区。
-* %::z：+hh:mm:ss形式的数值时区。
-* %:::z：数值时区，只使用必要的“:”。
-* %Z：字母时区。
-
-TIME可使用如下格式：
-
-* 2006-01-02 15:04:05
-
-## dmesg
-
-查看开机后产生的内核信息。
-
-```shell
-dmesg
-```
-
-## hostname
-
-查看主机名。
-
-```shell
-hostname
-```
-
-## uname
-
-查看内核信息。
-
-```shell
-uname [-a]
-```
-
-* -a：列出所有信息。
-
 # 系统资源
 
 top也可查看系统资源使用情况，其显示值与下面很多命令均一致。
@@ -1847,15 +1814,38 @@ setcap -r FILENAME
 
 CAPABILITY为`cap_net_bind_service=+eip`可让程序监听小于1024的端口。
 
-## swapon
+## swapoff
 
-查看交换分区使用情况。
+禁用交换区。
 
 ```shell
-swapon -s
+swapoff [-a]
+```
+
+* -a：关闭所有设备和文件使用的交换区。
+
+## swapon
+
+启用交换区。
+
+```shell
+swapon [-s]
 ```
 
 * -s：查看交换分区使用情况。
+
+## sysctl
+
+系统内核参数配置工具。
+
+```shell
+sysctl [-ap]
+sysctl -w KEY=VALUE
+```
+
+* -a：显示所有内核参数。
+* -p：重新读取内核参数配置文件/etc/sysctl.conf。
+* -w：临时修改，重启后失效。
 
 ## ulimit
 
@@ -1979,6 +1969,32 @@ ifconfig [-a]
 
 * -a：显示所有的网络接口，即使其是未激活的。
 
+## iftop
+
+网络带宽监控工具。
+
+```shell
+iftop [-bBnNpP -i ETH -m MAX]
+```
+
+* -b：不显示流量条。
+* -B：以Byte为单位。默认是以bit为单位。
+* -i ETH：指定网卡。
+* -m MAX：流量刻度最大值，单位为bit。其中可使用k、K、m、M、g、G。
+* -n：将输出的主机信息通过IP显示，不进行DNS解析。 
+* -N：只显示连接端口，不显示端口对应的服务名称。
+* -p 以混杂模式运行。
+* -P：显示端口。
+
+输出分为三部分：
+
+* 流量刻度。
+* 实时信息。
+* 统计信息：TX行为发送、RX行为接收、TOTAL为发送和接收合计。每行有三列：
+	* cum：从运行iftop起的总计。
+	* peak：从运行iftop起的峰值。
+	* rates：过去2s、10s、40s的平均值。
+
 ## ip
 
 网络配置。RHEL系列使用其替代`ifconfig`。
@@ -2007,6 +2023,17 @@ nc [-tuv] HOST PORT
 ## netcat
 
 TCP/UDP网络工具。等同`nc`。
+
+## nethogs
+
+进程网络监控。
+
+```shell
+nethogs [-a -d SECONDS] ETH
+```
+
+* -a：是否监控所有网卡，包括本地环回。
+* -d SECONDS：刷新的时间间隔，单位为秒。
 
 ## netstat
 
@@ -2184,7 +2211,8 @@ curl URL [-iILOv -o FILENAME]
 curl URL -X METHOD -H HEADER -d BODY [-iv]
 ```
 
-* -d BODY：指定请求实体。同时默认-X为POST。
+* -d|--data BODY：指定请求实体。会转换换行符。同时默认-X为POST。
+* --data-binary BODY：指定二进制请求实体。不会转换换行符。可使用@FILENAME指定文件名。
 * -H HEADER：指定请求首部。格式为“KEY: VALUE”。
 * -i：响应打印包含首部信息。
 * -I：提交HEAD请求，只返回首部信息。
@@ -2199,12 +2227,76 @@ curl URL -X METHOD -H HEADER -d BODY [-iv]
 发送HTTP的GET请求下载文件。
 
 ```shell
-wget [-O FILENAME] URL
+wget [-q -O FILENAME] URL
 ```
 
 * -O FILENAME：指定保存响应内容的文件名。
+* -q：安静模式，关闭打印输出。
 
 URL可放在参数的前面。
+
+# 服务
+
+## service
+
+服务管理。新系统应使用`systemctl`。
+
+```shell
+service SERVICE restart
+service SERVICE start
+service SERVICE status
+service SERVICE stop
+```
+
+子命令：
+
+* restart：重启服务。
+* start：启动服务。
+* status：查看服务状态。
+* stop：停止服务。
+
+## systemctl
+
+systemd系统服务管理。
+
+单元文件存放目录按优先级从高至低为：`/etc/systemd/system/`（系统管理员安装的单元）、`/usr/lib/systemd/system/`或`/lib/systemd/system/`（软件包安装的单元）。
+
+```shell
+systemctl enable UNIT
+systemctl daemon-reload
+systemctl disable UNIT
+systemctl is-enabled UNIT
+systemctl list-unit-files
+systemctl [list-units] [--all --failed --state STATE[,...] --type TYPE]
+systemctl mask UNIT
+systemctl reload UNIT
+systemctl restart UNIT
+systemctl start UNIT
+systemctl status [UNIT]
+systemctl stop UNIT
+systemctl umask UNIT
+```
+
+子命令：
+
+* enable：设置单元开机自动启动。
+* daemon-reload：重新加载systemd。扫描新的或有变动的单元配置。
+* disable：取消单元开机自动启动。
+* is-enabled：查看单元是否未开机自动启动。
+* list-unit-files：查看所有已安装单元。
+* list-units：查看单元。默认子命令。
+* mask：禁用单元。禁用后，也不能间接启动。
+* reload：重新加载单元配置。
+* restart：重启单元。
+* start：启动单元。
+* status：查看单元状态。如不指定单元，则以树形查看单元。
+* stop：停止单元。
+* umask：取消禁用单元。
+
+* --all：查看所有单元。
+* --failed：查看执行失败的单元。
+* --state STATE[,...]：查看指定状态的单元：可为active、failed、running、enabled。
+* --type TYPE：查看指定类型的单元。可为service。
 
 # 证书
 
@@ -2363,6 +2455,14 @@ dpkg -r DEBPACKAGE
 * -L：显示deb包安装于文件系统中的文件。
 * -P：删除deb包，包括配置文件。
 * -r：删除deb包，保留配置文件。
+
+## dpkg-reconfigure
+
+重新配置DPKG包。
+
+```shell
+dpkg-reconfigure DEBPACKAGE
+```
 
 ## rpm
 

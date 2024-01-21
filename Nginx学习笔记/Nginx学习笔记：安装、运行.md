@@ -1,4 +1,4 @@
-本文更新于2023-03-01。
+本文更新于2023-03-28。
 
 [TOC]
 
@@ -147,4 +147,11 @@ docker start nginx
 
 * /etc/nginx/：配置文件、证书文件目录。
 	* nginx.conf：配置文件。
+* /usr/sbin/nginx：可执行文件。
 * /usr/share/nginx/html：静态文件目录。
+
+在容器中执行nginx命令，如：
+
+```shell
+docker container exec -it nginx nginx -t
+```

@@ -1,4 +1,4 @@
-本文更新于2023-03-01，使用nginx 1.16。
+本文更新于2023-10-27，使用nginx 1.16。
 
 [TOC]
 
@@ -8,7 +8,7 @@
 
 # 变量
 
-配置中可使用以下变量：
+配置中可使用以下变量（使用了变量可能会导致不能直接解析localhost）：
 
 * $N：正则表达式匹配时与第N个分组（以`()`引起）匹配的内容，从0开始。
 * $http_upgrade：Upgrade首部的值。
@@ -70,7 +70,7 @@ http {
 
 ## http.server.listen
 
-HTTP服务监听的端口。可指定使用HTTPS（SSL）。
+HTTP服务监听的端口。可指定使用HTTPS（SSL）。多个http.server的listen端口可以相同，使用http.server.server_name进行区分。
 
 ```
 http {

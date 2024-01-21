@@ -1,4 +1,4 @@
-本文更新于2022-03-26。
+本文更新于2022-10-18。
 
 [TOC]
 
@@ -113,7 +113,7 @@ vim配置。每行一个配置值，可以`:`开始，可使用`"`注释该行�
 | set backup                 | 自动备份文件。即当文件有任何改动时，原文件会在文件所在目录下备份为FILENAME~                           |
 | set bg=dark\|light         | 指定背景色调                                                                               |
 | set hlsearch               | 高亮查找结果                                                                               |
-| set mouse=a                | 鼠标不可选择文本，进入可视模式                                                                |
+| set mouse=MODE             | 设置鼠标模式。a为所有模式，c为命令行模式，i为插入模式，n为普通模式，v为可视模式                   |
 | set mouse-=a               | 鼠标可选择文本，而不是进入可视模式                                                             |
 | set noautoindent           | 取消自动缩进                                                                               |
 | set nohlsearch             | 取消高亮查找结果                                                                            |

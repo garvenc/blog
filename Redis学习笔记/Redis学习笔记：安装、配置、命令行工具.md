@@ -1,4 +1,4 @@
-本文更新于2023-03-01，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2023-11-30，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
@@ -23,11 +23,11 @@ sudo make install
 * redis-sentinel：哨兵。
 * redis-server：服务器。
 
-redis-6.0.8/src下还有以下可执行文件，不会被`sudo make install`拷贝至/usr/local/bin目录下：
+redis-6.0.8/src下还有以下可执行文件，不会被拷贝至/usr/local/bin目录下：
 
 * redis-trib.rb：Cluster集群管理。
 
-redis-6.0.8下还有以下文件，不会被`sudo make install`拷贝至/usr/local/bin目录下：
+redis-6.0.8下还有以下文件，不会被拷贝至/usr/local/bin目录下：
 
 * redis.conf：默认配置文件。
 
@@ -37,6 +37,13 @@ redis-6.0.8下还有以下文件，不会被`sudo make install`拷贝至/usr/loc
 docker container create -p 6379:6379 --name redis redis
 docker start redis
 ```
+
+`docker container create`可加上`redis-server`使用的参数。
+
+容器中的目录结构：
+
+* /usr/local/bin：安装目录
+* /data：数据目录。
 
 # 端口
 

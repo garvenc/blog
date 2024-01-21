@@ -1,4 +1,4 @@
-本文更新于2021-07-31，使用Docker 19.03.12，操作系统为Debian 10。
+本文更新于2023-06-30，使用Docker 19.03.12，操作系统为Debian 10。
 
 [TOC]
 
@@ -30,8 +30,11 @@
 
 * /etc/docker/daemon.json：配置文件。
 * /var/lib/docker/：保存Docker镜像、容器、容器配置。
-* /var/lib/docker/containers/：保存容器。
-* /var/lib/docker/volumes/：保存卷。
+	* containers/：保存容器。
+		* 容器ID
+			* 容器ID-json.log：JSON日志。可删除。
+	* image/：保存镜像。
+	* volumes/：保存卷。
 * /var/run/docker.sock：绑定的Unix套接字。
 
 ## 系统服务配置文件

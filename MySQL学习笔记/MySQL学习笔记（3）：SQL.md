@@ -1,4 +1,4 @@
-本文章更新于2022-01-04，使用MySQL 5.7，操作系统为Deepin 15.9。
+本文章更新于2023-08-26，使用MySQL 5.7，操作系统为Deepin 15.9。
 
 [TOC]
 
@@ -7,6 +7,78 @@
 实际上，所有语句和命令的关键字（文中大写）都不区分大小写。
 
 以下部分语句是MySQL扩展，非标准SQL。
+
+# 关键字
+
+关键字不区分大小写。
+
+* ALL
+* AND
+* ANY
+* AS
+* ASC
+* BETWEEN
+* BY
+* CAST
+* CATALOG
+* CONVERT
+* CURRENT_DATE
+* CURRENT_TIMESTAMP
+* DAY
+* DAYS
+* DESC
+* DESCRIBE
+* DISTINCT
+* ESCAPE
+* EXISTS
+* EXPLAIN
+* EXTRACT
+* FALSE
+* FIRST
+* FROM
+* FULL
+* GROUP
+* HAVING
+* HOUR
+* HOURS
+* IN
+* INNER
+* INTERVAL
+* IS
+* JOIN
+* LEFT
+* LIKE
+* LIMIT
+* MATCH
+* MINUTE
+* MINUTES
+* MONTH
+* NATURAL
+* NOT
+* NULL
+* NULLS
+* ON
+* OR
+* ORDER
+* OUTER
+* RIGHT
+* RLIKE
+* QUERY
+* SECOND
+* SECONDS
+* SELECT
+* SESSION
+* TABLE
+* TABLES
+* THEN
+* TO
+* TRUE
+* TYPE
+* USING
+* WHEN
+* WHERE
+* WITH
+* YEAR
 
 # DDL语句
 
@@ -317,12 +389,12 @@ DELETE tablename1[, ...] FROM tablename1[, ...] [WHERE condition1 [AND|OR condit
 ## 查询记录
 
 ```sql
-SELECT *|{[DISTINCT] {constant|[@|@@]variable|colname1 [AS alias1]}[, ...]}
-FROM tablename[, ...]
+SELECT *|{[DISTINCT] {colname1|expr1|[@|@@]variable [[AS] alias1]}[, ...]}
+FROM {tablename [[AS] alias2]}[, ...]
 [WHERE condition1 [AND|OR condition2][...]]
-[GROUP BY colname2[, ...]] [WITH ROLLUP]
+[GROUP BY {colname2|expr2}[, ...]] [WITH ROLLUP]
 [HAVING having_condition1 [AND|OR having_condition2][...]]
-[ORDER BY NULL|{{colname3 [DESC|ASC]}[, ...]}]
+[ORDER BY NULL|{{colname3|expr3 [ASC|DESC]}[, ...]}]
 [LIMIT [offset_start,] row_count]
 [INTO OUTFILE 'filename'
 	[FIEDLS [TERMINATED BY 'string'] [[OPTIONALLY] ENCLOSED BY 'char'] [ESCAPED BY 'char']]
@@ -333,7 +405,7 @@ FROM tablename[, ...]
 
 `WITH ROLLUP`表示对分类聚合后的结果进行再汇总，不能和`ORDER BY`同时使用。
 
-`ORDER BY`子句中，`NULL`为禁止排序，`DESC`为降序，`ASC`为升序，默认为`ASC`。
+`ORDER BY`子句中，`NULL`为禁止排序，`ASC`为升序，`DESC`为降序，默认为`ASC`。
 
 `LIMIT`子句中，，offset_start默认为0，即第一条记录。
 

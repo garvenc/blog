@@ -1,4 +1,4 @@
-本文更新于2023-05-08，使用MongoDB 4.4.5。
+本文更新于2023-12-20，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -240,6 +240,8 @@ OPTION可为：
 	* --authenticationDatabase AUTH_DBNAME：身份校验使用的数据库。
 	* --password|-p [PASSWORD]：指定密码。如不指定PASSWORD，则于交互界面提示输入密码。
 	* --username|-u USERNAME：指定用户名。
+* URI选项：
+	* --uri URI：连接字符串。
 * 状态选项：
 	* --discover：寻找副本集或分片集群的所有节点，针对每个节点也输出一行信息。
 
@@ -288,5 +290,7 @@ OPTION可为：
 	* --authenticationDatabase AUTH_DBNAME：身份校验使用的数据库。
 	* --password|-p [PASSWORD]：指定密码。如不指定PASSWORD，则于交互界面提示输入密码。
 	* --username|-u USERNAME：指定用户名。
+* URI选项：
+	* --uri URI：连接字符串。
 * 输出选项：
 	* --locks：查看每个数据库的锁状态。

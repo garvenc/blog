@@ -1,16 +1,19 @@
 # 说明
 
-本文更新于2019-02-18，使用VSCode 1.14.1，操作系统为Windows。
+本文更新于2023-12-26，使用VSCode 1.85.1，操作系统为Windows。
 
 # 配置文件
 
-“文件-首选项-颜色主题”即可显示所有可用的颜色主题，上下选择后Enter即可。也可通过Ctrl+Shift+P输入`color theme`回车后调出“首选项：颜色主题”面板。
+“文件-首选项-颜色主题”即可显示所有可用的颜色主题，上下选择后Enter即可。也可通过Ctrl+Shift+P输入`Preferences: Color Theme`回车后调出“首选项：颜色主题”面板。
 
 记VSCode的安装目录为`$RELEASE`，默认的颜色主题配置文件都位于`$RELEASE/resources/app/extensions`目录中。以`theme-`开头的目录即为颜色主题配置（事实上，其中有些是文件图标主题）。除若干主题会共用一个目录外（`theme-defaults`），大多数主题都是一个主题一个目录。
 
-每个颜色主题配置目录包含以下文件：`themes`目录、`OSSREADME.json`、`package.json`。`themes`目录下通常使用`.json`设置具体的配色方案；`OSSREADME.json`描述版权等相关信息，可以忽略；`package.json`令VSCode读取后能区分不同的配色方案。
+每个颜色主题配置目录包含：
+	* themes目录：目录下通常使用.json文件设置具体的配色方案。
+	* OSSREADME.json：描述版权等相关信息，可以忽略。
+	* package.json：令VSCode读取后能区分不同的配色方案。
 
-下面新增一个灰色调颜色主题。在`$RELEASE/resources/app/extensions`目录下新增如下目录结构。如果你不关心配置文件相关参数的解释，可无需细读后面内容，只需将相应的配置文本复制至配置文件中即可，但需注意文件均为UTF-8编码。
+下面新增一个灰色调颜色主题。在`$RELEASE/resources/app/extensions`目录下新增如下目录结构。如果不关心配置文件相关参数的解释，可无需细读后面内容，只需将相应的配置文本复制至配置文件中（UTF-8编码）。重启VSCode即可选择此颜色主题。
 
 ```
 $RELEASE/resources/app/extensions/
