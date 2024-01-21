@@ -1,4 +1,4 @@
-本文更新于2023-09-28。
+本文更新于2024-01-21。
 
 [TOC]
 
@@ -49,7 +49,7 @@
 # Go
 
 * [Linux安装Go](https://www.cnblogs.com/garvenc/p/linux_install_go.html)
-* [Go文档：Command go](https://www.cnblogs.com/garvenc/p/go_document_command_go.html)
+* [Go文档：Command go（go命令）翻译](https://www.cnblogs.com/garvenc/p/go_document_command_go.html)
 * [Go使用protobuf](https://www.cnblogs.com/garvenc/p/use_protobuf_in_go.html)
 
 # JavaScript

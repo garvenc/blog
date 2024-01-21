@@ -1,6 +1,6 @@
-本文更新于2023-04-06。
+本文更新于2023-09-15。
 
-翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.20。
+翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.21。
 
 [TOC]
 
@@ -50,9 +50,13 @@ go build [-o output] [build flags] [packages]
 * -asmflags '[pattern=]arg list'：传递给每次go tool asm调用的参数。
 * -buildmode mode：使用的构建模式，更多信息参阅“go help buildmode”。
 * -buildvcs：是否用版本控制信息标记二进制文件（“true”、“false”，或“auto”）。默认情况下（“auto”），如果main包，包含它的主模块，以及当前目录全都在同一个仓库中，版本控制信息会被标记入二进制文件。使用-buildvcs=false来总是忽略版本控制信息，或-buildvcs=true则如果版本控制信息是可用的但因为缺少工具或不明确的目录结构而不能被包含，就会出错。
-* -C dir：在运行命令前切换至dir目录。在命令行上指定名字的任何文件都在切换目录之后被解析。
+* -C dir：在运行命令前切换至dir目录。在命令行上指定名字的任何文件都在切换目录之后被解析。如果被使用，此标志必需为命令行中的第一个。
 * -compiler name：使用的编译器名，即runtime.Complier（gccgo或gc）。
-* -cover：启用代码覆盖率检测（需要设置GOEXPERIMENT=coverageredesign）。
+* -cover：启用代码覆盖率检测。
+* -covermode set,count,atomic：设置覆盖率分析的模式。默认为“set”除非-race启用，这种情况下它为“atomic”。会设置-cover。值可为：
+	* atomic：int类型，类似count，但在多线程测试中正确；明显地更加昂贵。
+	* count：int类型，此语句运行多少次？
+	* set：bool类型，此语句是否运行？
 * -coverpkg pattern1,pattern2,pattern3：对于以“main”包为目标的构建（例如构建一个Go可执行文件），应用覆盖率分析至每个匹配模式的包。默认为应用覆盖率分析至在主Go模块中的包。关于包模式的描述参阅“go help packages”。会设置-cover。
 * -gccgoflags '[pattern=]arg list'：传递给每次gccgo编译器/链接器调用的参数。
 * -gcflags '[pattern=]arg list'：传递给每次go tool complie调用的参数。
@@ -66,7 +70,7 @@ go build [-o output] [build flags] [packages]
 * -msan：启用与Memory Sanitizer的互操作，只支持linux/amd64、linux/arm64、freebsd/amd64，并且只能使用clang/llvm作为宿主C编译器。PIE构建模式将在除了linux/amd64的所有平台上使用。
 * -n：将实际需执行的命令打印出来但不运行。
 * -p n：可以并行运行的程序——如构建命令或测试二进制文件——的数量。默认为GOMAXPROCS，通常是可用的CPU的数量。
-* -pgo file：为profile-guided optimization（PGO）指定profile的文件路径。特定的名字“auto”让go命令选择在main包的目录中名为“default.pgo”的文件，如果该文件存在。特定的名字“off”关闭PGO。
+* -pgo file：为profile-guided optimization（PGO）指定profile的文件路径。当特殊的名字“auto”被指定时，对构建中的每个main包，go命令选择在包的目录中的名字为“default.pgo”的文件——如果该文件存在，并应用其至main包的（传递）依赖（其它包不被影响）。特殊的名字“off”关闭PGO。默认为“auto”。
 * -pkgdir dir：从dir而不是通常的位置安装和加载所有包（pkg）。例如，当使用非标准设置构建时，使用-pkgdir来令在特定的目录生成包。
 * -race：启用数据竞态检测，只支持linux/amd64、freebsd/amd64、darwin/amd64、darwin/arm64、windows/amd64、linux/ppc64le、linux/arm64（只对48位VMA）。
 * -tags tag,list：构建期间需满足的额外构建标记的逗号分隔的列表。关于构建标记的更多信息，参阅“go help buildconstraint”。（早期Go版本使用空白分隔的列表，已经被反对使用，但仍然能识别。）
@@ -292,6 +296,7 @@ go generate在运行生成器时会设置几个环境变量：
 * $GOPACKAGE：包含指令的文件的包名。
 * $GOROOT：给调用生成器的“go”命令的GOROOT目录，包含Go工具链和标准库。
 * $DOLLAR：一个美元符号。
+* $PATH：父进程的$PATH，带有$GOROOT/bin放置于开头。这令到执行“go”命令的生成器与父“go generate”命令使用相同的“go”。
 
 除了变量替换和带引号的字符串求值，在命令行上不会执行诸如“globbing”（文件名通配符匹配）之类的特殊处理。
 
@@ -344,20 +349,32 @@ get解析其命令行参数为特定模块版本的包，更新go.mod来依赖�
 
 要添加对包的依赖或更新其至最后的版本：
 
-```
+```shell
 go get example.com/pkg
 ```
 
 要更新或下载包至特定的版本：
 
-```
+```shell
 go get example.com/pkg@v1.2.3
 ```
 
 要移除对模块的依赖并降级依赖于它的模块：
 
-```
+```shell
 go get example.com/mod@none
+```
+
+要升级最低要求的Go版本至最新发布的Go版本：
+
+```shell
+go get go@latest
+```
+
+要升级Go工具链至当前Go工具链的最新补丁发布版本：
+
+```shell
+go get toolchain@patch
 ```
 
 详情参阅[https://golang.org/ref/mod#go-get](https://golang.org/ref/mod#go-get)。
@@ -382,6 +399,8 @@ go install example.com/pkg@latest
 
 关于模块的更多信息，参阅[https://golang.org/ref/mod](https://golang.org/ref/mod)。
 
+关于使用“go get”来升级最低Go版本和建议的Go工具链的更多信息，参阅[https://go.dev/doc/toolchain](https://go.dev/doc/toolchain)。
+
 关于指定包的更多信息，参阅“go help packages”。
 
 上文介绍了get使用模块来管理源代码和依赖的行为。如果相反，go命令运行在GOPATH模式下，get的标志和行为的细节也会改变，如同“go help get”的内容也会不同。参阅“go help gopath-get”。
@@ -391,6 +410,7 @@ go install example.com/pkg@latest
 # go help——查看帮助信息
 
 ```shell
+go
 go help
 go help <command>
 go help <topic>
@@ -469,7 +489,9 @@ go install [build flags] [packages]
 
 在Go 1.20之前，标准库被安装至$GOROOT/pkg/$GOOS_$GOARCH。从Go 1.20起，标准库被构建和缓存但不会被安装。设置GODEBUG=installgoroot=all恢复$GOROOT/pkg/$GOOS_$GOARCH的使用。
 
-关于构建标志的更多信息，参阅“go help build”。关于指定包的更多信息，参阅“go help packages”。
+关于构建标志的更多信息，参阅“go help build”。
+
+关于指定包的更多信息，参阅“go help packages”。
 
 参阅：go build、go get、go clean。
 
@@ -500,26 +522,27 @@ golang.org/x/net/html
 
 	```go
 	type Package struct {
-		Dir           string   // 包含包源代码的目录
-		ImportPath    string   // 目录中包的导入路径
-		ImportComment string   // 包说明中导入注释的路径
-		Name          string   // 包名
-		Doc           string   // 包文档字符串
-		Target        string   // 安装路径
-		Shlib         string   // 包含本包的共享库（只在设置-linkshared时使用）
-		Goroot        bool     // 本包是否在GOROOT中
-		Standard      bool     // 本包是否是Go标准库之一
-		Stale         bool     // “go install”会否为本包进行一些处理
-		StaleReason   string   // 当Stale==true时的解析原因
-		Root          string   // 包含本包的GOROOT或GOPATH目录
-		ConflictDir   string   // 本目录在$GOPATH中的同名目录
-		BinaryOnly    bool     // 是否仅为二进制包（不再支持）
-		ForTest       string   // 包只在该指定名字包的测试下使用
-		Export        string   // 包含导出数据的文件（当使用-export时）
-		BuildID       string   // 编译的包的构建ID（当使用-export时）
-		Module        *Module  // 包包含的模块的信息，如果有的话（可以为nil）
-		Match         []string // 匹配本包的命令行模式
-		DepOnly       bool     // 如为true，则包只是一个依赖，未在命令行中显式列出
+		Dir             string   // 包含包源代码的目录
+		ImportPath      string   // 目录中包的导入路径
+		ImportComment   string   // package语句中导入注释的路径
+		Name            string   // 包名
+		Doc             string   // 包文档字符串
+		Target          string   // 安装路径
+		Shlib           string   // 包含本包的共享库（只在设置-linkshared时使用）
+		Goroot          bool     // 本包是否在GOROOT中
+		Standard        bool     // 本包是否是Go标准库之一
+		Stale           bool     // “go install”会否为本包进行一些处理
+		StaleReason     string   // 当Stale==true时的解析原因
+		Root            string   // 包含本包的GOROOT或GOPATH目录
+		ConflictDir     string   // 本目录在$GOPATH中的同名目录
+		BinaryOnly      bool     // 是否仅为二进制包（不再支持）
+		ForTest         string   // 包只在该指定名字包的测试下使用
+		Export          string   // 包含导出数据的文件（当使用-export时）
+		BuildID         string   // 编译的包的构建ID（当使用-export时）
+		Module          *Module  // 包包含的模块的信息，如果有的话（可以为nil）
+		Match           []string // 匹配本包的命令行模式
+		DepOnly         bool     // 如为true，则包只是一个依赖，未在命令行中显式列出
+		DefaultGODEBUG string    // 默认GODEBUG设置，用于主模块
 		
 		// 源文件
 		GoFiles           []string // .go源文件（不包括CgoFiles、TestGoFiles、XTestGoFiles中的文件）
@@ -593,9 +616,9 @@ golang.org/x/net/html
 		GOROOT        string   // GOROOT
 		GOPATH        string   // GOPATH
 		CgoEnabled    bool     // cgo是否可用
-		UseAllFiles   bool     // 是否使用所有文件，从而忽略使用+build指定行和文件名
+		UseAllFiles   bool     // 是否使用所有文件而不管//go:build行、文件名
 		Compiler      string   // 在计算目标路径时假定的编译器
-		BuildTags     []string // 构建约束，用以匹配+build指定的行
+		BuildTags     []string // 要在//go:build行中匹配的构建约束
 		ToolTags      []string // 工具链特定的构建约束
 		ReleaseTags   []string // 与当前发布版本兼容的发布版本
 		InstallSuffix string   // 安装目录名字中使用的后缀
@@ -607,7 +630,7 @@ golang.org/x/net/html
 	Dir、Target、Shlib、Root、ConflictDir和Export中的文件路径均为绝对路径。
 	
 	默认情况下，GoFiles、CgoFiles等列表中的名字为Dir目录中的文件（亦即，相对于Dir的路径，而不是绝对路径）。当使用-compiled和-test标志时添加的生成文件为指向生成的Go源代码的缓存副本的绝对路径。即使它们为Go源文件，路径可能不是以“.go”结尾。
-* -find：找出指定名字的包但不解析它们的依赖：Imports和Deps列表将会为空。
+* -find：找出指定名字的包但不解析它们的依赖：Imports和Deps列表将会为空。带有-find标志时，-deps、-test和-export命令不能被使用。
 * -json：包数据以JSON格式打印，而不是使用template包的格式。JSON标志能可选地被提供一组逗号分隔的输出时的必填字段名。如果这样，那些必填字段将总是出现在JSON输出中，但其它可能被忽略来节省计算JSON结构的工作。
 * -m：列出模块而不是包。
 
@@ -766,12 +789,13 @@ edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用�
 	}
 	
 	type GoMod struct {
-		Module  ModPath
-		Go      string
-		Require []Require
-		Exclude []Module
-		Replace []Replace
-		Retract []Retract
+		Module    ModPath
+		Go        string
+		Toolchain string
+		Require   []Require
+		Exclude   []Module
+		Replace   []Replace
+		Retract   []Retract
 	}
 	
 	type ModPath struct {
@@ -802,6 +826,7 @@ edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用�
 * -replace=old[@v]=new[@v]：添加给定模块路径和版本对的替代。如果old@v中的@v省略，则左侧不带版本的替代将被添加，应用于old模块路径的所有版本。如果new@v中的@v省略，新路径应为本地模块根目录，而不是模块路径。注意-replace覆盖old[@v]任何冗余的替代，因此省略@v将删除对特定版本的现有替代。
 * -require=path@version：添加给定的模块路径和版本依赖的模块。注意-require覆盖该路径任何已存在的依赖的模块。该标志主要提供给工具用以理解模块图。用户应该使用“go get path@version”，其可令其它go.mod根据需要调整来满足其它模块施加的限制。
 * -retract=version：添加对给定版本的撤回。version可能是类似“v1.2.3”的单个版本或类似“[v1.1.0,v1.1.9]”的闭区间。注意如果撤回已经存在-retract=version是无操作的。
+* -toolchain=name：设置要使用的Go工具链。
 
 -require、-droprequire、-exclude、-dropexclude、-replace、-dropreplace、-retract、-dropretract编辑标志可以重复，根据给定的顺序应用修改。
 
@@ -962,9 +987,11 @@ ok   compress/gzip 0.033s
 
 go tool将忽略名字为“testdata”的目录，令其可以持有被测试所需的辅助数据。
 
-作为构建测试二进制文件的一部分，go test在包及其测试源文件上运行go vet来发现显而易见的问题。如果go vet发现任何问题，go test报告它们且不运行测试二进制文件。只使用默认的go vet检查的高可信的子集。该子集是：“atomic”、“bool”、“buildtags”、“nilfunc”和“printf”。你可以通过“go doc cmd/vet”查看这些及其它vet测试的文档。要禁止运行go vet，使用-vet=off标志。要运行所有检查，使用-vet=all标志。
+作为构建测试二进制文件的一部分，go test在包及其测试源文件上运行go vet来发现显而易见的问题。如果go vet发现任何问题，go test报告它们且不运行测试二进制文件。只使用默认的go vet检查的高可信的子集。该子集是：atomic、bool、buildtags、directive、errorsas、ifaceassert、nilfunc、printf和stringintconv。你可以通过“go doc cmd/vet”查看这些及其它vet测试的文档。要禁止运行go vet，使用-vet=off标志。要运行所有检查，使用-vet=all标志。
 
 所有的测试输出和概要行都打印至go命令的标准输出，即使test打印它们至它自己的标准错误输出。（go命令的标准错误输出被保留为打印构建测试的错误。）
+
+go命令放置$GOROOT/bin于测试的环境中$PATH的开头，以便执行“go”命令的测试与父“go test”命令使用相同的“go”。
 
 go test以两种不同的模式运行：
 
@@ -979,10 +1006,10 @@ go test以两种不同的模式运行：
 除了构建标志，“go test”自身处理的标志还有：
 
 * -args：传递命令行中余下的参数（所有在-args后面的参数）至测试二进制文件，不解析且不修改。因为该标志使用命令行中余下的参数，包列表（如果有）必须出现在该标志之前。
-* -c：编译测试二进制文件为pkg.test但不运行之（pkg是包的导入路径的最后的元素）。文件名可以被-o标识修改。
+* -c：编译测试二进制文件至当前目录中的pkg.test但不运行之（pkg是包的导入路径的最后的元素）。文件名或目标目录可以被-o标志修改。
 * -exec xprog：使用xprog运行测试二进制文件。其行为与“go run”相同。详细信息参阅“go help run”。
 * -json：转换测试输出为适合自动化执行的JSON格式。关于编码的详细信息参阅“go doc test2json”。
-* -o file：编译测试二进制文件至指定名字的文件。测试仍会运行（除非指定-c或-i）。
+* -o file：编译测试二进制文件至指定名字的文件。测试仍会运行（除非指定-c或-i）。如果file以斜杠结尾或命名为已存在的目录，测试被写入至该目录的pkg.test。
 
 测试二进制文件也接受控制测试执行的标志；这些参数也可被“go test”使用。详细信息参阅“go help testflag”。
 
@@ -1026,7 +1053,7 @@ go version报告用来构建每个指定名字的文件的Go版本。
 # go vet——报告包中有可能的错误
 
 ```shell
-go vet [-C dir] [-n] [-x] [-vettool prog] [build flags] [vet flags] [packages]
+go vet [build flags] [-vettool prog] [vet flags] [packages]
 ```
 
 在通过导入路径指定名字的包上运行go vet命令。
@@ -1035,17 +1062,14 @@ go vet [-C dir] [-n] [-x] [-vettool prog] [build flags] [vet flags] [packages]
 
 标志：
 
-* -C：在运行“go vet”命令前切换目录。
-* -n：将实际需执行的命令打印出来但不运行。
 * -vettool=prog：选择带有备选或附加检查的不同的分析工具。例如，可以使用这些命令来构建和运行“shadow”分析器：
 
 	```
 	go install golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow@latest
 	go vet -vettool=$(which shadow)
 	```
-* -x：同时打印实际执行的命令。
 
-go vet支持的构建标志是那些控制包解析和执行的标志，如-n、-x、-v、-tags和-toolexec。关于这些标志的更多信息，参阅“go help build”。
+被go vet支持的构建标志是那些控制包解析和执行的，如-C、-n、-x、-v、-tags和-toolexec。关于这些标志的更多信息，参阅“go help build”。
 
 参阅：go fmg、go fix。
 
@@ -1122,9 +1146,10 @@ edit提供一个编辑go.work的命令行接口，主要给工具或脚本使用
 
 	```go
 	type GoWork struct {
-		Go      string
-		Use     []Use
-		Replace []Replace
+		Go        string
+		Toolchain string
+		Use       []Use
+		Replace   []Replace
 	}
 	
 	type Use struct {
@@ -1145,6 +1170,7 @@ edit提供一个编辑go.work的命令行接口，主要给工具或脚本使用
 * -print：以其文本格式打印最终的go.work，而不是将其写回go.work。
 * -replace=old[@v]=new[@v]：添加给定模块路径和版本对的替代。如果old@v中的@v省略，则左侧不带版本的替代将被添加，应用于old模块路径的所有版本。如果new@v中的@v省略，新路径应为本地模块根目录，而不是模块路径。注意-replace覆盖old[@v]任何冗余的替代，因此省略@v将删除对特定版本的现有替代。
 * -use=path：在go.work文件的模块目录集合中添加use指令。
+* -toolchain=name：设置要使用的Go工具链。
 
 -use、-dropuse、-replace、-dropreplace编辑标志可以重复，根据给定的顺序应用修改。
 
@@ -1181,12 +1207,14 @@ go work sync
 ## go work use——添加模块至工作区文件
 
 ```shell
-go work use [-r] moddirs
+go work use [-r] [moddirs]
 ```
 
 提供一个命令行接口来添加目录至go.work文件中——可选地递归。
 
-对在命令行列出的每个参数目录，一个use指令将被添加至go.work文件中——如果它存在磁盘上，或从go.work文件中删除——如果它不存在磁盘上。
+对在命令行go.work文件中列出的每个参数目录，一个use指令将被添加至go.work文件中——如果它存在，或从go.work文件中删除——如果它不存在。如果任何剩下的use指令指向不存在的模块则失败。
+
+会更新go.work中的go行来指定至少和被使用的模块——先前存在的和新近添加的——的所有go行一样新的版本号。不带有参数，此更新是go work use所做的唯一事情。
 
 标志：
 
@@ -1330,7 +1358,7 @@ GODEBUG环境变量可以启用关于缓存状态调试信息的打印：
 
 # environment主题——环境变量
 
-go命令及其调用的工具查询环境变量以进行配置。如果环境变量未设置，go命令使用一个合理的默认设置。要查看变量<NAME>的有效设置，运行“go env <NAME>”。要修改默认设置，运行“go env -w <NAME>=<VALUE>”。使用“go env -w”修改的默认值记录在存储在每个用户一个的配置目录中的Go环境变量配置文件中，即os.UserConfigDir所报告的值。配置文件的位置可以通过设置环境变量GOENV修改，且“go env GOENV”打印有效的位置，但“go env -w”不能修改默认位置。详细信息参阅“go help env”。
+go命令及其调用的工具查询环境变量以进行配置。如果环境变量未设置或为空，go命令使用一个合理的默认设置。要查看变量<NAME>的有效设置，运行“go env <NAME>”。要修改默认设置，运行“go env -w <NAME>=<VALUE>”。使用“go env -w”修改的默认值记录在存储在每个用户一个的配置目录中的Go环境变量配置文件中，即os.UserConfigDir所报告的值。配置文件的位置可以通过设置环境变量GOENV修改，且“go env GOENV”打印有效的位置，但“go env -w”不能修改默认位置。详细信息参阅“go help env”。
 
 通用的环境变量：
 
@@ -1339,20 +1367,21 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 * GOARCH：要为之编译代码的体系结构或处理器。例如amd64、386、arm、ppc64。
 * GOBIN：“go install”安装命令使用的目录。
 * GOCACHE：go命令存储缓存信息用以在将来的构建中重用的目录。
-* GODEBUG：启用多种调试功能。详细信息参阅“go doc runtime”。
+* GODEBUG：启用多种调试功能。参阅[https://go.dev/doc/godebug](https://go.dev/doc/godebug)。
 * GOENV：Go环境变量配置文件位置。不能使用“go env -w”设置。在环境变量中设置GOENV=off禁止默认配置文件的使用。
 * GOFLAGS：一个空白分隔的-flag=value设置列表，当给定的标志被当前命令已知时，会被默认应用于go命令。每个条目必须是单独的标志。因为条目是空白分隔的，标志值必须不包含空白。在命令行列出的标志在这个列表之后应用并因此覆盖之。
 * GOINSECURE：模块路径前缀的glob模式（以Go的path.Match的语法）的逗号分隔的列表，其应总是以不安全的方式拉取。只应用于被直接拉取的依赖。GOINSECURE不禁用校验和数据库验证。GOPRIVATE或GONOSUMDB可以用来达到该目的。
 * GOMODCACHE：go命令存储下载的模块的目录。
-* GONOPROXY：（译注：模块路径前缀的glob模式（以Go的path.Match的语法）的逗号分隔的列表，其不使用模块代理下载。参阅[https://golang.org/ref/mod#private-modules](https://golang.org/ref/mod#private-modules)。）
-* GONOSUMDB：（译注：模块路径前缀的glob模式（以Go的path.Match的语法）的逗号分隔的列表，其不使用校验和数据库进行校验。参阅[https://golang.org/ref/mod#private-modules](https://golang.org/ref/mod#private-modules)。）
+* GONOPROXY：等同于GOPRIVATE。
+* GONOSUMDB：等同于GOPRIVATE。
 * GOOS：要为之编译代码的操作系统。例如linux、darwin、windows、netbsd。
-* GOPATH：更新详细信息参阅：“go help gopath”。
+* GOPATH：控制各种文件存储的地方。参阅：“go help gopath”。
 * GOPRIVATE：模块路径前缀的glob模式（以Go的path.Match的语法）的逗号分隔的列表，其应该总是直接拉取或不应该与校验和数据库比较。参阅[https://golang.org/ref/mod#private-modules](https://golang.org/ref/mod#private-modules)。
 * GOPROXY：Go模块代理URL。详细信息参阅[https://golang.org/ref/mod#environment-variables](https://golang.org/ref/mod#environment-variables)和[https://golang.org/ref/mod#module-proxy](https://golang.org/ref/mod#module-proxy)。
 * GOROOT：go树的根。
 * GOSUMDB：使用的校验和数据库的名字，及可选的其公钥和URL。参阅[https://golang.org/ref/mod#authenticating](https://golang.org/ref/mod#authenticating)。
 * GOTMPDIR：go命令写入临时源文件、包和二进制文件的目录。
+* GOTOOLCHAIN：控制使用哪个Go工具链。参阅[https://go.dev/doc/toolchain](https://go.dev/doc/toolchain)。
 * GOVCS：列出可与匹配的服务器一起使用的版本控制命令。参阅“go help vcs”。
 * GOWORK：在模块感知模式，使用给定的go.work文件作为工作区文件。默认情况下或当GOWORK为“auto”时，go命令在当前目录并然后在包含其的目录中查找名字为go.work的文件，直到找到一个。如果一个有效的go.work文件被找到，指定的模块将共同地被用作主模块。如果GOWORK为“off”，或在“auto”模式下找不到go.work文件，工作区模式被禁用。
 
@@ -1584,6 +1613,8 @@ get也接受构建标志来控制安装。参阅“go help build”。
 
 get从不检出或更新在vendor目录中存储的代码。
 
+关于构建标志的更多信息，参阅“go help build”。
+
 关于指定包的更多信息，参阅“go help packages”。
 
 关于“go get”如何查找下载的源代码的更多信息，参阅“go help importpath”。
@@ -1745,7 +1776,7 @@ go命令的下载行为可以使用GOPROXY、GOSUMDB、GOPRIVATE和其它环境�
 许多命令应用于一个包集合：
 
 ```shell
-go action [packages]
+go <action> [packages]
 ```
 
 通常，[packages]是导入路径的列表。
@@ -1831,6 +1862,7 @@ GOPRIVATE环境变量也被用来为GOVCS环境变量定义“public”和“pri
 * -coverpkg pattern1,pattern2,pattern3：对匹配模式的包的每个单元测试应用覆盖率分析。默认对每个单元测试只分析被测试的包。关于包模式的描述参阅“go help packages”。会设置-cover。
 * -cpu 1,2,4：指定GOMAXPROCS（译注：runtime.GOMAXPROCS的返回值）值列表，单元测试、基准测试或模糊测试会以此来执行。默认为GOMAXPROCS的当前值。-cpu不应用于被-fuzz匹配的模糊测试。
 * -failfast：在首个单元测试失败之后不再开始新的单元测试。
+* -fullpath：在错误信息中展示完整的文件名。
 * -fuzz regexp：运行匹配正则表达式的模糊测试。当指定时，命令行参数必需匹配在主模块中的正好一个包，并且正则表达式必需匹配在该包中的正好一个模糊测试。模糊测试将在单元测试、基准测试、其它模糊测试的种子集之后发生，并且范例已经完成。详细信息参阅testing包文档的Fuzzing小节。
 * -fuzztime t：在模糊测试期间运行模糊测试目标的足够的迭代以消耗时间t，其被指定为一个time.Duration（例如，-fuzztime 1h30s）。默认为永远运行。特殊的语法Nx表示运行模糊测试目标N次（例如，-fuzztime 1000x）。
 * -fuzzminimizetime t：在每个最小限度的尝试期间运行模糊测试目标的足够的迭代以消耗时间t，其被指定为一个time.Duration（例如，-fuzzminimizetime 30s）。默认为60s。特殊的语法Nx表示运行模糊测试目标N次（例如，-fuzzminimizetime 100x）。
