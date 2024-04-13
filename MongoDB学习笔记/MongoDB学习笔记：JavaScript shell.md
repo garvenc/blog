@@ -1,4 +1,4 @@
-本文更新于2024-01-19，使用MongoDB 4.4.5。
+本文更新于2024-03-02，使用MongoDB 6.0.4。
 
 [TOC]
 
@@ -34,6 +34,14 @@ help
 
 ```
 it
+```
+
+## exit
+
+退出。
+
+```
+exit
 ```
 
 ## show collections
@@ -271,7 +279,7 @@ ROLE可为：
 	* readWriteAnyDatabase：读写所有数据库的文档。只在admin数据库可用。
 	* userAdminAnyDatabase：所有数据库用户管理。只在admin数据库可用。
 * 超级用户角色：
-	* root：超级权限。
+	* root：超级权限。只在admin数据库可用。
 * 内部角色：
 	* __system：表示副本集或分片集群节点的内部角色。
 
@@ -756,7 +764,7 @@ var VALUE_ARR = DBCOLLECTION.distinct(KEY);
 
 ## DBCollection.prototype.drop
 
-删除集合。
+删除集合。过一段时间后会释放磁盘空间。
 
 ```js
 var BOOL = DBCOLLECTION.drop();

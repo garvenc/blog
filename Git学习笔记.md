@@ -1,4 +1,4 @@
-本文更新于2023-10-08，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2024-04-08，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -539,6 +539,12 @@ git fetch --all
 
 ```shell
 git fetch --tags
+```
+
+删除不存在于远程仓库的本地跟踪引用：
+
+```shell
+git fetch --prune
 ```
 
 ## git gc

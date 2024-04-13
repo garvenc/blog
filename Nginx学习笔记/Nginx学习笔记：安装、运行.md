@@ -1,4 +1,4 @@
-本文更新于2023-03-28。
+本文更新于2024-04-12。
 
 [TOC]
 
@@ -147,6 +147,7 @@ docker start nginx
 
 * /etc/nginx/：配置文件、证书文件目录。
 	* nginx.conf：配置文件。
+	* cert/：证书文件目录。
 * /usr/sbin/nginx：可执行文件。
 * /usr/share/nginx/html：静态文件目录。
 

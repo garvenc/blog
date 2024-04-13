@@ -1,4 +1,4 @@
-本文更新于2022-07-16，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2024-03-18，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
@@ -6,7 +6,7 @@
 
 官方文档参看：[https://redis.io/commands](https://redis.io/commands)
 
-# 字符串
+# 字符串（STRING）
 
 即字节序列。也可视作整数、浮点数。
 
@@ -209,7 +209,7 @@ SETRANGE str offset value
 
 > (integer) 5
 
-# 列表
+# 列表（LIST）
 
 元素为字符串。左侧为开头，右侧为结尾。
 
@@ -400,7 +400,7 @@ RPUSH list element [...]
 
 > (integer) 1
 
-# 无序集
+# 无序集（SET）
 
 元素为字符串。
 
@@ -602,7 +602,7 @@ SUNIONSTORE destset set [...]
 
 > (integer) 2
 
-# 有序集
+# 有序集（ZSET）
 
 字符串与浮点数分值映射。
 
@@ -863,7 +863,7 @@ zset参数可使用集合，被当作分值为1的有序集合。AGGREGATE默认
 
 > (integer) 2
 
-# 无序散列
+# 无序散列（HASH）
 
 键值均为字符串，值也可视作整数、浮点数。
 

@@ -1,4 +1,4 @@
-本文更新于2023-11-08，使用Docker 23.0.1，操作系统为Debian 11。
+本文更新于2024-02-03，使用Docker 23.0.1，操作系统为Debian 11。
 
 [TOC]
 
@@ -179,6 +179,18 @@ OPTIONS可为：
 * -v|--volume [VOLUME|HOST_DIR:]CONTAINER_DIR[:ro|rw]：将宿主机的目录作为卷挂载到容器中。宿主机和容器的目录不存在都会自动创建，容器目录必需为绝对路径。
 * --volumes-from CONTAINER[:ro|rw]：将指定的容器中所有磁盘卷都加入新创建的容器。可使用多次。
 * -w|--workdir DIR：设置容器启动时的工作目录，覆盖构建镜像时的WORKDIR指令。
+
+示例：
+
+```shell
+docker container create \
+	-e TZ=Asia/Shanghai \
+	--log-opt max-size=5m --log-opt max-file=2 \
+	--restart unless-stopped \
+	-p 6379:6379 \
+	--name redis \
+	redis:7.2.4
+```
 
 ### docker container exec
 

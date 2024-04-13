@@ -1,6 +1,6 @@
-本文更新于2023-09-15。
+本文更新于2024-04-13。
 
-翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为1.21。
+翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为go1.22.0。
 
 [TOC]
 
@@ -34,9 +34,11 @@ go build [-o output] [build flags] [packages]
 
 当编译包时，忽略以“_test.go”结尾的文件。
 
-当编译单个main包时，生成的可执行文件会被写入到以第一个源文件（如：“go build ed.go rx.go”写入“ed”或“ed.exe”）或源代码目录名（如：“go build unix/sam”写入“sam”或“sam.exe”）命名的输出文件中。当写入Windows下的可执行文件时会添加“.exe”后缀。
+当编译单个main包时，生成的可执行文件会被写入到以包导入路径的最后的非主版本号部分命名的输出文件中。当写入Windows可执行文件时会添加“.exe”后缀。因此“go build example/sam”写入“sam”或“sam.exe”。“go build example.com/foo/v2”写入“foo”或“foo.exe”，而非“v2.exe”。
 
-当编译多个包或单个非main包时，build编译包但会丢弃目标对象文件，行为只用于类似检查包是否可以构建。
+当从.go文件列表编译包时，可执行文件以第一个源文件命名。“go build ed.go rx.go”写入“ed”或“ed.exe”。
+
+当编译多个包或单个非main包时，build编译包但会丢弃目标对象文件，只起到类似检查包是否可以构建的作用。
 
 标志（flag）：
 
@@ -46,7 +48,7 @@ go build [-o output] [build flags] [packages]
 构建标志（build flags）会被build、clean、get、install、list、run、test命令共享：
 
 * -a：强制重新构建已经是最新的包。
-* -asan：启用与Address Sanitizer的互操作。只支持linux/arm64或linux/amd64，且只支持GCC 7及更高版本或Clang/LLVM 9及更高版本。
+* -asan：启用与Address Sanitizer的互操作。只支持linux/arm64、linux/amd64、linux/loong64。支持linux/amd64或linux/arm64，且只能与GCC 7及更高或Clang/LLVM 9及更高一起。支持linux/loong64，只能与Clang/LLVM 16及更高一起。
 * -asmflags '[pattern=]arg list'：传递给每次go tool asm调用的参数。
 * -buildmode mode：使用的构建模式，更多信息参阅“go help buildmode”。
 * -buildvcs：是否用版本控制信息标记二进制文件（“true”、“false”，或“auto”）。默认情况下（“auto”），如果main包，包含它的主模块，以及当前目录全都在同一个仓库中，版本控制信息会被标记入二进制文件。使用-buildvcs=false来总是忽略版本控制信息，或-buildvcs=true则如果版本控制信息是可用的但因为缺少工具或不明确的目录结构而不能被包含，就会出错。
@@ -67,7 +69,7 @@ go build [-o output] [build flags] [packages]
 * -modcacherw：令保留在模块缓存中的新创建的目录可读写，而不是令它们只读。
 * -modfile file：在模块感知模式下，读取（并且可能写入）备用的go.mod文件而不是在模块根目录下的go.mod文件。名字为“go.mod”的文件仍然必须存在用来确定模块根目录，但其不会被访问。当-modfile被指定，备用的go.sum文件也会被使用：其路径从-modfile标志产生，通过去除“.mod”扩展名并追加“.sum”。
 * -overlay file：读取为构建操作提供覆盖的JSON配置文件。文件是只有一个字段的JSON结构，名为“Replace”，映射每个磁盘文件路径（一个字符串）至其后备文件路径，以使构建运行起来如同磁盘文件路径存在有后备文件路径提供的内容，或如果其后备文件路径为空则如同磁盘文件路径不存在。对-overlay标志的支持有一些限制：重要的是，从包含路径之外包含的cgo文件必需与Go包被包含于相同的目录，且当二进制和测试分别通过go run和go test运行时覆盖不会出现。
-* -msan：启用与Memory Sanitizer的互操作，只支持linux/amd64、linux/arm64、freebsd/amd64，并且只能使用clang/llvm作为宿主C编译器。PIE构建模式将在除了linux/amd64的所有平台上使用。
+* -msan：启用与Memory Sanitizer的互操作，只支持linux/amd64、linux/arm64、linux/loong64、freebsd/amd64，并且只能使用clang/llvm作为宿主C编译器。PIE构建模式将在除了linux/amd64的所有平台上使用。
 * -n：将实际需执行的命令打印出来但不运行。
 * -p n：可以并行运行的程序——如构建命令或测试二进制文件——的数量。默认为GOMAXPROCS，通常是可用的CPU的数量。
 * -pgo file：为profile-guided optimization（PGO）指定profile的文件路径。当特殊的名字“auto”被指定时，对构建中的每个main包，go命令选择在包的目录中的名字为“default.pgo”的文件——如果该文件存在，并应用其至main包的（传递）依赖（其它包不被影响）。特殊的名字“off”关闭PGO。默认为“auto”。
@@ -450,11 +452,9 @@ go help <topic>
 * filetype：文件类型。
 * go.mod：go.mod文件。
 * gopath：GOPATH环境变量。
-* gopath-get：遗留的GOPATH的go get。
 * goproxy：模块代理协议。
 * importpath：import路径语法。
 * module-auth：使用go.sum的模块校验。
-* module-get：模块感知的go get。
 * modules：模块，模块版本，及更多。
 * packages：包列表和模式。
 * private：下载非公共代码的配置。
@@ -861,8 +861,6 @@ go mod init [module-path]
 
 接受一个可选参数，即新模块的模块路径。如果模块路径参数省略，将使用.go文件中的import注释、vendoring工具配置文件（类似Gopkg.lock）和当前目录（如果在GOPATH中）尝试推断模块路径。
 
-如果vendoring工具配置文件存在，将尝试从其导入模块依赖。
-
 关于“go mod init”的更多信息参阅[https://golang.org/ref/mod#go-mod-init](https://golang.org/ref/mod#go-mod-init)。
 
 ## go mod tidy——添加缺少的模块并删除未使用的模块
@@ -1071,7 +1069,7 @@ go vet [build flags] [-vettool prog] [vet flags] [packages]
 
 被go vet支持的构建标志是那些控制包解析和执行的，如-C、-n、-x、-v、-tags和-toolexec。关于这些标志的更多信息，参阅“go help build”。
 
-参阅：go fmg、go fix。
+参阅：go fmt、go fix。
 
 # go work——工作区维护
 
@@ -1085,6 +1083,7 @@ command可为以下命令：
 * init：初始化工作区文件。
 * sync：同步工作区构建列表至模块。
 * use：添加模块至工作区文件。
+* vendor：制作依赖的vendor副本。
 
 提供对工作区上操作的访问。
 
@@ -1222,6 +1221,20 @@ go work use [-r] [moddirs]
 
 更多信息参阅于[https://go.dev/ref/mod#workspaces](https://go.dev/ref/mod#workspaces)的工作区参考。
 
+## go work vendor——制作依赖的vendor副本
+
+```shell
+go work vendor [-e] [-v] [-o outdir]
+```
+
+重置工作区的vendor目录来包含需要用来构建和测试所有工作区的包的所有包。其不包含对vendor的包的测试代码。
+
+标志：
+
+* -e：尝试继续，尽管在加载包时遇到错误。
+* -o：在给定的路径而不是“vendor”中创建vendor目录。go命令只能使用在模块根目录中命名为“vendor”的vendor目录，因此该标志主要对其它工具有用。
+* -v：打印vendor的模块和包的名字至标准错误输出中。
+
 # buildconstraint主题——构建约束
 
 构建约束（constraint），也被认为是构建标记（tag），是文件应该被包含在包当中的条件。构建约束由以此开头的行注释给出：
@@ -1230,7 +1243,7 @@ go work use [-r] [moddirs]
 //go:build
 ```
 
-约束可以出现在任何类型的源文件中（不只是Go），但它们必须出现在文件的顶部附近，在其前面只有空行或其它行注释。这些规则意味着在Go文件中构建约束必须出现在package语句之前。
+约束可以出现在任何类型的源文件中（不只是Go），但它们必须出现在文件的顶部附近，在其前面只有空行或其它注释。这些规则意味着在Go文件中构建约束必须出现在package语句之前。
 
 为了区分构建约束和包文档，构建约束应该后接一个空行。
 
@@ -1413,7 +1426,7 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 
 * GO386：对GOARCH=386，如何实现浮点指令。有效值为sse2（默认）、softfloat。
 * GOAMD64：对GOARCH=amd64，要为之编译的微体系结构级别。有效值为v1（默认）、v2、v3、v4。参阅[https://golang.org/wiki/MinimumRequirements#amd64](https://golang.org/wiki/MinimumRequirements#amd64)。
-* GOARM：对GOARCH=arm，要为之编译的ARM体系结构。有效值为5、6、7。
+* GOARM：对GOARCH=arm，要为之编译的ARM体系结构。有效值为5、6、7。值可以后跟一个选项，指定如何实现浮点指令。有效的选项为,softfloat（对5的默认值）和,hardfloat（对6和7的默认值）。
 * GOMIPS：对GOARCH=mips{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
 * GOMIPS64：对GOARCH=mips64{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
 * GOPPC64：对GOARCH=ppc64{,le}，目标ISA（指令集架构，Instruction Set Architecture）。有效值为power8（默认）、power9、power10。
@@ -1583,45 +1596,6 @@ vendor目录中的代码不受导入路径检查的影响（参阅“go help imp
 vendor目录不影响第一次被“go get”检出的新仓库的位置：它们总是放置在主GOPATH中，从不在vendor子树中。
 
 细节参阅[https://golang.org/s/go15vendor](https://golang.org/s/go15vendor)。
-
-# gopath-get主题——遗留的GOPATH的go get
-
-```shell
-go get [-d] [-f] [-t] [-u] [-v] [-fix] [build flags] [packages]
-```
-
-“go get”命令根据go命令运行在模块感知模式还是遗留的GOPATH模式来改变行为。这里的帮助文本，即使在模块感知模式也可作为“go help gopath-get”访问，描述“go get”在遗留的GOPATH模式下的操作。
-
-get下载由导入路径指定名字的包，以及它们的依赖。然后安装指定名字的包，类似“go install”。
-
-标志：
-
-* -d：在下载包之后停止；亦即，其令get不安装包。
-* -f：只在-u被设置时有效，强制get -u不验证每个包都是从其导入路径隐含的源代码控制仓库检出。如果源代码是源的本地fork分支这将会有用。
-* -fix：在解析依赖和构建代码之前在已下载的包上运行fix工具。
-* -t：同时下载指定的包构建测试所需的包。
-* -u：使用网络来更新指定名字的包及其依赖。默认情况下，get使用网络来检出缺少的包但不会使用它来查找已存在包的更新。
-* -v：启用详细的进度和调试输出。
-
-get也接受构建标志来控制安装。参阅“go help build”。
-
-当检出一个新包时，get创建目标目录GOPATH/src/<import-path>。如果GOPATH包含多个入口，get使用第一个。更多详细信息参阅：“go help gopath”。
-
-当检出或更新包时，get查找匹配Go本地安装版本的分支（branch）或标签（tag）。最重要的规则是，如果本地安装正在运行版本“go1”，get查找名字为“go1”的分支或标签。如果没有这样的版本存在，其检索包的默认分支。
-
-当go get检出或更新一个Git仓库，其也会更新被该仓库引用的任何git子模块。
-
-get从不检出或更新在vendor目录中存储的代码。
-
-关于构建标志的更多信息，参阅“go help build”。
-
-关于指定包的更多信息，参阅“go help packages”。
-
-关于“go get”如何查找下载的源代码的更多信息，参阅“go help importpath”。
-
-这段文字描述当使用GOPATH来管理源代码和依赖时get的行为。如果相反go命令运行在模块感知模式，“go help get”的内容会不同，类似地，get的标志和行为的细节也会改变。参阅“go help modules”和“go help module-get”。
-
-参阅：go build、go install、go clean。
 
 # goproxy主题——模块代理协议
 

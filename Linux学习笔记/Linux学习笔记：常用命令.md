@@ -1,4 +1,4 @@
-本文更新于2023-12-18。
+本文更新于2024-03-14。
 
 [TOC]
 
@@ -1343,15 +1343,16 @@ sudo -s
 增加用户。
 
 ```shell
-useradd [-DmMr -g GROUPNAME -G GROUPNAME[,...]] USERNAME
+useradd [-DmMr -g GID|GROUPNAME -G GID|GROUPNAME[,...] -u UID] USERNAME
 ```
 
 * -D：显示增加用户的默认值。
-* -g GROUPNAME：指定初始用户组名。
-* -G GROUPNAME[,...]：指定次要用户组名。
+* -g GID|GROUPNAME：指定初始用户组。
+* -G GID|GROUPNAME[,...]：指定次要用户组。
 * -m：创建主目录（普通用户默认值）。
 * -M：不创建主目录（系统用户默认值）。
 * -r：增加为系统用户。
+* -u UID：指定用户ID。
 
 ## userdel
 
@@ -2827,7 +2828,39 @@ alias NEW=OLD
 echo [-en] CONTENT[ ...]
 ```
 
-* -e：使用转义字符。
+* -e：使用转义字符。CONTENT可使用`"\ESC[BACKGROUND;FOREGROUND;PROPERTYm"`（如："\e[;31m我们\e[0m"）来控制后续的输出颜色。BACKGROUND、FOREGROUND、PROPERTY均可省略，并需省略多余的分号。
+	
+	\ESA为转义符，可为：
+	
+	* \033
+	* \e
+	* \E
+	
+	BACKGROUND为背景色，可为：
+	
+	* 0：默认。
+	* 40：黑色。
+	* 41：红色。
+	* 42：绿色。
+	* 43：黄色。
+	* 44：蓝色。
+	* 45：紫色。
+	* 46：青色。
+	* 47：白色。
+	
+	FOREGROUND为前景色，可为：
+	
+	* 0：默认。
+	* 30：黑色。
+	* 31：红色。
+	* 32：绿色。
+	* 33：黄色。
+	* 34：蓝色。
+	* 35：紫色。
+	* 36：青色。
+	* 37：白色。
+	
+	PROPERTY为属性。
 * -n：不打印结尾的换行符。
 
 ## exec

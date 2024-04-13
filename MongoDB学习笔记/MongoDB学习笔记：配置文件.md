@@ -1,4 +1,4 @@
-本文更新于2023-05-11。使用MongoDB 6.0.4。
+本文更新于2024-02-02。使用MongoDB 6.0.4。
 
 官方文档：[https://www.mongodb.com/docs/manual/reference/configuration-options/](https://www.mongodb.com/docs/manual/reference/configuration-options/)
 
@@ -15,7 +15,7 @@ Linux下配置文件为/etc/mongod.conf。
 	* replSetName：副本集名称。
 * security：安全配置。
 	* authorization：是否启用权限验证。为enabled或disabled（默认）。
-	* keyFile：密钥文件路径。当副本集启用权限验证时必需指定。文件内容为6~1024个base64字符集的字符，所有者必需为mongodb，权限必需小于600。
+	* keyFile：密钥文件路径。当分片或副本集启用权限验证时必需指定。文件内容为6~1024个base64字符集的字符，所有者必需为mongodb，权限必需小于600。
 * storage：存储配置。
 	* dbPath：数据文件目录路径。默认为/data/db（各发行版会自定义默认值，如/var/lib/mongodb）。
 	* directoryPerDB：是否每个数据库使用一个目录。默认为false。
