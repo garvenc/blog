@@ -1,4 +1,4 @@
-本文更新于2024-01-21。
+本文更新于2024-04-13。
 
 [TOC]
 
@@ -48,9 +48,11 @@
 
 # Go
 
-* [Linux安装Go](https://www.cnblogs.com/garvenc/p/linux_install_go.html)
+* [Go文档：Release History（发布历史）](https://www.cnblogs.com/garvenc/p/18133242/go_document_release_history)
 * [Go文档：Command go（go命令）翻译](https://www.cnblogs.com/garvenc/p/go_document_command_go.html)
+* [Linux安装Go](https://www.cnblogs.com/garvenc/p/linux_install_go.html)
 * [Go使用protobuf](https://www.cnblogs.com/garvenc/p/use_protobuf_in_go.html)
+* [VSCode使用Go插件](https://www.cnblogs.com/garvenc/p/18133247/using_go_plugin_in_vscode)
 
 # JavaScript
 
@@ -62,6 +64,7 @@
 * [Linux学习笔记：shell脚本](https://www.cnblogs.com/garvenc/p/linux_learning_shell.html)
 * [Linux学习笔记：vim](https://www.cnblogs.com/garvenc/p/linux_learning_vim.html)
 * [Linux学习笔记：磁盘分区](https://www.cnblogs.com/garvenc/p/linux_learning_partition.html)
+* [Linux学习笔记：apt换源](https://www.cnblogs.com/garvenc/p/18133254/linux_learning_apt_change_sources)
 
 # MongoDB
 
