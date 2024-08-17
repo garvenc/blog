@@ -1,4 +1,4 @@
-本文更新于2023-06-30，使用Docker 19.03.12，操作系统为Debian 10。
+本文更新于2024-08-14，使用Docker 27.1.2，操作系统为Debian 12.6 (bookworm)。
 
 [TOC]
 
@@ -46,7 +46,7 @@
 
 # 配置文件
 
-示例：
+/etc/docker/daemon.json配置文件的示例如下：
 
 ```json
 {
@@ -117,3 +117,5 @@
 	"userns-remap": ""
 }
 ```
+
+* registry-mirrors：镜像的注册服务器地址列表。默认为https://hub.docker.com。

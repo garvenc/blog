@@ -1,16 +1,18 @@
-本文更新于2024-04-12。
+本文更新于2024-08-15。
 
 [TOC]
 
 # 安装
 
-各系统的安装包可于官网[http://nginx.org/en/download.html](http://nginx.org/en/download.html)下载。
+各系统的安装包可于官网[https://nginx.org/en/download.html](https://nginx.org/en/download.html)下载。
 
 ## Windows下安装
 
 从[http://nginx.org/download/nginx-1.16.1.zip](http://nginx.org/download/nginx-1.16.1.zip)下载安装包，并解压，解压目录即为安装目录。
 
 ## Linux下安装
+
+本文的安装目录为/usr/local/nginx，可自行定义。
 
 1. 创建用户：
 	```shell
@@ -26,68 +28,60 @@
 1. 安装依赖库及nginx：
 	* CentOS 7.5下安装nginx 1.16：
 		```shell
+		sudo yum install openssl-devel
 		sudo yum install pcre-devel
 		sudo yum install zlib-devel
-		sudo yum install openssl-devel
 
-		# In any directory.
 		wget http://nginx.org/download/nginx-1.16.1.tar.gz
 		tar -xvz -f nginx-1.16.1.tar.gz
 		cd nginx-1.16.1
 		./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-pcre
 		make
 		sudo make install
-		# Do as you need.
-		#rm nginx-1.16.1.tar.gz
-		#rm -r nginx-1.16.1
 		```
 	* Debian 8.9下安装nginx 1.16（CentOS 7.5下安装nginx 1.16也适用）：
 		```shell
 		cd /usr/local/src
+		sudo wget https://www.openssl.org/source/openssl-1.1.1f.tar.gz
 		sudo wget https://ftp.pcre.org/pub/pcre/pcre-8.44.tar.gz
 		sudo wget http://www.zlib.net/zlib-1.2.11.tar.gz
-		sudo wget https://www.openssl.org/source/openssl-1.1.1f.tar.gz
+		sudo tar -xvz -f openssl-1.1.1f.tar.gz
 		sudo tar -xvz -f pcre-8.44.tar.gz
 		sudo tar -xvz -f zlib-1.2.11.tar.gz
-		sudo tar -xvz -f openssl-1.1.1f.tar.gz
-		# Do as you need.
-		#sudo rm pcre-8.44.tar.gz zlib-1.2.11.tar.gz openssl-1.1.1f.tar.gz
 
-		# In any directory.
 		wget http://nginx.org/download/nginx-1.16.1.tar.gz
 		tar -xvz -f nginx-1.16.1.tar.gz
 		cd nginx-1.16.1
-		./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module \
-			--with-openssl=/usr/local/src/openssl-1.1.1f --with-zlib=/usr/local/src/zlib-1.2.11 --with-pcre=/usr/local/src/pcre-8.44
+		./configure --prefix=/usr/local/nginx --with-http_stub_status_module \
+			--with-http_ssl_module --with-openssl=/usr/local/src/openssl-1.1.1f \
+			--with-pcre=/usr/local/src/pcre-8.44 \
+			--with-zlib=/usr/local/src/zlib-1.2.11
 		make
 		sudo make install
-		# Do as you need.
-		#rm nginx-1.16.1.tar.gz
-		#rm -r nginx-1.16.1
 		```
-	* Debian 10下安装nginx1.20.2：
+	* Debian 12.6 (bookworm)下安装nginx 1.26.1：
 		```shell
-		# In any directory.
-		wget http://nginx.org/download/nginx-1.20.2.tar.gz
-		tar -xvz -f nginx-1.20.2.tar.gz
-		cd nginx-1.20.2
+		sudo apt install libssl-dev
+		sudo apt install libpcre3-dev
+		
+		wget https://nginx.org/download/nginx-1.26.1.tar.gz
+		tar -xvz -f nginx-1.26.1.tar.gz
+		cd nginx-1.26.1
 		./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-pcre
 		make
 		sudo make install
-		# Do as you need.
-		#rm nginx-1.20.2.tar.gz
-		#rm -r nginx-1.20.2
 		```
 
 	`./configure`参数含义如下：
 	
-	* --prefix：安装目录。
-	* --with-http_ssl_module：SSL模块，用于支持SSL，需要安装依赖openssl。
-	* --with-http_stub_status_module：监控模块，用于监控nginx状态。
-	* --with-pcre：PCRE模块，用于支持正则表达式，需要安装依赖pcre。
-	* --with-zlib：ZLIB模块，用于支持压缩算法，需安装依赖zlib。
+	* --prefix=DIR：安装目录。
+	* --with-http_ssl_module：启用ngx_http_ssl_module模块，用于支持SSL。需要安装openssl依赖。
+	* --with-http_stub_status_module：启用ngx_http_stub_status_module模块，用于监控nginx状态。
+	* --with-openssl=DIR：OpenSSL库的目录。
+	* --with-pcre[=DIR]：使用PCRE库支持正则表达式。需要安装pcre依赖。
+	* --with-zlib=DIR：使用zlib库支持压缩算法。需安装zlib依赖。
 	
-	注意`make install`会覆盖此前安装的所有文件，包括配置文件。
+	**注意`make install`会覆盖此前安装的所有文件，包括配置文件。**
 1. 权限配置：
 	```shell
 	sudo chown -R nginxd:nginxd /usr/local/nginx
@@ -99,7 +93,9 @@
 
 # 运行
 
-需先进入安装目录。
+官方文档：[https://nginx.org/en/docs/switches.html](https://nginx.org/en/docs/switches.html)。
+
+可执行程序为安装目录下的sbin/nginx（本文为/usr/local/nginx/sbin/nginx）。
 
 运行nginx时不使用参数，会启动nginx服务，包含主进程和工作进程两个nginx进程。
 
@@ -114,11 +110,11 @@
 	* stop：强制停止服务。
 	* quit：优雅退出服务。
 	* reopen：打开新的日志文件。需要先重命名原来的日志文件。
-	* reload：重新加载配置文件，服务不会中止。
+	* reload：重新加载配置文件。会启动新的工作线程，并优雅关闭旧的工作线程。
 * -t：检查配置后退出。
-* -T：检查配置，转储后退出。
-* -v：打印版本后退出。
-* -V：打印版本和configure编译配置参数后退出。
+* -T：检查配置后退出，会将配置打印至标准输出。
+* -v：打印版本号后退出。
+* -V：打印版本号、编译器版本号、编译配置参数后退出。
 
 # 日志
 
@@ -135,6 +131,26 @@
 1. 响应Content-Length，如无则为0。
 1. 请求Referer。
 1. 请求User-Agent。
+
+# systemd配置
+
+如需使用systemd启动nginx，则修改配置文件/lib/systemd/system/nginxd.service：
+
+```
+[Unit]
+Description=Nginx
+After=network.target
+ 
+[Service]
+Type=forking
+ExecStart=/usr/local/nginx/sbin/nginx
+ExecReload=/usr/local/nginx/sbin/nginx -s reload
+ExecStop=/usr/local/nginx/sbin/nginx -s quit
+Restart=on-failure
+ 
+[Install]
+WantedBy=multi-user.target
+```
 
 # Docker下运行
 

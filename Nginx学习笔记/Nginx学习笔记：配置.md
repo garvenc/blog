@@ -1,10 +1,10 @@
-本文更新于2023-10-27，使用nginx 1.16。
+本文更新于2024-06-12，使用nginx 1.16。
 
 [TOC]
 
 官方文档：[http://nginx.org/en/docs/](http://nginx.org/en/docs/)。
 
-配置文件为：/usr/local/nginx/conf/nginx.conf。
+配置文件为安装目录下的conf/nginx.conf。
 
 # 变量
 
@@ -187,21 +187,22 @@ VALUE可使用`$http_upgrade`。
 
 ## http.server.location.rewrite
 
-路径重写。
+重定向的地址。
 
 ```
 http {
 	server {
 		location PATH_REGEXP {
-			rewrite REGEXP NEW [last|break|redirect|permanent];
+			rewrite REQUEST_PATH_REGEXP REDIRECT_URL [last|break|redirect|permanent];
 		}
 	}
 }
 ```
 
-NEW可使用以下变量：
+REDIRECT_URL可使用以下变量：
 
 * $N
+* $request_uri
 
 ## http.server.location.root
 
@@ -217,7 +218,7 @@ http {
 }
 ```
 
-假设原始请求的路径为/PATH，则使用DIR/PATH文件内容作为响应。如DIR不以/开头，则为安装目录下html目录的相对路径。
+假设原始请求的路径为/PATH，则使用DIR/PATH文件内容作为响应。如DIR不以/开头，则为安装目录下的相对路径。
 
 ## http.server.rewrite
 
@@ -226,12 +227,10 @@ http {
 ```
 http {
 	server {
-		rewrite REQUEST_URI_REGEXP REDIRECT_URL [last|break|redirect|permanent];
+		rewrite REQUEST_PATH_REGEXP REDIRECT_URL [last|break|redirect|permanent];
 	}
 }
 ```
-
-REQUEST_URI_REGEXP进行匹配时忽略请求的方案、主机和端口，从路径开始匹配。
 
 REDIRECT_URL可使用以下变量：
 

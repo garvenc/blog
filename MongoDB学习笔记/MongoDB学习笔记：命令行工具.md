@@ -1,4 +1,4 @@
-本文更新于2023-12-20，使用MongoDB 4.4.5。
+本文更新于2024-07-22，使用MongoDB 4.4.5。
 
 [TOC]
 
@@ -84,6 +84,8 @@ OPTION可为：
 	* --username|-u USERNAME：指定用户名。
 * 命名空间选项：
 	* --db|-d DBNAME：只备份指定的数据库。
+* URI选项：
+	* --uri URI：连接字符串。
 * 输出选项：
 	* --excludeCollection COLLECTIONNAME：不进行备份的集合。可指定多次。
 	* --gzip：将.bson数据文件和.metadata.json元数据文件使用gzip压缩。
@@ -154,12 +156,14 @@ OPTION可为：
 	* --authenticationDatabase AUTH_DBNAME：身份校验使用的数据库。
 	* --password|-p [PASSWORD]：指定密码。如不指定PASSWORD，则于交互界面提示输入密码。
 	* --username|-u USERNAME：指定用户名。
+* URI选项：
+	* --uri URI：连接字符串。
 * 命名空间选项：
-	* --collection|-c COLLECTIONNAME：只恢复指定的集合。此选项已废弃。
-	* --db|-d DBNAME：只恢复指定的数据库。此选项已废弃。
-	* --nsFrom DBNAME.COLLECTIONNAME：重命名时的源命名空间。必需指定对应的--nsTo。DBNAME和COLLECTIONNAME均可使用*匹配所有。
+	* --collection|-c COLLECTIONNAME：只恢复指定的集合。
+	* --db|-d DBNAME：只恢复指定的数据库。
+	* --nsFrom DBNAME.COLLECTIONNAME：源命名空间。DBNAME和COLLECTIONNAME均可使用*匹配所有。--nsFrom和--nsTo必需成对使用。
 	* --nsInclude DBNAME.COLLECTIONNAME：只恢复指定的命名空间。DBNAME和COLLECTIONNAME均可使用*匹配所有。
-	* --nsTo DBNAME.COLLECTIONNAME。重命名时的目标命名空间。必需指定对应的--nsFrom。DBNAME和COLLECTIONNAME均可使用*匹配所有。
+	* --nsTo DBNAME.COLLECTIONNAME：目标命名空间。DBNAME和COLLECTIONNAME均可使用*匹配所有。--nsFrom和--nsTo必需成对使用。
 * 输入选项：
 	* --dir DUMPDIR：需恢复的备份数据目录。默认为dump。根据不同情况，此目录需包含若干个名字为数据库名的目录，或需包含若干个集合名开头的.bson数据文件和.metadata.json元数据文件。
 	* --gzip：从使用gzip压缩方式备份的数据中恢复。

@@ -1,4 +1,4 @@
-本文更新于2024-03-02，使用MongoDB 6.0.4。
+本文更新于2024-07-22，使用MongoDB 6.0.4。
 
 [TOC]
 
@@ -226,10 +226,10 @@ var OBJ = DATABASE.changeUserPassword(USERNAME, PASSWORD);
 创建集合。
 
 ```js
-var OBJ = DATABASE.createCollection(COLLECTION_NAME <, COLLECTION_OPTION_DOC>);
+var OBJ = DATABASE.createCollection(COLLECTION_NAME <, COLLECTION_OPTION>);
 ```
 
-COLLECTION_OPTION_DOC可使用以下字段：
+COLLECTION_OPTION可使用以下字段：
 
 * autoIndexId：是否在`_id`上创建索引。缺省为true。
 * capped：是否创建为固定集合。缺省为false，如为true则必需同时指定`size`。
@@ -241,7 +241,7 @@ COLLECTION_OPTION_DOC可使用以下字段：
 在当前数据库添加用户。
 
 ```shell
-var OBJ = db.createUser({
+db.createUser({
 	user: USERNAME,
 	pwd: PASSWORD,
 	roles: [ROLE|{role: ROLE, db: DBNAME} <, ...>]
@@ -310,6 +310,14 @@ QUERY_DOC见`DBCollection.prototype.find`，为返回的inprog数组元素指定
 	* opid：操作的ID。
 	* secs_running：操作执行的时间。单位为秒。
 	* waitingForLock：操作是否正在等待锁。
+
+## DB.prototype.dropDatabase
+
+删除当前数据库。
+
+```js
+var OBJ = DATABASE.dropDatabase();
+```
 
 ## DB.prototype.dropUser
 
@@ -686,20 +694,39 @@ var OBJ = DBCOLLECTION.convertToCapped({size: N_BYTES});
 
 ## DBCollection.prototype.count
 
-返回文档的数量。
+**已废弃。**
+
+查找文档的数量。
 
 ```js
 var N = DBCOLLECTION.count(<QUERY_DOC>);
 ```
 
-QUERY_DOC见`DBCollection.prototype.find`。当不指定QUERY_DOC时，即查询文档的总数，无论集合有多大，都可以很快返回。
+QUERY_DOC见`DBCollection.prototype.find`。当不指定QUERY_DOC时，即查询文档的总数，会使用集合元素据，可以很快返回。
+
+## DBCollection.prototype.countDocuments
+
+不使用集合元数据查找文档的数量。
+
+```js
+var N = DBCOLLECTION.countDocuments(QUERY_DOC <, OPTION>);
+```
+
+QUERY_DOC见`DBCollection.prototype.find`。
+
+OPTION中可使用以下字段：
+
+* hint：使用指定的索引。`INDEX_NAME|{KEY: 1|-1 <, ...>}`。
+* limit：限制查找文档的最多数量（含）。
+* maxTimeMS：超时时间，单位为毫秒。
+* skip：跳过查找的文档数量。
 
 ## DBCollection.prototype.createIndex
 
 创建索引。
 
 ```js
-var OBJ = DBCOLLECTION.createIndex(INDEX_DOC <, INDEX_OPTION_DOC>);
+var OBJ = DBCOLLECTION.createIndex(INDEX_DOC <, INDEX_OPTION>);
 ```
 
 INDEX_DOC为`{KEY: 1|-1|"hashed"|"text"|"2d"|"2dsphere" <, ...>}`。1为升序，-1为降序，hashed为散列索引，text为全文本索引，2d或2dsphere为地理空间索引。如指定多个键，则为按指定键顺序的复合索引。
@@ -712,7 +739,7 @@ INDEX_DOC为`{KEY: 1|-1|"hashed"|"text"|"2d"|"2dsphere" <, ...>}`。1为升序�
 * 线：`{type: "Line", coordinates: [[X1, Y1], [X2, Y2] <, ...>]}`。
 * 多边形：`{type: "Polygon", coordinates: [[X1, Y1], [X2, Y2] <, ...>]}`。
 
-INDEX_OPTION_DOC中可使用以下字段：
+INDEX_OPTION中可使用以下字段：
 
 * background：为true或1，则在后台创建索引。
 * default_language：为全文本索引指定分词语言。默认为`english`。如插入的文档有`language`字段，则分词语言会被其值覆盖。
@@ -780,6 +807,18 @@ var OBJ = DBCOLLECTION.dropIndex(INDEX_NAME);
 
 INDEX_NAME为`DBCollection.prototype.getIndexes`返回的name字段的值。
 
+## DBCollection.prototype.estimatedDocumentCount
+
+使用集合元数据查找文档的数量。
+
+```js
+var N = DBCOLLECTION.estimatedDocumentCount(<OPTION>);
+```
+
+OPTION中可使用以下字段：
+
+* maxTimeMS：超时时间，单位为毫秒。
+
 ## DBCollection.prototype.find
 
 查找文档。
@@ -830,9 +869,13 @@ PROJECTION_DOC为查找结果字段的投射方式。`{KEY: VALUE, <, ...>}`。�
 
 * 0：不投射该键。`KEY: 0`。未指定的键都投射。如有一个非`_id`键指定为0，则所有键不能再指定为非0数值。除非使用`_id: 0`，否则`_id`会被自动投射。
 * 非0数值：投射该键。`KEY: N`。未指定的键不投射。
-* $slice：投射数组的切片子集。`KEY: {$slice: N|[OFFSET, COUNT]}`。N为正数则保留开头元素，为负数则保留末尾元素，0则为空数组。未指定的键都投射。
 * "$INPUT_KEY"：使用文档指定键的值进行投射，类似键重命名。`KEY: "$INPUT_KEY"，INPUT_KEY的形式与QUERY_DOC中KEY的形式一样。
 * 表达式：`KEY: EXPR_DOC`。EXPR_DOC可以使用以下表达式，其EXPR可以直接指定值，可以使用"$INPUT_KEY"来指定键的值，可以使用任意深度嵌套的表达式：
+	
+	数组表达式，接收数组类型，返回数组类型：
+
+	* $elemMatch：返回第一个匹配的数组元素。`$elemMatch: CONDITION_DOC`。CONDITION_DOC中的键为数组元素子文档的键。
+	* $slice：数组切片。`{$slice: N|[OFFSET, COUNT]}`。N为正数则保留开头元素，为负数则保留末尾元素，0则为空数组。未指定的键都投射。
 
 	数学表达式，接收数值类型，返回数值类型：
 
@@ -1031,7 +1074,7 @@ var OBJ = DBCOLLECTION.insertOne(DOC);
 执行MapReduce。
 
 ```js
-var RESULT = DBCOLLECTION.mapreduce(MAP, REDUCE, OUTPUT_COLLECTION_NAME|OPTION_DOC);
+var RESULT = DBCOLLECTION.mapreduce(MAP, REDUCE, OUTPUT_COLLECTION_NAME|OPTION);
 ```
 
 MAP是一个函数，`this`表示当前正在处理的文档：
@@ -1050,7 +1093,7 @@ function(KEY, VALUE_ARR) {
 }
 ```
 
-OPTION_DOC可使用以下字段：
+OPTION可使用以下字段：
 
 * finalize：将reduce的结果进行最后处理。`finalize: FINALIZE`。FINALIZE是一个函数：
 
@@ -1059,7 +1102,7 @@ OPTION_DOC可使用以下字段：
 		return FINALIZE_VALUE;
 	}
 	```
-* limit：执行map之前限制文档的最多数量（含）。1limit: N`。
+* limit：执行map之前限制文档的最多数量（含）。`limit: N`。
 * out：结果集合名。`out: OUTPUT_COLLECTION_NAME`。必需此字段。
 * query: 执行map之前的查找规则。`query: QUERY_DOC`。QUERY_DOC见`DBCollection.prototype.find`。
 * scope：变量作用域。`scope: {PARAM_NAME: PARAM_VALUE <, ...>}`。其他函数可以直接使用PARAM_NAME来使用作用域中的变量。

@@ -1,4 +1,4 @@
-本文更新于2024-03-18，使用Redis 6.0.8，操作系统为Deepin 15.11。
+本文更新于2024-05-09，使用Redis 6.0.8，操作系统为Deepin 15.11。
 
 [TOC]
 
@@ -1087,6 +1087,33 @@ KEYS glob
 或键的列表为空时返回：
 
 > (empty list or set)
+
+## SCAN
+
+遍历匹配glob模式的键。
+
+```
+SCAN cursor [MATCH glob] [COUNT count] [TYPE type]
+```
+
+初始遍历的cursor为0。count默认为10。
+
+返回下一次遍历使用的cursor和本次遍历匹配的元素（可能比count少）：
+
+> 1\) "224"
+> 2\) 1) "key1"
+> &nbsp;&nbsp;&nbsp;2) "key2"
+
+如果本次遍历无匹配元素时返回：
+
+> 1\) "72"
+> 2\) (empty array)
+
+如遍历结束，则返回的cursor为0：
+
+> 1\) "0"
+> 2\) 1) "key3"
+> &nbsp;&nbsp;&nbsp;2) "key4"
 
 ## TYPE
 

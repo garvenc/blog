@@ -1,4 +1,4 @@
-本文更新于2024-03-14。
+本文更新于2024-07-10。
 
 [TOC]
 
@@ -96,7 +96,7 @@ uname [-a]
 
 * -a：列出所有信息。
 
-# 关机
+# 系统设置
 
 ## shutdown
 
@@ -113,6 +113,63 @@ TIME可为hh:mm的格式指定时间，或为+m的格式指定m分钟后，或�
 * -h：将系统服务停止后就关机。
 * -k：不真正执行，只是发送警告消息。
 * -r：将系统服务停止后就重启。
+
+## swapoff
+
+禁用交换区。
+
+```shell
+swapoff [-a]
+```
+
+* -a：关闭所有设备和文件使用的交换区。
+
+## swapon
+
+启用交换区。
+
+```shell
+swapon [-s]
+```
+
+* -s：查看交换分区使用情况。
+
+## sysctl
+
+系统内核参数配置工具。
+
+```shell
+sysctl [-ap]
+sysctl -w KEY=VALUE
+```
+
+* -a：显示所有内核参数。
+* -p：重新读取内核参数配置文件/etc/sysctl.conf。
+* -w：临时修改，重启后失效。
+
+## ulimit
+
+显示或设置当前shell的系统资源限制。
+
+```shell
+ulimit -a
+ulimit [-HS -cdflntu [N|unlimited]]
+```
+
+* -a：列出当前的所有限制。
+* -c [N]：显示或设置内核转储文件大小限制。
+* -d [N]：显示或设置进程段内存大小限制。
+* -f [N]：显示或设置单个文件大小限制，单位为K。
+* -H：严格的限制。
+* -l [N]：显示或设置可用于锁定的内存大小限制。
+* -n [N]：显示或设置打开的文件描述符数量限制。
+* -S：宽松的限制。
+* -t [N]：显示或设置CPU时间限制，单位为秒。
+* -u [N]：显示或设置进程数量限制。
+
+输出字段说明：
+
+* max user processes：最大用户进程/线程数量。
 
 # 磁盘与分区
 
@@ -378,7 +435,7 @@ DST为新建的文件。
 查看文件/目录。
 
 ```shell
-ls [-aAdFhlrRSt --full-time --time={atime|ctime}] [NAMEGLOB]
+ls [-aAdFhlrRSt --color={always|auto|never} --full-time --time={atime|ctime}] [NAMEGLOB]
 ```
 
 * -a：列出全部文件，包括隐藏文件。
@@ -391,6 +448,7 @@ ls [-aAdFhlrRSt --full-time --time={atime|ctime}] [NAMEGLOB]
 * -R：递归列出子目录和文件。
 * -S：以文件大小排序。
 * -t：以时间排序。
+* --color={always|auto|never}：设置输出的颜色显示。
 * --full-time：列出完整的时间。
 * --time={atime|ctime}：指定时间类型，不使用默认的mtime。
 
@@ -567,6 +625,14 @@ chown [-R] [GROUPNAME:]USERNAME NAMEGLOB[ ...]
 
 * -R：递归更改子目录和文件。
 
+## getcap
+
+查看可执行文件获取的内核权限。
+
+```shell
+getcap FILENAME
+```
+
 ## getfacl
 
 查看ACL权限。
@@ -574,6 +640,19 @@ chown [-R] [GROUPNAME:]USERNAME NAMEGLOB[ ...]
 ```shell
 getfacl NAME
 ```
+
+## setcap
+
+设置可执行文件的内核权限。
+
+```shell
+setcap CAPABILITY FILENAME
+setcap -r FILENAME
+```
+
+* -r：清除权限。
+
+CAPABILITY为`cap_net_bind_service=+eip`可让程序监听小于1024的端口。
 
 ## setfacl
 
@@ -1047,7 +1126,7 @@ sed [-nri] '[N1[,N2]] c CONTENT' FILENAME[ ...]|STDIN
 sed [-nri] '[N1[,N2]] d' FILENAME[ ...]|STDIN
 sed [-nri] '[N1[,N2]] i CONTENT' FILENAME[ ...]|STDIN
 sed [-nri] '[N1[,N2]] p' FILENAME[ ...]|STDIN
-sed [-nri] 's/OLDREGEXP/NEWREGEXP/g' FILENAME[ ...]|STDIN
+sed [-nri] 's/OLDREGEXP/[NEWREGEXP]/[g]' FILENAME[ ...]|STDIN
 ```
 
 * -n：安静模式，只显示经过sed处理的行。
@@ -1063,7 +1142,7 @@ sed [-nri] 's/OLDREGEXP/NEWREGEXP/g' FILENAME[ ...]|STDIN
 * d：删除行。
 * i：每行前插入。
 * p：显示行，通常和-n一起使用。
-* s：替换内容。
+* s：替换内容。g表示替换所有，不指定则只替换行中第一个匹配的内容。
 
 CONTENT可使用\来输入多行。
 
@@ -1494,6 +1573,27 @@ nohup不支持shell内置的命令。通常与&配合使用。
 
 # 进程
 
+## fuser
+
+查找打开指定文件的进程。
+
+```shell
+fuser [-muv] FILENAME
+```
+
+* -m：如果是目录，则查找所有在该目录下使用文件的进程。
+* -u：同时列出进程的所有者。
+* -v：列出详细信息。
+
+ACCESS字段的含义：
+
+* c：进程在当前目录下（非子目录）。
+* e：可被触发为执行状态。
+* f：是一个被打开的文件。
+* F：文件被打开了，不过在等待回应中。
+* m：可能为动态库。
+* r：代表顶层目录。
+
 ## kill
 
 向进程发送信号，可杀死进程。
@@ -1522,6 +1622,20 @@ kill [-iI -SIGNAL] COMMANDNAME[ ...]
 * -i：使用交互命令确认。
 * -I：忽略大小写。
 * -SIGNAL：指定信号，SIGNAL为信号值或信号名。
+
+## lsof
+
+列出被进程打开的文件。
+
+```shell
+lsof [-a -u USERNAME +d DIR -p PID -i:PORT]
+```
+
+* -a：列出多个选项同时成立的结果。
+* -u USERNAME：列出该用户的进程打开的文件。
+* +d DIR：列出指定目录下打开的文件。
+* -i:PORT：列出使用指定端口的连接。
+* -p PID：列出指定进程ID打开的文件。
 
 ## pidof
 
@@ -1563,6 +1677,67 @@ pkill [-F PIDFILENAME]
 ```shell
 pmap PID
 ```
+
+## pstree
+
+查看进程树。
+
+```shell
+pstree [-ApuU]
+```
+
+* -A：进程树以ASCII字符连接。
+* -p：同时列出进程ID。
+* -u：同时列出进程用户名。
+* -U：进程树以UTF-8字符连接。
+
+# 系统资源
+
+top也可查看系统资源使用情况，其显示值与下面很多命令均一致。
+
+## free
+
+查看内存使用情况。
+
+```shell
+free [-bgkmt]
+```
+
+* -b：以B为单位。
+* -g：以G为单位。
+* -k：以K为单位，默认设置。
+* -m：以M为单位。
+* -t：显示物理内存和内存交互空间的总和。
+
+free的结果与top一致。对某些发行版：total=used+free+buff/cache，available为程序可用的内存。对于某些发行版：total=used+free，used和free在Mem行表示系统已分配和未分配的内存，在-/+ buffers/cache行表示不计算缓存，程序已用和可用的内存。
+
+## iostat
+
+查看CPU和I/O状态。
+
+```shell
+iostat [-x]
+```
+
+* -x：显示扩展的状态信息。
+
+## iotop
+
+动态查看进程I/O状态。
+
+```shell
+iotop
+```
+
+## mpstat
+
+查看CPU状态。使用/proc/stat中的信息。
+
+```shell
+mpstat [-P ALL]
+```
+
+* -P ALL：同时显示每个CPU核心的状态。
 
 ## ps
 
@@ -1627,18 +1802,22 @@ ps afjx
 * VSZ：使用的虚拟内存大小，单位为K。
 * WCHAN：进程睡眠时执行至的函数名，如果运行中则显示-。
 
-## pstree
+## sar
 
-查看进程树。
+系统性能分析工具。
 
 ```shell
-pstree [-ApuU]
+sar [-Abdruvw -n NET] INTERVAL [COUNT]
 ```
 
-* -A：进程树以ASCII字符连接。
-* -p：同时列出进程ID。
-* -u：同时列出进程用户名。
-* -U：进程树以UTF-8字符连接。
+* -A：所有报告的汇总。
+* -b：报告缓冲区使用情况。
+* -d：报告磁盘使用状态。
+* -n NET：报告网络状态。NET取值：ALL为所有，DEV为网卡。
+* -r：报告没有使用的内存页面和硬盘块。
+* -u：报告CPU使用率。
+* -v：报告进程、I节点、文件和锁表状态。
+* -w：报告系统的交换活动。
 
 ## top
 
@@ -1702,176 +1881,6 @@ top执行过程中可使用如下命令（以下所述排序均为降序），�
 * u：显示指定用户的进程。会提示输入用户名。
 * q：离开top。
 
-# 系统资源
-
-top也可查看系统资源使用情况，其显示值与下面很多命令均一致。
-
-## free
-
-查看内存使用情况。
-
-```shell
-free [-bgkmt]
-```
-
-* -b：以B为单位。
-* -g：以G为单位。
-* -k：以K为单位，默认设置。
-* -m：以M为单位。
-* -t：显示物理内存和内存交互空间的总和。
-
-free的结果与top一致。对某些发行版：total=used+free+buff/cache，available为程序可用的内存。对于某些发行版：total=used+free，used和free在Mem行表示系统已分配和未分配的内存，在-/+ buffers/cache行表示不计算缓存，程序已用和可用的内存。
-
-## fuser
-
-查找打开指定文件的进程。
-
-```shell
-fuser [-muv] FILENAME
-```
-
-* -m：如果是目录，则查找所有在该目录下使用文件的进程。
-* -u：同时列出进程的所有者。
-* -v：列出详细信息。
-
-ACCESS字段的含义：
-
-* c：进程在当前目录下（非子目录）。
-* e：可被触发为执行状态。
-* f：是一个被打开的文件。
-* F：文件被打开了，不过在等待回应中。
-* m：可能为动态库。
-* r：代表顶层目录。
-
-## getcap
-
-查看可执行文件获取的内核权限。
-
-```shell
-getcap FILENAME
-```
-
-## iostat
-
-查看CPU和I/O状态。
-
-```shell
-iostat [-x]
-```
-
-* -x：显示扩展的状态信息。
-
-## lsof
-
-列出被进程打开的文件。
-
-```shell
-lsof [-a -u USERNAME +d DIR -p PID -i:PORT]
-```
-
-* -a：列出多个选项同时成立的结果。
-* -u USERNAME：列出该用户的进程打开的文件。
-* +d DIR：列出指定目录下打开的文件。
-* -i:PORT：列出使用指定端口的连接。
-* -p PID：列出指定进程ID打开的文件。
-
-## mpstat
-
-查看CPU状态。使用/proc/stat中的信息。
-
-```shell
-mpstat [-P ALL]
-```
-
-* -P ALL：同时显示每个CPU核心的状态。
-
-## sar
-
-系统性能分析工具。
-
-```shell
-sar [-Abdruvw -n NET] INTERVAL [COUNT]
-```
-
-* -A：所有报告的汇总。
-* -b：报告缓冲区使用情况。
-* -d：报告磁盘使用状态。
-* -n NET：报告网络状态。NET取值：ALL为所有，DEV为网卡。
-* -r：报告没有使用的内存页面和硬盘块。
-* -u：报告CPU使用率。
-* -v：报告进程、I节点、文件和锁表状态。
-* -w：报告系统的交换活动。
-
-## setcap
-
-设置可执行文件的内核权限。
-
-```shell
-setcap CAPABILITY FILENAME
-setcap -r FILENAME
-```
-
-* -r：清除权限。
-
-CAPABILITY为`cap_net_bind_service=+eip`可让程序监听小于1024的端口。
-
-## swapoff
-
-禁用交换区。
-
-```shell
-swapoff [-a]
-```
-
-* -a：关闭所有设备和文件使用的交换区。
-
-## swapon
-
-启用交换区。
-
-```shell
-swapon [-s]
-```
-
-* -s：查看交换分区使用情况。
-
-## sysctl
-
-系统内核参数配置工具。
-
-```shell
-sysctl [-ap]
-sysctl -w KEY=VALUE
-```
-
-* -a：显示所有内核参数。
-* -p：重新读取内核参数配置文件/etc/sysctl.conf。
-* -w：临时修改，重启后失效。
-
-## ulimit
-
-显示或设置当前shell的系统资源限制。
-
-```shell
-ulimit -a
-ulimit [-HS -cdflntu [N|unlimited]]
-```
-
-* -a：列出当前的所有限制。
-* -c [N]：显示或设置内核转储文件大小限制。
-* -d [N]：显示或设置进程段内存大小限制。
-* -f [N]：显示或设置单个文件大小限制，单位为K。
-* -H：严格的限制。
-* -l [N]：显示或设置可用于锁定的内存大小限制。
-* -n [N]：显示或设置打开的文件描述符数量限制。
-* -S：宽松的限制。
-* -t [N]：显示或设置CPU时间限制，单位为秒。
-* -u [N]：显示或设置进程数量限制。
-
-输出字段说明：
-
-* max user processes：最大用户进程/线程数量。
-
 ## uptime
 
 查看系统启动时间和工作负载。
@@ -1933,6 +1942,14 @@ arp
 ```
 
 如不指定该选项，则查看ARP缓存。
+
+## dig
+
+查看DNS解析信息。
+
+```shell
+dig [@DNSSERVER] DOMAINNAME
+```
 
 ## ethtool
 
@@ -2052,6 +2069,14 @@ netstat [-alnpstu]
 * -t：列出TCP连接状态，与-l配合可列出TCP监听状态。
 * -u：列出UDP连接状态，与-l配合可列出UDP监听状态。
 
+## nslookup
+
+DNS解析。
+
+```shell
+nslookup DOMAINNAME
+```
+
 ## mtr
 
 网络连通性测试工具。
@@ -2076,7 +2101,7 @@ ngrep [-pq -W DISPLAY] [REGEXP] [CAPTUREFILTER]
 
 ## nmap
 
-端口扫描工具。
+端口扫描。
 
 ```shell
 nmap [-Av[v]] HOST
@@ -2222,6 +2247,34 @@ curl URL -X METHOD -H HEADER -d BODY [-iv]
 * -O：将响应内容保存至文件。文件名为路径的最后一部分。
 * -X METHOD：指定请求方法。默认为GET。
 * -v：打印详细信息。“*”开头的是调试信息，“>”开头的是请求内容（不打印请求实体），“<”开头的是响应内容（响应实体不带有此开头）。
+* -w FORMAT：在最后增加的打印信息。可使用“\n”、“\r”、“\t”，以及使用“%{VAR}”进行变量替换（如打印“%”需使用“%%”转义）。VAR可为：
+	* content_type：响应的Content-Type。
+	* filename_effective
+	* ftp_entry_path
+	* http_code：响应状态码。
+	* http_connect
+	* local_ip
+	* local_port
+	* num_connects
+	* num_redirects
+	* redirect_url
+	* remote_ip
+	* remote_port
+	* size_download
+	* size_header
+	* size_request
+	* size_upload
+	* speed_download
+	* speed_upload
+	* ssl_verify_result
+	* time_appconnect：从开始直到SSL等握手结束消耗的秒数。
+	* time_connect：从开始直到TCP握手结束消耗的秒数。
+	* time_namelookup：从开始直到DNS解析结束消耗的秒数。
+	* time_pretransfer：从开始直到文件开始传输之前消耗的秒数。
+	* time_redirect：真正请求之前所有重定向消耗的秒数。
+	* time_starttransfer：从开始直到第一个字节开始传输之前消耗的秒数。这包含time_pretransfer的耗时。
+	* time_total：总消耗的秒数。
+	* url_effective
 
 ## wget
 
@@ -2358,7 +2411,7 @@ systemctl umask UNIT
 	openssl rsa -in CLIENTKEYFILENAME -out CLIENTKEYFILENAME
 	```
 
-# 软件安装
+# 软件包
 
 ## apt
 
@@ -2663,11 +2716,13 @@ ssh [-p PORT] USERNAME@HOST
 
 ## base64
 
-生成base64编码。
+base64编解码。
 
 ```shell
-base64 FILENAME|STDIN
+base64 [-d] FILENAME|STDIN
 ```
+
+* -d：是否解码。
 
 ## expr
 

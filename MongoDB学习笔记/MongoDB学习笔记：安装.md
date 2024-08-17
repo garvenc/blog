@@ -1,39 +1,40 @@
-本文更新于2023-02-22。
+本文更新于2024-08-17。
 
 [TOC]
 
-# 安装社区版（MongoDB Community Server）
+官网下载地址：[https://www.mongodb.com/try](https://www.mongodb.com/try)
 
-各模块可按需下载。如需安装其他版本，请到官网[https://www.mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)搜索相应的链接。
+# 安装社区版服务器（MongoDB Community Server）
 
-## 安装4.4.5
+## 安装server
 
-操作系统为Debian 10.5。
+使用7.0.12，操作系统为Debian 12.6 (bookworm)。
 
-### 安装mongod
+包含mongod命令。
 
-```shell
-wget https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-server_4.4.5_amd64.deb
-sudo dpkg -i mongodb-org-server_4.4.5_amd64.deb
-```
-
-### 安装mongo
+安装后的服务名为mongod。
 
 ```shell
-wget https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-shell_4.4.5_amd64.deb
-sudo dpkg -i mongodb-org-shell_4.4.5_amd64.deb
+wget https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-org-server_7.0.12_amd64.deb
+sudo dpkg -i mongodb-org-server_7.0.12_amd64.deb
 ```
 
-### 安装mongos
+## 安装mongos
+
+使用4.4.5，操作系统为Debian 10.5 (buster)。
+
+包含mongos命令。
 
 ```shell
 wget https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-mongos_4.4.5_amd64.deb
 sudo dpkg -i mongodb-org-mongos_4.4.5_amd64.deb
 ```
 
-### 使用tgz包安装
+## 使用tgz包安装
 
-安装mongod、mongo、mongos。
+使用4.4.5，操作系统为Debian 10.5 (buster)。
+
+包含mongod、mongo、mongos命令。
 
 ```shell
 wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-debian10-4.4.5.tgz
@@ -44,22 +45,22 @@ cd mongodb-linux-x86_64-debian10-4.4.5/bin
 
 # 安装Shell（MongoDB Shell）
 
-安装mongosh。（MongoDB 6.0使用mongosh替换mongo）
+使用7.0.12，操作系统为Debian 12.6 (bookworm)。
 
-各模块可按需下载。如需安装其他版本，请到官网[https://www.mongodb.com/try/download/shell](https://www.mongodb.com/try/download/shell)搜索相应的链接。
+包含mongosh命令。（MongoDB 6.0使用mongosh替换mongo）
 
 ```shell
-wget https://downloads.mongodb.com/compass/mongodb-mongosh-shared-openssl11_1.7.1_amd64.deb
-dpkg -i mongodb-mongosh-shared-openssl11_1.7.1_amd64.deb
+wget https://downloads.mongodb.com/compass/mongodb-mongosh_2.2.15_amd64.deb
+sudo dpkg -i mongodb-mongosh_2.2.15_amd64.deb
 ```
 
-## 安装数据库工具（MongoDB Database Tools）
+# 安装数据库工具（MongoDB Database Tools）
 
-安装mongodump、mongoexport、mongofiles、mongoimport、mongorestore、mongostat、mongotop。
+使用7.0.12，操作系统为Debian 12.6 (bookworm)。
 
-如需安装其他版本，请到官网[https://www.mongodb.com/try/download/database-tools](https://www.mongodb.com/try/download/database-tools)搜索相应的链接。
+包含mongodump、mongoexport、mongofiles、mongoimport、mongorestore、mongostat、mongotop命令。
 
 ```shell
-wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian10-x86_64-100.3.1.deb
-sudo dpkg -i mongodb-database-tools-debian10-x86_64-100.3.1.deb
+wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian12-x86_64-100.10.0.deb
+sudo dpkg -i mongodb-database-tools-debian12-x86_64-100.10.0.deb
 ```

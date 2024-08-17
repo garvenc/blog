@@ -1,4 +1,4 @@
-本文更新于2024-04-13。
+本文更新于2024-08-17。
 
 [TOC]
 
@@ -65,6 +65,7 @@
 * [Linux学习笔记：vim](https://www.cnblogs.com/garvenc/p/linux_learning_vim.html)
 * [Linux学习笔记：磁盘分区](https://www.cnblogs.com/garvenc/p/linux_learning_partition.html)
 * [Linux学习笔记：apt换源](https://www.cnblogs.com/garvenc/p/18133254/linux_learning_apt_change_sources)
+* [Linux学习笔记：systemd配置文件](https://www.cnblogs.com/garvenc/p/18364496/linux_learning_systemd_configuration_file)
 
 # MongoDB
 
@@ -147,3 +148,8 @@
 * [网络协议：RTP与RTCP](https://www.cnblogs.com/garvenc/p/network_protocol_rtp_and_rtcp.html)
 * [网络协议：SDP](https://www.cnblogs.com/garvenc/p/network_protocol_sdp.html)
 * [网络协议：SIP](https://www.cnblogs.com/garvenc/p/network_protocol_sip.html)
+
+# 文档
+
+* [标准文档库](https://www.cnblogs.com/garvenc/p/18364517/standard_documents)
+* [参考文档库](https://www.cnblogs.com/garvenc/p/18364526/reference_documents)
