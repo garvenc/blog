@@ -1,4 +1,4 @@
-本文更新于2024-04-08，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2024-08-26，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -453,6 +453,12 @@ git commit -m MSG
 
 ```shell
 git commit --amend
+```
+
+允许没有改动的提交：
+
+```shell
+git commit --allow-empty
 ```
 
 提交时跳过pre-commit和commit-msg的钩子：

@@ -1,6 +1,6 @@
-本文更新于2024-04-13。
+本文更新于2024-11-09。
 
-翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为go1.22.0。
+翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为go1.23.0。
 
 [TOC]
 
@@ -93,7 +93,7 @@ go build [-o output] [build flags] [packages]
 # go clean——删除对象文件和缓存文件
 
 ```shell
-go clean [clean flags] [build flags] [packages]
+go clean [-i] [-r] [-cache] [-testcache] [-modcache] [-fuzzcache] [build flags] [packages]
 ```
 
 从包源代码目录中删除对象文件。go命令在临时目录中构建大多数对象文件，因此go clean主要关心通过其他工具或通过手动调用go build遗留下来的对象文件。
@@ -204,7 +204,7 @@ go doc <pkg> <sym>[.<methodOrField>]
 # go env——打印环境变量
 
 ```shell
-go env [-json] [-u] [-w] [var ...]
+go env [-json] [-changed] [-u] [-w] [var ...]
 ```
 
 打印Go环境变量信息。
@@ -213,6 +213,7 @@ env默认像shell脚本（在Windows下，像批处理文件）一样打印信�
 
 标志：
 
+* -changed：只打印有效值与未事先使用-w标志的空环境变量中获取的默认值不同的那些设置。
 * -json：以JSON格式打印环境变量，而不是像shell脚本一样。
 * -u：需要一个或多个参数，如果指定名字的环境变量已经使用“go env -w”设置，则取消其默认设置。
 * -w：需要一个或多个格式为NAME=VALUE的参数，使用指定的值修改指定名字的环境变量的默认设置。
@@ -399,6 +400,8 @@ go install example.com/pkg@latest
 
 当-t和-u一起使用时，将也会更新构建测试所需的模块的依赖模块。
 
+关于构建标志的更多信息，参阅“go help build”。
+
 关于模块的更多信息，参阅[https://golang.org/ref/mod](https://golang.org/ref/mod)。
 
 关于使用“go get”来升级最低Go版本和建议的Go工具链的更多信息，参阅[https://go.dev/doc/toolchain](https://go.dev/doc/toolchain)。
@@ -434,6 +437,7 @@ go help <topic>
 * list：列出包和模块。
 * mod：模块维护。
 * run：编译并运行Go程序。
+* telemetry：管理遥测数据和设置。
 * test：测试包。
 * tool：运行指定的go tool。
 * version：打印Go版本。
@@ -639,20 +643,22 @@ golang.org/x/net/html
 	```go
 	type Module struct {
 		Path       string       // 模块路径
-		Query      string       // 对应此版本的版本查询
-		Version    string       // 模块版本
-		Versions   []string     // 可获得的模块版本
+		Query      string       // 对应此版本号的版本号查询
+		Version    string       // 模块版本号
+		Versions   []string     // 可获得的模块版本号
 		Replace    *Module      // 被此模块替代
-		Time       *time.Time   // 版本创建的时间
+		Time       *time.Time   // 版本号创建的时间
 		Update     *Module      // 可获得的更新（当使用-u时）
 		Main       bool         // 是否为主模块？
 		Indirect   bool         // 模块只是被主模块间接依赖
 		Dir        string       // 保存文件本地副本的目录，如果有的话
 		GoMod      string       // 描述模块的go.mod文件的路径，如果有的话
-		GoVersion  string       // 模块中使用的go版本
+		GoVersion  string       // 模块中使用的go版本号
 		Retracted  []string     // 撤回的信息，如果有的话（当使用-retracted或-u时）
 		Deprecated string       // 弃用的信息，如果有的话（当使用-u时）
 		Error      *ModuleError // 加载模块时的错误
+		Sum        string       // 路径、版本号的校验和（如同在go.sum中）
+		GoModSum   string       // go.mod的校验和（如同在go.sum中）
 		Origin     any          // 模块来源
 		Reuse      bool         // 重用旧模块信息是安全的
 	}
@@ -743,7 +749,7 @@ go命令将在常规执行期间根据需要自动下载模块。“go mod downl
 	```go
 	type Module struct {
 		Path     string // 模块路径
-		Query    string // 对应此版本的版本查询
+		Query    string // 对应此版本的版本号查询
 		Version  string // 模块版本
 		Error    string // 加载模块时的错误
 		Info     string // 缓存的.info文件绝对路径
@@ -761,7 +767,7 @@ go命令将在常规执行期间根据需要自动下载模块。“go mod downl
 
 关于“go mod download”的更多信息，参阅[https://golang.org/ref/mod#go-mod-download](https://golang.org/ref/mod#go-mod-download)。
 	
-关于版本查询的更多信息，参阅[https://golang.org/ref/mod#version-queries](https://golang.org/ref/mod#version-queries)。
+关于版本号查询的更多信息，参阅[https://golang.org/ref/mod#version-queries](https://golang.org/ref/mod#version-queries)。
 
 ## go mod edit——通过工具或脚本编辑go.mod
 
@@ -774,12 +780,14 @@ edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用�
 标志：
 
 * -dropexclude=path@version：删除给定模块路径和版本的排除。
+* -dropgodebug=key：删除任何带有给定key的已存在的godebug行。
 * -dropreplace=old[@v]：删除给定模块路径和版本对的替代。如果@v省略，删除该模块不带版本的替代。
 * -droprequire=path：删除给定的模块路径依赖的模块。该标志主要提供给工具用以理解模块图。用户应该使用“go get path@none”，可令其它go.mod根据需要调整来满足其它模块施加的限制。
 * -dropretract=version：删除对给定版本的撤回。version可能是类似“v1.2.3”的单个版本或类似“[v1.1.0,v1.1.9]”的闭区间。
 * -exclude=path@version：添加给定模块路径和版本的排除。注意如果排除已经存在-exclude=path@version是无操作的。
 * -fmt：重新格式化go.mod文件，不作其他改变。使用或重写go.mod文件的任何其他修改也意味着这种重新格式化。需要该标志的唯一情形是没有指定其它标志，如“go mod edit -fmt”。
-* -go=version：设置期望的Go语言版本。
+* -go=version：设置期望的Go语言版本。此标志主要用于那些理解Go版本依赖的工具。用户应更喜欢“go get go@version”。
+* -godebug=key=value：添加godebug key=value行，替换任何带有给定key的已存在的godebug行。
 * -json：以JSON格式打印最终的go.mod，而不是将其写回go.mod。JSON输出对应于这些Go类型：
 
 	```go
@@ -792,6 +800,7 @@ edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用�
 		Module    ModPath
 		Go        string
 		Toolchain string
+		Godebug   []Godebug
 		Require   []Require
 		Exclude   []Module
 		Replace   []Replace
@@ -803,9 +812,14 @@ edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用�
 		Deprecated string
 	}
 	
+	type Godebug struct {
+		Key   string
+		Value string
+	}
+	
 	type Require struct {
-		Path string
-		Version string
+		Path     string
+		Version  string
 		Indirect bool
 	}
 	
@@ -826,9 +840,9 @@ edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用�
 * -replace=old[@v]=new[@v]：添加给定模块路径和版本对的替代。如果old@v中的@v省略，则左侧不带版本的替代将被添加，应用于old模块路径的所有版本。如果new@v中的@v省略，新路径应为本地模块根目录，而不是模块路径。注意-replace覆盖old[@v]任何冗余的替代，因此省略@v将删除对特定版本的现有替代。
 * -require=path@version：添加给定的模块路径和版本依赖的模块。注意-require覆盖该路径任何已存在的依赖的模块。该标志主要提供给工具用以理解模块图。用户应该使用“go get path@version”，其可令其它go.mod根据需要调整来满足其它模块施加的限制。
 * -retract=version：添加对给定版本的撤回。version可能是类似“v1.2.3”的单个版本或类似“[v1.1.0,v1.1.9]”的闭区间。注意如果撤回已经存在-retract=version是无操作的。
-* -toolchain=name：设置要使用的Go工具链。
+* -toolchain=name：设置要使用的Go工具链。此标志主要用于那些理解Go版本依赖的工具。用户应更喜欢“go get toolchain@version”。
 
--require、-droprequire、-exclude、-dropexclude、-replace、-dropreplace、-retract、-dropretract编辑标志可以重复，根据给定的顺序应用修改。
+-godebug、-dropgodebug、-require、-droprequire、-exclude、-dropexclude、-replace、-dropreplace、-retract、-dropretract编辑标志可以重复，根据给定的顺序应用修改。
 
 也提供-C、-n、-x构建标志。
 
@@ -866,7 +880,7 @@ go mod init [module-path]
 ## go mod tidy——添加缺少的模块并删除未使用的模块
 
 ```shell
-go mod tidy [-e] [-v] [-x] [-go=version] [-compat=version]
+go mod tidy [-e] [-v] [-x] [-diff] [-go=version] [-compat=version]
 ```
 
 确保go.mod与模块中的源代码一致。它添加构建当前模块的包和依赖所必须的任何缺少的模块，删除不提供任何有价值的包的未使用的模块。它也会添加任何缺少的条目至go.mod并删除任何不需要的条目。
@@ -874,6 +888,7 @@ go mod tidy [-e] [-v] [-x] [-go=version] [-compat=version]
 标志：
 
 * -compat：保留被指明的主Go发布版本的“go”命令所需的任何额外的校验和，用以成功加载模块图，并且如果“go”命令的该版本会从不同的模块版本加载任何导入的包，则令tidy出错。默认情况下，tidy如同-compat标志被设置为被go.mod文件中的“go”指令指示的版本之前的版本一样运作。
+* -diff：不去修改go.mod或go.sum但反而打印必需的修改为合并差异格式（unified diff）。如果差异不为空，其以非零码退出。
 * -e：即使有加载包时遇到的错误仍尝试继续。
 * -go：更新go.mod文件中的“go”指令为给定的版本，其可能改变go.mod文件中哪些模块依赖被保留为显式的要求。（Go版本1.17及更高版本保留更多的要求以为了支持延迟模块加载。）
 * -v：打印被删除的模块的信息至标准错误输出。
@@ -962,6 +977,28 @@ run的退出状态不是编译的二进制文件的退出状态。
 
 参阅：go build。
 
+# go telemetry——管理遥测数据和设置
+
+```shell
+go telemetry [off|local|on]
+```
+
+用来管理Go遥测数据和设置。
+
+可在三种模式之一：off、local或on。
+
+当在local模式时，计数器数据被写入至本地文件系统，但不会被上传至远程服务器。
+
+当为off时，本地计数器数据既不被收集也不被上传。
+
+当为on时，遥测数据被写入至本地文件系统并定期地发送至[https://telemetry.go.dev/](https://telemetry.go.dev/)。上传的数据被用来帮助改进Go工具链和相关的工具，且其将作为公共数据集的一部分被发布。
+
+更多详情，参阅[https://telemetry.go.dev/privacy](https://telemetry.go.dev/privacy)。此数据收集时符合谷歌隐私政策（[https://policies.google.com/privacy](https://policies.google.com/privacy)）。
+
+要查看当前的遥测模式，运行“go telemetry”。要禁止遥测上传，但保留本地数据收集，运行“go telemetry local”。要都启用收集和上传，运行“go telemetry on”。要都禁止收集和上传，运行“go telemetry off”。
+
+关于遥测的更多信息参阅[https://go.dev/doc/telemetry](https://go.dev/doc/telemetry)。
+
 # go test——测试包
 
 ```shell
@@ -999,7 +1036,7 @@ go test以两种不同的模式运行：
 
 只在包列表模式，go test缓存成功的包测试结果来避免不必要的测试重复运行。当测试的结果可以从缓存恢复时，go test将重新展示之前的输出而不是再次运行测试二进制文件。当这种情况发生时，go test在概要行中打印“(cached)”取代消耗的时间。
 
-缓存匹配的规则为，运行只涉及相同的测试二进制文件，且命令行中的标志完全来自一个受限的“可缓存”测试标志集合，定义为-benchtime、-cpu、-list、-parallel、-run、-short、-timeout、-failfast和-v。如果go test的运行有任何不在这个集合中的测试或非测试标志，结果是不被缓存的。要禁用测试缓存，使用可缓存标志以外的测试标志或参数。显式禁用测试缓存的惯用方式为使用-count=1。在包源代码根目录（通常为$GOPATH）内打开文件或查询环境变量的测试只匹配将来的文件和环境变量未改变的测试运行。缓存的测试结果被视为立即执行的，因此一个成功的包测试结果将被缓存且重用时忽略-timeout设置。
+缓存匹配的规则为，运行只涉及相同的测试二进制文件，且命令行中的标志完全来自一个受限的“可缓存”测试标志集合，定义为-benchtime、-cpu、-list、-parallel、-run、-short、-timeout、-failfast、-fullpath和-v。如果go test的运行有任何不在这个集合中的测试或非测试标志，结果是不被缓存的。要禁用测试缓存，使用可缓存标志以外的测试标志或参数。显式禁用测试缓存的惯用方式为使用-count=1。在包源代码根目录（通常为$GOPATH）内打开文件或查询环境变量的测试只匹配将来的文件和环境变量未改变的测试运行。缓存的测试结果被视为立即执行的，因此一个成功的包测试结果将被缓存且重用时忽略-timeout设置。
 
 除了构建标志，“go test”自身处理的标志还有：
 
@@ -1141,14 +1178,22 @@ edit提供一个编辑go.work的命令行接口，主要给工具或脚本使用
 * -dropuse=path：从go.work文件的模块目录集合中删除use指令。
 * -fmt：重新格式化go.work文件，不作其他改变。使用或重写go.work文件的任何其他修改也意味着这种重新格式化。需要该标志的唯一情形是没有指定其它标志，如“go work edit -fmt”。
 * -go=version：设置期望的Go语言版本。
+* -godebug=key=value：添加godebug key=value行，替换任何带有给定key的存在的godebug行。
+* -dropgodebug=key：删除任何带有给定key的存在的godebug行。
 * -json：以JSON格式打印最终的go.work，而不是将其写回go.work。JSON输出对应于这些Go类型：
 
 	```go
 	type GoWork struct {
 		Go        string
 		Toolchain string
+		Godebug   []Godebug
 		Use       []Use
 		Replace   []Replace
+	}
+	
+	type Godebug struct {
+		Key   string
+		Value string
 	}
 	
 	type Use struct {
@@ -1217,7 +1262,7 @@ go work use [-r] [moddirs]
 
 标志：
 
-* -r：递归地搜索在参数目录中的模块，且use命令如同每个目录都被指定为参数一样工作：亦即，对存在的目录use指令将被添加，对不存在的目录将被删除。
+* -r：递归地搜索在参数目录中的模块，且use命令如同每个目录都被指定为参数一样地工作。
 
 更多信息参阅于[https://go.dev/ref/mod#workspaces](https://go.dev/ref/mod#workspaces)的工作区参考。
 
@@ -1242,6 +1287,8 @@ go work vendor [-e] [-v] [-o outdir]
 ```go
 //go:build
 ```
+
+构建约束也可被用于降级用来编译文件的语言版本。
 
 约束可以出现在任何类型的源文件中（不只是Go），但它们必须出现在文件的顶部附近，在其前面只有空行或其它注释。这些规则意味着在Go文件中构建约束必须出现在package语句之前。
 
@@ -1287,14 +1334,16 @@ beta或次版本（译注：不是修订版本？）的发布版本没有单独�
 已定义的体系结构特性构建标记为：
 
 * 对GOARCH=386，GO386=387和GO386=sse2分别设置386.387和386.sse2构建标记。
-* 对GOARCH=amd64，GOAMD64=v1、v2和v3对应amd64.v1、amd64.v2和amd64.v3特性构建标记。
-* 对GOARCH=arm，GOARM=5、6和7对应 arm.5、arm.6和arm.7特性构建标记。
-* 对GOARCH=mips或mipsle，GOMIPS=hardfloat和softfloat对应mips.hardfloat和mips.softfloat（或mipsle.hardfloat和mipsle.softfloat）特性构建标记。
-* 对GOARCH=mips64或mips64le，GOMIPS64=hardfloat和softfloat对应mips64.hardfloat和mips64.softfloat（或mips64le.hardfloat或mips64le.softfloat）特性构建标记。
-* 对GOARCH=ppc64或ppc64le，GOPPC64=power8、power9和power10对应ppc64.power8、ppc64.power9和ppc64.power10（或ppc64le.power8、ppc64le.power9和ppc64le.power10）特性构建标记。
+* 对GOARCH=amd64，GOAMD64=v1、v2和v3对应于amd64.v1、amd64.v2和amd64.v3特性构建标记。
+* 对GOARCH=arm，GOARM=5、6和7对应于arm.5、arm.6和arm.7特性构建标记。
+* 对GOARCH=arm64，GOARM64=v8.{0-9}和v9.{0-5}对应于arm64.v8.{0-9}和arm64.v9.{0-5}特性构建标记。
+* 对GOARCH=mips或mipsle，GOMIPS=hardfloat和softfloat对应于mips.hardfloat和mips.softfloat（或mipsle.hardfloat和mipsle.softfloat）特性构建标记。
+* 对GOARCH=mips64或mips64le，GOMIPS64=hardfloat和softfloat对应于mips64.hardfloat和mips64.softfloat（或mips64le.hardfloat或mips64le.softfloat）特性构建标记。
+* 对GOARCH=ppc64或ppc64le，GOPPC64=power8、power9和power10对应于ppc64.power8、ppc64.power9和ppc64.power10（或ppc64le.power8、ppc64le.power9和ppc64le.power10）特性构建标记。
+* 对GOARCH=riscv64，GORISCV64=rva20u64和rva22u64对应于riscv64.rva20u64和riscv64.rva22u64构建标记。
 * 对GOARCH=wasm，GOWASM=satconv和signext对应wasm.satconv和wasm.signext特性构建标记。
 
-对GOARCH=amd64、arm、ppc64和ppc64le，一个特定的特性等级也为所有之前的等级设置特性构建标记。例如，GOAMD64=v2设置amd64.v1和amd64.v2特性标记。这保证使用v2特性的代码在引入GOAMD64=v4时能继续编译。处理特定特性等级缺失的代码应使用否定：
+对GOARCH=amd64、arm、ppc64、ppc64le和riscv64，一个特定的特性等级也为所有之前的等级设置特性构建标记。例如，GOAMD64=v2设置amd64.v1和amd64.v2特性标记。这保证使用v2特性的代码在引入GOAMD64=v4时能继续编译。处理特定特性等级缺失的代码应使用否定：
 
 ```go
 //go:build !amd64.v2
@@ -1323,6 +1372,8 @@ beta或次版本（译注：不是修订版本？）的发布版本没有单独�
 命名文件为dns_windows.go将令其只在为Windows构建包时被包含；类似地，math_386.s将只在为32位x86构建包时被包含。
 
 Go版本1.16和更早的版本为构建约束使用不同的语法，带有“// +build”前缀。当遇到旧的语法时，gofmt命令将添加一个等价的//go:build约束。
+
+在以Go版本号1.21或之后的模块中，如果文件的构建约束有对Go主发布的措辞，编译文件时使用的语言版本号将为被构建约束表明的最小版本号。
 
 # buildmode主题——构建模式
 
@@ -1425,11 +1476,13 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 体系结构特定的环境变量：
 
 * GO386：对GOARCH=386，如何实现浮点指令。有效值为sse2（默认）、softfloat。
-* GOAMD64：对GOARCH=amd64，要为之编译的微体系结构级别。有效值为v1（默认）、v2、v3、v4。参阅[https://golang.org/wiki/MinimumRequirements#amd64](https://golang.org/wiki/MinimumRequirements#amd64)。
+* GOAMD64：对GOARCH=amd64，要为之编译的微体系结构级别。有效值为v1（默认）、v2、v3、v4。参阅https://golang.org/wiki/MinimumRequirements#amd64。
 * GOARM：对GOARCH=arm，要为之编译的ARM体系结构。有效值为5、6、7。值可以后跟一个选项，指定如何实现浮点指令。有效的选项为,softfloat（对5的默认值）和,hardfloat（对6和7的默认值）。
+* GOARM64：对GOARCH=arm64，要为之编译的ARM64体系结构。有效值为v8.0（默认）、v8.{1-9}、v9.{0-5}。值可以后跟一个选项，指定被目标硬件实现的扩展。有效的选项为,lse和,crypto。注意有些扩展从某个GOARM64版本起被默认启用；例如，lse从v8.1起被默认启用。
 * GOMIPS：对GOARCH=mips{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
 * GOMIPS64：对GOARCH=mips64{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
 * GOPPC64：对GOARCH=ppc64{,le}，目标ISA（指令集架构，Instruction Set Architecture）。有效值为power8（默认）、power9、power10。
+* GORISCV64：对GOARCH=riscv64，要为之编译的RISC-V用户模式应用程序配置。有效值为rva20u64（默认）、rva22u64。参阅https://github.com/riscv/riscv-profiles/blob/main/src/profiles.adoc。
 * GOWASM：对GOARCH=wasm，要使用的实验性WebAssembly特性的逗号分隔的列表。有效值为satconv、signext。
 
 与代码覆盖率一起使用的环境变量：
@@ -1441,7 +1494,6 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 * GCCGOTOOLDIR：如果设置，表示在哪可以找到gccgo工具，例如cgo。默认值基于gccgo是怎么配置的。
 * GIT_ALLOW_PROTOCOL：由Git定义。允许与git fetch/clone一起使用的冒号分隔的方案（scheme）列表。如果设置，任何未明确提及的方案会被“go get”认为是不安全的。因为该变量是被Git定义，默认值不可以使用“go env -w”设置。
 * GOEXPERIMENT：要启用或禁用的工具链试验特性的逗号分隔列表。可用的试验特性列表可能随着时间随意地改变。当前有效值参阅src/internal/goexperiment/flags.go。警告：此变量提供给Go工具链自身的开发和测试。在该用途之外使用是不支持的。
-* GOROOT_FINAL：已安装的Go树的根，用在当其安装在其构建位置以外的地方时。堆栈跟踪中的文件名从GOROOT重写为GOROOT_FINAL。
 * GO_EXTLINK_ENABLED：当与使用cgo的代码一起使用-linkmode=auto时，链接器是否应该使用外部链接模式。设为0禁用外部链接模式，1为启用之。
 
 从“go env”可获得的附加信息但不是从环境变量读取的：
@@ -1853,7 +1905,7 @@ GOPRIVATE环境变量也被用来为GOVCS环境变量定义“public”和“pri
 
 以下标志也会被“go test”识别并能用来在执行期间对测试进行性能分析：
 
-* -benchmem：为基准测试打印内存分配统计数据。
+* -benchmem：为基准测试打印内存分配统计数据。在C中或使用C.malloc造成的分配不会被计算。
 * -blockprofile block.out：当所有测试完成时写入goroutine阻塞性能分析至指定的文件。会如同-c（译注：go test的标志）那样写入测试二进制。
 * -blockprofilerate n：通过使用n调用runtime.SetBlockProfileRate来控制在goroutine阻塞性能分析中提供的详细信息。参阅“go doc runtime.SetBlockProfileRate”。性能分析器旨在程序花费于阻塞平均每n纳秒采样一次阻塞事件。默认情况下，如果-test.blockprofile（译注：即-blockprofile标志）设置时不带本标志，所有阻塞事件都会被记录，等同于-test.blockprofilerate=1。
 * -coverprofile cover.out：在所有测试通过后写入覆盖率性能分析至文件。会设置-cover。
