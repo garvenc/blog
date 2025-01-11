@@ -1,10 +1,15 @@
-本文更新于2024-08-17。
+本文更新于2024-12-26。
 
 [TOC]
 
 # C/C++
 
 * [生成并调用so动态库](https://www.cnblogs.com/garvenc/p/build_and_call_so_library.html)
+
+# Dart
+
+* [Dart学习笔记：语法](https://www.cnblogs.com/garvenc/p/18622392/dart_learning_syntax)
+* [Dart学习笔记：API](https://www.cnblogs.com/garvenc/p/18625294/dart_learning_api)
 
 # Docker
 
@@ -21,6 +26,12 @@
 * [EMQX学习笔记：配置文件](https://www.cnblogs.com/garvenc/p/emqx_learning_configuration_file.html)
 * [EMQX学习笔记：命令行工具](https://www.cnblogs.com/garvenc/p/emqx_learning_cli.html)
 * [EMQX学习笔记：常用功能](https://www.cnblogs.com/garvenc/p/emqx_learning_useful_features.html)
+
+# Flutter
+
+* [Flutter学习笔记：开发环境搭建](https://www.cnblogs.com/garvenc/p/18628615/flutter_learning_development_environment)
+* [Flutter学习笔记：pubspec.yaml](https://www.cnblogs.com/garvenc/p/18631368/flutter_learning_pubspec_yaml)
+* [Flutter学习笔记：API](https://www.cnblogs.com/garvenc/p/18634112/flutter_learning_api)
 
 # FreeSWITCH
 
