@@ -1,4 +1,4 @@
-本文更新于2024-06-12，使用nginx 1.16。
+本文更新于2024-11-29，使用nginx 1.16。
 
 [TOC]
 
@@ -70,7 +70,7 @@ http {
 
 ## http.server.listen
 
-HTTP服务监听的端口。可指定使用HTTPS（SSL）。多个http.server的listen端口可以相同，使用http.server.server_name进行区分。
+HTTP服务监听的端口。可指定使用HTTPS（SSL）。多个http.server的listen端口可以相同，但需使用不同的http.server.server_name进行区分。
 
 ```
 http {

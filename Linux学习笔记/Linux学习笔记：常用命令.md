@@ -1,4 +1,4 @@
-本文更新于2024-09-20。
+本文更新于2024-12-13。
 
 [TOC]
 
@@ -1397,11 +1397,11 @@ passwd [-lu] USERNAME
 切换用户。
 
 ```shell
-su [- -lmp -c COMMAND] USERNAME
+su [- -lmp -c COMMAND [ARG[ ...]]] USERNAME
 ```
 
 * -,-l：使用login shell方式登录，会读取新用户的环境变量。
-* -c COMMAND：以新用户身份执行命令。
+* -c COMMAND [ARG[ ...]]：以新用户身份执行命令。
 * -m,-p：保留原用户的环境变量。
 
 ## sudo
@@ -1409,7 +1409,7 @@ su [- -lmp -c COMMAND] USERNAME
 以其他用户身份执行命令。
 
 ```shell
-sudo [-b -u USERNAME] COMMAND
+sudo [-b -u USERNAME] COMMAND [ARG[ ...]]
 sudo -s
 ```
 
@@ -1566,7 +1566,7 @@ jobs [-lrs]
 使工作与终端机无关，能脱机运行。
 
 ```shell
-nohup COMMAND
+nohup COMMAND [ARG[ ...]]
 ```
 
 nohup不支持shell内置的命令。通常与&配合使用。
@@ -1691,9 +1691,70 @@ pstree [-ApuU]
 * -u：同时列出进程用户名。
 * -U：进程树以UTF-8字符连接。
 
-# 系统资源
+# 服务
 
-top也可查看系统资源使用情况，其显示值与下面很多命令均一致。
+## service
+
+服务管理。新系统应使用`systemctl`。
+
+```shell
+service SERVICE restart
+service SERVICE start
+service SERVICE status
+service SERVICE stop
+```
+
+子命令：
+
+* restart：重启服务。
+* start：启动服务。
+* status：查看服务状态。
+* stop：停止服务。
+
+## systemctl
+
+systemd系统服务管理。
+
+单元文件存放目录按优先级从高至低为：`/etc/systemd/system/`（系统管理员安装的单元）、`/usr/lib/systemd/system/`或`/lib/systemd/system/`（软件包安装的单元）。
+
+```shell
+systemctl enable UNIT
+systemctl daemon-reload
+systemctl disable UNIT
+systemctl is-enabled UNIT
+systemctl list-unit-files
+systemctl [list-units] [--all --failed --state STATE[,...] --type TYPE]
+systemctl mask UNIT
+systemctl reload UNIT
+systemctl restart UNIT
+systemctl start UNIT
+systemctl status [UNIT]
+systemctl stop UNIT
+systemctl umask UNIT
+```
+
+子命令：
+
+* enable：设置单元开机自动启动。
+* daemon-reload：重新加载systemd。扫描新的或有变动的单元配置。
+* disable：取消单元开机自动启动。
+* is-enabled：查看单元是否未开机自动启动。
+* list-unit-files：查看所有已安装单元。
+* list-units：查看单元。默认子命令。
+* mask：禁用单元。禁用后，也不能间接启动。
+* reload：重新加载单元配置。
+* restart：重启单元。
+* start：启动单元。
+* status：查看单元状态。如不指定单元，则以树形查看单元。
+* stop：停止单元。
+* umask：取消禁用单元。
+
+* --all：查看所有单元。
+* --failed：查看执行失败的单元。
+* --state STATE[,...]：查看指定状态的单元：可为active、failed、running、enabled。
+* --type TYPE：查看指定类型的单元。可为service。
+
+# 系统资源
 
 ## free
 
@@ -2037,6 +2098,8 @@ nc [-tuv] HOST PORT
 * -t：使用TCP。如不指定-t和-u，则默认为TCP。
 * -u：使用UDP。如不指定-t和-u，则默认为TCP。
 * -v：显示详细信息。更详细的信息可使用-vv。
+* -w SECOND：连接超时。
+* -z：零I/O模式，只报告连接状态。
 
 ## netcat
 
@@ -2149,16 +2212,19 @@ ss [-alnpstu]
 网络抓包工具。
 
 ```shell
-tcpdump [-Anq -v[...] -s N -i ETH -w FILENAME] [CAPTUREFILTER]
+tcpdump [-Anq -v[...] -C SIZE -G SECOND -s N -i ETH -w FILENAME -W FILECOUNT] [CAPTUREFILTER]
 ```
 
 * -A：以ASCII方式输出。
+* -C SIZE：轮替文件的大小。单位为m（1000*1000字节）。
+* -G SECOND：文件轮替的时间间隔。
 * -i ETH：指定网络接口。
 * -n：显示IP而不是主机名。
 * -q：减少输出内容。
 * -s N：从一个包中截取的字节数。0表示不限制。
 * -v[...]：显示详细的信息。v越多越详细。
 * -w FILENAME：数据包写入的文件名。
+* -W FILECOUNT：轮替文件的数量。
 
 CAPTUREFILTER捕获过滤规则的示例如下（可以使用`and`、`or`、`()`进行组合）：
 
@@ -2288,69 +2354,6 @@ wget [-q -O FILENAME] URL
 * -q：安静模式，关闭打印输出。
 
 URL可放在参数的前面。
-
-# 服务
-
-## service
-
-服务管理。新系统应使用`systemctl`。
-
-```shell
-service SERVICE restart
-service SERVICE start
-service SERVICE status
-service SERVICE stop
-```
-
-子命令：
-
-* restart：重启服务。
-* start：启动服务。
-* status：查看服务状态。
-* stop：停止服务。
-
-## systemctl
-
-systemd系统服务管理。
-
-单元文件存放目录按优先级从高至低为：`/etc/systemd/system/`（系统管理员安装的单元）、`/usr/lib/systemd/system/`或`/lib/systemd/system/`（软件包安装的单元）。
-
-```shell
-systemctl enable UNIT
-systemctl daemon-reload
-systemctl disable UNIT
-systemctl is-enabled UNIT
-systemctl list-unit-files
-systemctl [list-units] [--all --failed --state STATE[,...] --type TYPE]
-systemctl mask UNIT
-systemctl reload UNIT
-systemctl restart UNIT
-systemctl start UNIT
-systemctl status [UNIT]
-systemctl stop UNIT
-systemctl umask UNIT
-```
-
-子命令：
-
-* enable：设置单元开机自动启动。
-* daemon-reload：重新加载systemd。扫描新的或有变动的单元配置。
-* disable：取消单元开机自动启动。
-* is-enabled：查看单元是否未开机自动启动。
-* list-unit-files：查看所有已安装单元。
-* list-units：查看单元。默认子命令。
-* mask：禁用单元。禁用后，也不能间接启动。
-* reload：重新加载单元配置。
-* restart：重启单元。
-* start：启动单元。
-* status：查看单元状态。如不指定单元，则以树形查看单元。
-* stop：停止单元。
-* umask：取消禁用单元。
-
-* --all：查看所有单元。
-* --failed：查看执行失败的单元。
-* --state STATE[,...]：查看指定状态的单元：可为active、failed、running、enabled。
-* --type TYPE：查看指定类型的单元。可为service。
 
 # 证书
 
@@ -2875,12 +2878,20 @@ play [-e ENCODING -r RATE -t TYPE] FILENAME
 alias NEW=OLD
 ```
 
+## clear
+
+清空屏幕打印。
+
+```shell
+clear
+```
+
 ## echo
 
 打印回显。
 
 ```shell
-echo [-en] CONTENT[ ...]
+echo [-en] [CONTENT[ ...]]
 ```
 
 * -e：使用转义字符。CONTENT可使用`"\ESC[BACKGROUND;FOREGROUND;PROPERTYm"`（如："\e[;31m我们\e[0m"）来控制后续的输出颜色。BACKGROUND、FOREGROUND、PROPERTY均可省略，并需省略多余的分号。
@@ -3020,12 +3031,22 @@ tee [-a] FILENAME[ ...]
 
 * -a：以追加方式写入文件。
 
+## timeout
+
+限制命令的执行时长。
+
+```shell
+timeout DURATION COMMAND [ARG[ ...]]
+```
+
+DURATION可使用s/m/h/d格式，默认为s。
+
 ## trap
 
 捕获信号后执行命令。
 
 ```shell
-trap COMMAND SIGNAL
+trap COMMAND [ARG[ ...]] SIGNAL
 ```
 
 ## unalias
@@ -3041,7 +3062,7 @@ unalias NAME
 生成命令的参数。
 
 ```shell
-xargs COMMAND STDIN
+xargs COMMAND [ARG[ ...]] STDIN
 ```
 
 参数以空白符分隔。

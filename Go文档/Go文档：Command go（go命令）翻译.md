@@ -1,4 +1,4 @@
-本文更新于2024-11-09。
+本文更新于2024-12-14。
 
 翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为go1.23.0。
 
@@ -638,7 +638,7 @@ golang.org/x/net/html
 * -json：包数据以JSON格式打印，而不是使用template包的格式。JSON标志能可选地被提供一组逗号分隔的输出时的必填字段名。如果这样，那些必填字段将总是出现在JSON输出中，但其它可能被忽略来节省计算JSON结构的工作。
 * -m：列出模块而不是包。
 
-	当列出模块时，-f标志仍然指定一个应用于Go结构体的格式模板，但现在为一个Module结构体：
+	当列出模块时，-f标志仍然指定应用至一个Go结构体的格式模板，但现在是一个Module结构体：
 	
 	```go
 	type Module struct {
@@ -649,7 +649,7 @@ golang.org/x/net/html
 		Replace    *Module      // 被此模块替代
 		Time       *time.Time   // 版本号创建的时间
 		Update     *Module      // 可获得的更新（当使用-u时）
-		Main       bool         // 是否为主模块？
+		Main       bool         // 其是否为主模块？
 		Indirect   bool         // 模块只是被主模块间接依赖
 		Dir        string       // 保存文件本地副本的目录，如果有的话
 		GoMod      string       // 描述模块的go.mod文件的路径，如果有的话
@@ -670,7 +670,7 @@ golang.org/x/net/html
 	
 	如果模块在模块缓存中或如果-modfile标志被使用，GoMod指向的文件可能在模块目录之外。
 	
-	默认的输出是打印模块路径，然后是关于版本和替代的信息，如果有的话。例如，“go list -m all”可能打印：
+	默认的输出是打印模块路径，然后是关于版本号和替代的信息，如果有的话。例如，“go list -m all”可能打印：
 	
 	```
 	my/main/module
@@ -678,9 +678,9 @@ golang.org/x/net/html
 	rsc.io/pdf v0.1.1
 	```
 	
-	Module结构体有一个String方法，用以格式化输出的这一行，因此默认格式等同于-f '{{.String}}'。
+	Module结构体有一个格式化此输出行的String方法，因此默认格式等同于-f '{{.String}}'。
 	
-	注意，当模块被替代，其Replace字段描述替代的模块，其Dir字段设置为替代模块的源代码的目录，如果有的话。（也就是说，如果Replace不为nil，那么Dir设置为Replace.Dir，无法访问被替代的源代码。）
+	注意当模块被替代时，其Replace字段描述替代的模块，其Dir字段——如果有的话——被设置为替代的源代码。（亦即，如果Replace不为nil，那么Dir设置为Replace.Dir，不访问被替代的源代码。）
 	
 	list -m的参数会被解析为模块的列表，而不是包的列表。主模块是包含当前目录的模块。活跃的（active）模块为主模块及其依赖。不带参数，list -m显示主模块。带参数，list -m显示参数指定的模块。任何活跃的模块都可以通过其模块路径指定。特殊的模式“all”指定所有活跃的模块，首先是主模块，然后是使用模块路径排序的依赖。包含“...”的模式指定其模块路径匹配该模式的活跃模块。path@version形式的查询指定该查询的结果，不限于活跃的模块。关于模块查询的更多信息，参阅“go help modules”。
 	
@@ -688,7 +688,7 @@ golang.org/x/net/html
 * -retracted：报告关于被撤回的模块版本的信息。当-retracted与-f或-json一起使用，Retracted字段将被设置为一个字符串用以解释为什么版本被撤回。该字符串从模块的go.mod文件中的retract指令的注释中提取。当-retracted和-versions一起使用时，被撤回的版本和未被撤回的版本一起列出。-retracted标志可与或者不与-m一起使用。
 * -reuse：当使用-m时，-reuse=old.json标志接受包含前一次以相同的修饰标志（例如-r、-retracted和-versions）集合进行的“go list -m -json”调用的JSON输出的文件名。go命令可使用此文件来决定自前一次调用以来模块没有变化，并避免重新下载关于它的信息。未被重新下载的模块将通过设置Reuse字段为true来在新输出中标记。通常模块缓存自动地提供这种重用；-reuse标志在不保存模块缓存的系统上是有用的。
 * -test：不只是报告指定名字的包，也报告它们的测试二进制文件（对带有测试的包），从而将测试二进制文件是怎样构建的准确地传递给源代码分析工具。测试二进制文件的报告的导入路径为包的导入路径添加“.test”后缀，如“math/rand.test”。当构建测试时，有时候需要重新构建测试特定的某些依赖（最常见的是被测试的包本身）。为特定的测试二进制文件重新编译的包的报告的导入路径，会添加一个空格和以括号括起的测试二进制文件的名字，如“math/rand [math/rand.test]”或“regexp [sort.test]”。ForTest也会设置为正在被测试的包名（在此前的例子中为“math/rand”或“sort”）。
-* -u：添加关于可用升级的信息。当给定模块的最后版本比当前模块较新时，-u设置Module的Update字段为关于较新模块的信息。如果当前版本被撤回，-u也会设置Module的Retracted字段。通过在当前版本后面格式化以括号括起的较新版本，Module的String方法表示一个可获得的升级。如果版本被撤回，其后跟字符串“(retracted)”。例如，“go list -m -u all”可能打印：
+* -u：添加关于可用升级的信息。当给定模块的最新版本比当前模块较新时，list -u设置Module的Update字段为关于较新模块的信息。如果当前版本被撤回，-u也会设置Module的Retracted字段。通过在当前版本号后面格式化以括号括起的较新版本，Module的String方法表示一个可获得的升级。如果版本被撤回，其后跟字符串“(retracted)”。例如，“go list -m -u all”可能打印：
 	
 	```
 	my/main/module
@@ -696,8 +696,8 @@ golang.org/x/net/html
 	rsc.io/pdf v0.1.1 (retracted) [v0.1.2]
 	```
 	
-	（对工具来说，“go list -m -u -json all”可能更便于解析。）
-* -versions：设置Module的Versions字段为该模块的所有已知版本的列表，根据语义版本进行排序，从最早至最后。该标志也会改变默认的输出格式来显示模块路径，其后接着以空格分隔的版本列表。
+	（对于工具，“go list -m -u -json all”可能更便于解析。）
+* -versions：设置Module的Versions字段为该模块的所有已知版本号的列表，根据语义版本号排序，从最早至最后。该标志也会改变默认的输出格式来显示模块路径，其后跟着以空格分隔的版本号列表。
 
 关于构建标志的更多信息，参阅“go help build”。
 
@@ -738,31 +738,31 @@ download下载指定名字的模块，可为选择主模块依赖的模块匹配
 
 不带参数，download应用于在主模块中构建和测试包所需的模块：这些模块被主模块明确地依赖，如果其为“go 1.17”或更高；或所有传递性依赖的模块，如果其为“go 1.16”或更低。
 
-go命令将在常规执行期间根据需要自动下载模块。“go mod download”命令主要用于预填充本地缓存或计算Go模块代理的结果。
+go命令将在平常的执行期间按需自动地下载模块。“go mod download”命令主要对预填充本地缓存或计算Go模块代理的结果有用。
 
 默认情况下，download不向标准输出写入内容。其可能打印进度信息和错误至标准错误输出。
 
 标志：
 
-* -json：打印一系列JSON对象至标准输出，描述每个下载的模块（或失败），相当于该Go结构体：
+* -json：打印一系列JSON对象至标准输出，描述每个下载的模块（或失败），对应此Go结构体：
 	
 	```go
 	type Module struct {
 		Path     string // 模块路径
-		Query    string // 对应此版本的版本号查询
-		Version  string // 模块版本
+		Query    string // 对应此版本号的版本号查询
+		Version  string // 模块版本号
 		Error    string // 加载模块时的错误
 		Info     string // 缓存的.info文件绝对路径
 		GoMod    string // 缓存的.mod文件绝对路径
 		Zip      string // 缓存的.zip文件绝对路径
 		Dir      string // 缓存的源文件根目录绝对路径
-		Sum      string // 路径、版本的校验和（如go.sum中所示）
+		Sum      string // 路径、版本号的校验和（如go.sum中所示）
 		GoModSum string // go.mod的校验和（如go.sum中所示）
 		Origin   any    // 模块来源
-		Reuse    bool   // 重用旧模块信息是安全的
+		Reuse    bool   // 旧模块信息的重用是安全的
 	}
 	```
-* -reuse：接受包含前一次“go mod download -json”调用的JSON输出的文件名。go命令可使用此文件来决定自前一次调用以来模块没有变化，并避免重新下载它。未被重新下载的模块将通过设置Reuse字段为true来在新输出中标记。通常模块缓存自动地提供这种重用；-reuse标志在不保存模块缓存的系统上是有用的。
+* -reuse：接受包含前一次“go mod download -json”调用的JSON输出的文件的名字。go命令可使用此文件来确定自前一次调用以来模块没有变化，并避免重新下载它。未被重新下载的模块将通过设置Reuse字段为true来在新输出中标记。通常模块缓存自动地提供这种重用；-reuse标志在不保存模块缓存的系统上是有用的。
 * -x：同时打印实际执行的命令。
 
 关于“go mod download”的更多信息，参阅[https://golang.org/ref/mod#go-mod-download](https://golang.org/ref/mod#go-mod-download)。
@@ -775,20 +775,20 @@ go命令将在常规执行期间根据需要自动下载模块。“go mod downl
 go mod edit [editing flags] [-fmt|-print|-json] [go.mod]
 ```
 
-edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用。它只读取go.mod；不查找涉及模块的信息。默认情况下，edit读写主模块的go.mod文件，但也可以在标志后指定不同的目标文件。
+edit为编辑go.mod提供一个命令行接口，主要被工具或脚本使用。它只读取go.mod；不查找涉及模块的信息。默认情况下，edit读写主模块的go.mod文件，但可在编辑标志（editing flags）后指定不同的目标文件。
 
 标志：
 
 * -dropexclude=path@version：删除给定模块路径和版本的排除。
-* -dropgodebug=key：删除任何带有给定key的已存在的godebug行。
-* -dropreplace=old[@v]：删除给定模块路径和版本对的替代。如果@v省略，删除该模块不带版本的替代。
-* -droprequire=path：删除给定的模块路径依赖的模块。该标志主要提供给工具用以理解模块图。用户应该使用“go get path@none”，可令其它go.mod根据需要调整来满足其它模块施加的限制。
+* -dropgodebug=key：删除任何带有给定key的现存的godebug行。
+* -dropreplace=old[@v]：删除给定模块路径和版本号对的替代。如果@v被省略，左侧不带有版本号的替代被删除。
+* -droprequire=path：删除给定的模块路径依赖的模块。这些标志主要用于那些理解模块图的工具。用户应更喜欢“go get path@none”，可令其它go.mod根据需要调整来满足其它模块施加的限制。
 * -dropretract=version：删除对给定版本的撤回。version可能是类似“v1.2.3”的单个版本或类似“[v1.1.0,v1.1.9]”的闭区间。
 * -exclude=path@version：添加给定模块路径和版本的排除。注意如果排除已经存在-exclude=path@version是无操作的。
-* -fmt：重新格式化go.mod文件，不作其他改变。使用或重写go.mod文件的任何其他修改也意味着这种重新格式化。需要该标志的唯一情形是没有指定其它标志，如“go mod edit -fmt”。
-* -go=version：设置期望的Go语言版本。此标志主要用于那些理解Go版本依赖的工具。用户应更喜欢“go get go@version”。
-* -godebug=key=value：添加godebug key=value行，替换任何带有给定key的已存在的godebug行。
-* -json：以JSON格式打印最终的go.mod，而不是将其写回go.mod。JSON输出对应于这些Go类型：
+* -fmt：重新格式化go.mod文件，不作其他改变。这种重新格式化也被使用或重写go.mod文件的任何其他修改所隐含。此标志被需要的唯一时机是如果没有其它标志被指定，如同“go mod edit -fmt”。
+* -go=version：设置期望的Go语言版本号。此标志主要用于那些理解Go版本依赖的工具。用户应更喜欢“go get go@version”。
+* -godebug=key=value：添加godebug key=value行，替换任何带有给定key的现存的godebug行。
+* -json：以JSON格式打印最终的go.mod文件，而不是将其写回至go.mod。JSON输出对应于这些Go类型：
 
 	```go
 	type Module struct {
@@ -835,18 +835,18 @@ edit提供一个编辑go.mod的命令行接口，主要给工具或脚本使用�
 	}
 	```
 	表示单个版本（不是一个区间）的Retract条目将有设置为相同值的“Low”和“High”字段。
-* -module：修改模块路径（go.mod文件的模块行）。
-* -print：以其文本格式打印最终的go.mod，而不是将其写回go.mod。
-* -replace=old[@v]=new[@v]：添加给定模块路径和版本对的替代。如果old@v中的@v省略，则左侧不带版本的替代将被添加，应用于old模块路径的所有版本。如果new@v中的@v省略，新路径应为本地模块根目录，而不是模块路径。注意-replace覆盖old[@v]任何冗余的替代，因此省略@v将删除对特定版本的现有替代。
-* -require=path@version：添加给定的模块路径和版本依赖的模块。注意-require覆盖该路径任何已存在的依赖的模块。该标志主要提供给工具用以理解模块图。用户应该使用“go get path@version”，其可令其它go.mod根据需要调整来满足其它模块施加的限制。
-* -retract=version：添加对给定版本的撤回。version可能是类似“v1.2.3”的单个版本或类似“[v1.1.0,v1.1.9]”的闭区间。注意如果撤回已经存在-retract=version是无操作的。
-* -toolchain=name：设置要使用的Go工具链。此标志主要用于那些理解Go版本依赖的工具。用户应更喜欢“go get toolchain@version”。
+* -module：修改模块的路径（go.mod文件的module行）。
+* -print：以其文本格式打印最终的go.mod，而不是将其写回至go.mod。
+* -replace=old[@v]=new[@v]：添加给定模块路径和版本号对的替代。如果old@v中的@v被省略，则左侧不带版本号的替代将被添加，其应用于old模块路径的所有版本号。如果new@v中的@v被省略，新路径应为本地模块根目录，而不是模块路径。注意-replace为old[@v]覆盖任何冗余的替代，因此省略@v将删除对具体版本号的现有替代。
+* -require=path@version：添加给定的模块路径和版本依赖的模块。注意-require覆盖该路径上任何现存的依赖的模块。这些标志主要用于那些理解模块图的工具。用户应首选“go get path@version”，其令其它go.mod根据需要调整来满足被其它模块施加的限制。
+* -retract=version：添加对给定版本号的撤回。version可能是类似“v1.2.3”的单个版本号或类似“[v1.1.0,v1.1.9]”的闭区间。注意如果撤回已经存在-retract=version是无操作的。
+* -toolchain=name：设置要使用的Go工具链。此标志主要用于那些理解Go版本依赖的工具。用户应首选“go get toolchain@version”。
 
 -godebug、-dropgodebug、-require、-droprequire、-exclude、-dropexclude、-replace、-dropreplace、-retract、-dropretract编辑标志可以重复，根据给定的顺序应用修改。
 
 也提供-C、-n、-x构建标志。
 
-注意这只描述go.mod文件自身，不描述其他间接引用的模块。对于构建可使用的的模块的完整集合，使用“go list -m -json all”。
+注意这只描述go.mod文件自身，不描述被间接地引用的其它模块。对可用于构建的模块的完整集合，使用“go list -m -json all”。
 
 关于“go mod edit”的更多信息参阅[https://golang.org/ref/mod#go-mod-edit](https://golang.org/ref/mod#go-mod-edit)。
 
