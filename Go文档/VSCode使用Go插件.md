@@ -1,4 +1,4 @@
-本文更新于2024-09-06，使用VSCode 1.85.1、Go插件v0.42.0。
+本文更新于2025-02-05，使用VSCode 1.85.1、Go插件v0.44.0。
 
 # 安装
 
@@ -62,3 +62,10 @@ VSCode在加载代码时，因国内无法访问proxy.golang.org，当未自行�
 `configurations`中的元素可使用的字段有：
 
 * cwd：进程的运行目录。可为绝对路径或打开目录的相对路径。默认为`program`的值。
+
+# 命令
+
+使用“帮助->显示所有命令”（Ctrl+Shift+P）打开命令面板后，可使用的命令如下：
+
+* Go: Add Import：添加import行。
+* Go: Install/UPdate Tools：安装/更新Go插件的依赖工具。

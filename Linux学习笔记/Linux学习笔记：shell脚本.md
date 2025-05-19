@@ -1,4 +1,4 @@
-本文更新于2023-12-13。
+本文更新于2025-03-21。
 
 [TOC]
 
@@ -141,7 +141,7 @@ CONDITION可为条件判断式`[ OPTEST ]`或使用`&&`、`||`连接的多个条
 ## for
 
 ```shell
-for ((INIT;CONDITION;EACH))
+for ((INIT; CONDITION; EACH))
 do
 	DO
 done

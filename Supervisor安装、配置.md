@@ -1,8 +1,8 @@
-本文更新于2022-05-12。
-
-官方文档参阅：[http://supervisord.org/](http://supervisord.org/)
+本文更新于2025-04-11。
 
 [TOC]
+
+官方文档参阅：[http://supervisord.org/](http://supervisord.org/)
 
 # 安装
 
@@ -144,3 +144,4 @@ Debian中的配置文件为/etc/supervisor/supervisord.conf，配置文件目录
 * user=USER：执行命令使用的系统用户。
 * stdout_logfile=FILENAME：stdout的重定向日志文件。
 * stderr_logfile=FILENAME：stderr的重定向日志文件。
+* environment=KEY1=VALUE1,KEY2=VALUE2：环境变量列表。以逗号分隔，键与值以等号连接，每个键的值可使用双引号引起。

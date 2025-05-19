@@ -1,10 +1,17 @@
-本文更新于2024-12-10。
+本文更新于2025-05-16。
 
 官方文档：[https://go.dev/doc/devel/release](https://go.dev/doc/devel/release)
 
 [TOC]
 
-# *泛型*
+# *range*
+
+## go1.24.0 (2025-02-11)
+
+* go.mod增加tool指令。
+* map使用Swiss Tables重新实现。
+* 对FIPS 140-3合规性的支持。
+* encoding/json支持omitzero标签。
 
 ## go1.23.0 (2024-08-13)
 
@@ -25,6 +32,8 @@
 * 增加min、max、clear内置函数。
 * 明确包初始化顺序。
 * 增加log/slog、slices、maps、cmp包。
+
+# *泛型*
 
 ## go1.20 (2023-02-01)
 

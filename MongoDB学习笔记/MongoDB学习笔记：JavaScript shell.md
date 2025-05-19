@@ -1,4 +1,4 @@
-本文更新于2024-07-22，使用MongoDB 6.0.4。
+本文更新于2025-05-08，使用MongoDB 6.0.4。
 
 [TOC]
 
@@ -957,7 +957,7 @@ var RESULT_DOC = DBCOLLECTION.findAndModify({
 * query：查找规则。QUERY_DOC见`DBCollection.prototype.find`。
 * remove：true为删除文档，false为更新文档。默认为false。`remove`和`update`必须使用其一。
 * sort：排序规则。SORT_DOC见`DBQuery.prototype.sort`。
-* update：更新规则。DOC和MODIFIER_DOC见`DBCollection.prototype.update`。`remove`和`update`必须使用其一。
+* update：更新规则。DOC和MODIFIER_DOC见`DBCollection.prototype.updateMany`。`remove`和`update`必须使用其一。
 * upsert：是否执行upsert。
 
 ## DBCollection.prototype.findOne
@@ -992,7 +992,7 @@ var DOC = DBCOLLECTION.findOneAndUpdate(
 
 QUERY_DOC见`DBCollection.prototype.find`。
 
-MODIFIER_DOC见`DBCollection.prototype.update`。
+MODIFIER_DOC见`DBCollection.prototype.updateMany`。
 
 OPTION可使用以下字段：
 
@@ -1169,22 +1169,38 @@ SCALE_FACTOR为比例因子（scale factor），返回文档的字段数值会�
 * storageSize：集合占用的存储空间大小。包括文档占用的空间、文档间的间隔、索引占用的空间、集合两端预留的未使用空间。
 * totalIndexSize：所有索引的大小合计。相当于`indexSizes`各值的总和。
 
-## DBCollection.prototype.update
+## ~~DBCollection.prototype.update~~
 
 更新文档。
 
 ```js
-var WRITERESULT = DBCOLLECTION.update(QUERY_DOC, DOC <, BOOL_UPSERT <, BOOL_MANY>>);
 var WRITERESULT = DBCOLLECTION.update(QUERY_DOC, MODIFIER_DOC <, BOOL_UPSERT <, BOOL_MANY>>);
+var WRITERESULT = DBCOLLECTION.update(QUERY_DOC, DOC <, BOOL_UPSERT <, BOOL_MANY>>);
 ```
 
 不可更新`_id`字段。
 
 QUERY_DOC见`DBCollection.prototype.find`。
 
-可以将文档替换成DOC。
+MODIFIER_DOC见`DBCollection.prototype.updateMany`。也可将文档替换成DOC。
 
-也可以在MODIFIER_DOC使用更新修改器修改部分字段。更新修改器可使用：
+如BOOL_UPSERT为true（缺省为false），则执行upsert。即，查询条件QUERY_DOC匹配不到文档时，先使用QUERY_DOC创建文档，再使用MODIFIER_DOC或DOC修改文档。
+
+如BOOL_MANY为true（缺省为false），则更新所有匹配查询条件QUERY_DOC的文档，否则只更新第一个文档。
+
+返回`WriteResult`类型。
+
+## DBCollection.prototype.updateMany
+
+更新多个文档。
+
+```js
+var OBJ = DBCOLLECTION.updateMany(QUERY_DOC, MODIFIER_DOC);
+```
+
+QUERY_DOC见`DBCollection.prototype.find`。
+
+MODIFIER_DOC使用更新修改器修改部分字段。更新修改器可使用：
 
 * $inc：增加或减少键的值，键不存在则先创建为0。`$inc: {KEY: NUMBER <, ...>}`。只能用于数值类型的键。
 * $rename：重命名键。`$rename: {KEY: NEWKEY}`。
@@ -1192,7 +1208,7 @@ QUERY_DOC见`DBCollection.prototype.find`。
 * $setOnInsert：当更新需插入文档时，同时设置键的值；只更新不插入文档时，不进行设置。`$setOnInsert: {KEY: VALUE <, ...>}`。
 * $unset：删除键。`$unset: {KEY: 1 <, ...>}`。值是无关的。
 
-以及数组修改器：
+对数组字段可使用数组修改器：
 
 * $addToSet：将数组作为集合，保证元素不重复，向末尾推入元素，键不存在则先创建为空数组。`$addToSet: {ARR_KEY: ELEMENT|EACH_DOC <, ...>}`。只能用于数组类型的键。EACH_DOC可使用以下子操作符：
 	* $each：推入多个元素。`$each: [ELEMENT <, ...>]`。
@@ -1205,35 +1221,17 @@ QUERY_DOC见`DBCollection.prototype.find`。
 
 上述KEY等键可以使用a.b的形式指定内嵌文档（可为数组）的字段；可以使用a.INDEX的形式通过下标指定数组元素；若QUERY_DOC使用a.b进行查询，则可以通过定位操作符$以a.$的形式指定已匹配的数组元素，但只能更新第一个匹配的数组元素。
 
-如BOOL_UPSERT为true（缺省为false），则执行upsert。即，查询条件QUERY_DOC匹配不到文档时，先使用QUERY_DOC创建文档，再使用DOC或MODIFIER_DOC修改文档。
-
-如BOOL_MANY为true（缺省为false），则更新所有匹配查询条件QUERY_DOC的文档，否则只更新第一个文档。
-
-返回`WriteResult`类型。
-
-示例：
-
-```js
-DBCOLLECTION.update({firstname: "Tom"}, {$inc: {age: 1}});
-```
-
-## DBCollection.prototype.updateMany
-
-更新多个文档。
-
-```js
-var OBJ = DBCOLLECTION.updateMany(QUERY_DOC, MODIFIER_DOC);
-```
-
-QUERY_DOC见`DBCollection.prototype.find`。
-
-MODIFIER_DOC见`DBCollection.prototype.update`。
-
 返回包括以下字段：
 
 * acknowledged：是否已确认写入。
 * matchedCount：匹配的文档数量。
 * modifiedCount：修改的文档数量。
+
+示例：
+
+```js
+DBCOLLECTION.updateMany({firstname: "Tom"}, {$inc: {age: 1}});
+```
 
 ## DBCollection.prototype.updateOne
 
@@ -1245,7 +1243,7 @@ var OBJ = DBCOLLECTION.updateOne(QUERY_DOC, MODIFIER_DOC);
 
 QUERY_DOC见`DBCollection.prototype.find`。
 
-MODIFIER_DOC见`DBCollection.prototype.update`。
+MODIFIER_DOC见`DBCollection.prototype.updateMany`。
 
 返回包括以下字段：
 
