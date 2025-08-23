@@ -1,10 +1,10 @@
-本文更新于2025-02-05，使用VSCode 1.85.1、Go插件v0.44.0。
+本文更新于2025-08-07，使用VSCode 1.98.2、Go插件v0.48.0。
 
 # 安装
 
 1. 安装Go插件：
 
-	点击侧边栏的“扩展”图标（Ctrl+Shift+X）打开扩展面板，搜索“Go”，安装“Go”插件（Go for Visual Studio Code）。
+	点击图标打开侧边栏的“扩展”（Ctrl+Shift+X）面板，搜索“Go”，安装“Go”插件（Go for Visual Studio Code）。
 1. 安装Go插件的依赖工具：
 
 	1. 因国内无法访问proxy.golang.org，故需自行配置模块代理。可使用两种方法：
@@ -35,33 +35,28 @@ VSCode在加载代码时，因国内无法访问proxy.golang.org，当未自行�
 
 # 调试
 
-1. 使用上述方式启动VSCode并打开目录。
-1. 打开对应的.go文件，使用“运行->启动调试”（F5）启动调试。
+1. 使用上述方式启动VSCode。
+1. 使用“文件->打开文件夹...”（Ctrl+K Ctrl+O）打开工程目录。工程目录可为go.mod所在的目录，也可为其父目录。
+1. 使用“运行->添加配置...”，选择“Go: Launch Package	Debug/test the package of the open file”，会在被打开的目录中创建配置文件.vscode/launch.json。根据需要修改配置。此步骤如省略，则不使用配置进行调试。
+1. 点击图标打开侧边栏的“运行和调试”（Ctrl+Shift+D）面板，选择对应的配置。如未添加配置，则必需打开对应的.go文件。
+1. 使用“运行->启动调试”（F5）启动调试。
 1. 使用“运行->停止调试”（Shift+F5）停止调试。
 
-如需自定义调试配置，使用“运行->添加配置...”，选择“Go: Launch Package Debug/test the package of the open file”，则会在被打开的目录中创建配置文件.vscode/launch.json。文件内容如下：
+配置文件字段有：
 
-```json
-{
-    // 使用 IntelliSense 了解相关属性。
-    // 悬停以查看现有属性的描述。
-    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Launch Package",
-            "type": "go",
-            "request": "launch",
-            "mode": "auto",
-            "program": "${fileDirname}"
-        }
-    ]
-}
-```
+* configurations：配置列表。
+	* cwd：进程的运行目录。可为绝对路径或打开目录的相对路径。默认为`program`的值。
+	* mode
+	* name：配置名。用于在“运行和调试”面板中下拉选择。
+	* program：需编译运行的程序路径。可为.go文件或main包目录。
+	* request
+	* type
+* version
 
-`configurations`中的元素可使用的字段有：
+配置值可使用`${VARIABLE}`形式指定变量，可用的变量有：
 
-* cwd：进程的运行目录。可为绝对路径或打开目录的相对路径。默认为`program`的值。
+* ${fileDirname}：当前打开的文件的完整目录名。
+* ${workspaceFolder}：在 VS Code 中打开的文件夹的路径。
 
 # 命令
 

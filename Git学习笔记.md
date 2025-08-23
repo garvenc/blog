@@ -1,4 +1,4 @@
-本文更新于2024-08-26，使用git 2.19.0，操作系统为Windows 10。
+本文更新于2025-07-18，使用git 2.19.0，操作系统为Windows 10。
 
 官方中文文档：[https://git-scm.com/book/zh/v2](https://git-scm.com/book/zh/v2)。
 
@@ -745,7 +745,13 @@ git merge -Xtheirs COMMIT
 git merge --abort
 ```
 
-如有合并冲突，需使用`git mergetool`解决，然后执行`git add`和`git commit`。
+如有合并冲突，需使用`git mergetool`解决。
+
+处理完当前的合并冲突后，继续执行后续的合并：
+
+```shell
+git merge --continue
+```
 
 ## git merge-file
 
@@ -893,9 +899,9 @@ git rebase -i COMMIT
 git rebase --abort
 ```
 
-如有变基冲突，需使用`git mergetool`解决，然后执行`git add`和`git commit`。
+如有变基冲突，需使用`git mergetool`解决。
 
-处理完当前提交的变基冲突后，继续执行后续提交的变基：
+处理完当前的变基冲突后，继续执行后续的变基：
 
 ```shell
 git rebase --continue

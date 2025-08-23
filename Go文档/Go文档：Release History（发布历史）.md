@@ -1,10 +1,18 @@
-本文更新于2025-05-16。
+本文更新于2025-08-13。
 
 官方文档：[https://go.dev/doc/devel/release](https://go.dev/doc/devel/release)
 
 [TOC]
 
-# *range*
+# *json*
+
+## go1.25.0 (2025-08-12)
+
+* 支持仓库子目录作为模块根路径。
+* 容器感知的GOMAXPROCS。
+* 试验性的垃圾收集器greenteagc，减少10—40%开销。
+* 增加testing/synctest包。
+* 试验性的encoding/json/v2包。
 
 ## go1.24.0 (2025-02-11)
 
@@ -12,6 +20,8 @@
 * map使用Swiss Tables重新实现。
 * 对FIPS 140-3合规性的支持。
 * encoding/json支持omitzero标签。
+
+# *range*
 
 ## go1.23.0 (2024-08-13)
 
@@ -31,6 +41,7 @@
 
 * 增加min、max、clear内置函数。
 * 明确包初始化顺序。
+* go.mod增加toolchain指令。
 * 增加log/slog、slices、maps、cmp包。
 
 # *泛型*

@@ -1,6 +1,6 @@
-本文更新于2025-05-15。
+本文更新于2025-08-23。
 
-翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为go1.24.0。
+翻译自Command go官方文档（[https://golang.org/cmd/go/](https://golang.org/cmd/go/)，国内可使用[https://golang.google.cn/cmd/go/](https://golang.google.cn/cmd/go/)；同理，文中golang.org的链接也可使用golang.google.cn替换）。章节段落结构稍作改变，对应的go版本为go1.25.0。
 
 [TOC]
 
@@ -69,7 +69,7 @@ go build [-o output] [build flags] [packages]
 * -mod mode：使用的模块下载模式：readonly、vendor或mod。默认情况下，如果vendor目录存在且go.mod中的go版本为1.14或更高，go命令表现如同-mod=vendor被设置一样。否则，go命令表现如同-mod=readonly被设置一样。详情参阅[https://golang.org/ref/mod#build-commands](https://golang.org/ref/mod#build-commands)。
 * -modcacherw：令保留在模块缓存中的新创建的目录可读写，而不是令它们只读。
 * -modfile file：在模块感知模式下，读取（并且可能写入）备用的go.mod文件而不是在模块根目录下的go.mod文件。名字为“go.mod”的文件仍然必须存在用来确定模块根目录，但其不会被访问。当-modfile被指定，备用的go.sum文件也会被使用：其路径从-modfile标志产生，通过去除“.mod”扩展名并追加“.sum”。
-* -overlay file：读取为构建操作提供覆盖的JSON配置文件。文件是只有一个字段的JSON结构，名为“Replace”，映射每个磁盘文件路径（一个字符串）至其后备文件路径，以使构建运行起来如同磁盘文件路径存在有后备文件路径提供的内容，或如果其后备文件路径为空则如同磁盘文件路径不存在。对-overlay标志的支持有一些限制：重要的是，从包含路径之外包含的cgo文件必需与Go包被包含于相同的目录，且当二进制和测试分别通过go run和go test运行时覆盖不会出现。
+* -overlay file：读取为构建操作提供覆盖的JSON配置文件。文件是只有一个字段的JSON对象，名为“Replace”，映射每个磁盘文件路径（一个字符串）至其后备文件路径，以使构建运行起来如同磁盘文件路径存在有后备文件路径提供的内容，或如果其后备文件路径为空则如同磁盘文件路径不存在。对-overlay标志的支持有一些限制：重要的是，从包含路径之外包含的cgo文件必需与Go包被包含于相同的目录，当二进制和测试分别通过go run和go test运行时覆盖不会出现，且在GOMODCACHE之下的文件不可被替换。
 * -msan：启用与Memory Sanitizer的互操作，只支持linux/amd64、linux/arm64、linux/loong64、freebsd/amd64，并且只能使用clang/llvm作为宿主C编译器。PIE构建模式将在除了linux/amd64的所有平台上使用。
 * -n：将实际需执行的命令打印出来但不运行。
 * -p n：可以并行运行的程序——如构建命令或测试二进制文件——的数量。默认为GOMAXPROCS，通常是可用的CPU的数量。
@@ -175,6 +175,7 @@ go doc <pkg> <sym>[.<methodOrField>]
 示例：
 
 * go doc：显示当前包的文档。
+* go doc -http：为当前包在HTTP上提供HTML文档。
 * go doc Foo：显示当前包中Foo的文档。（Foo以大写字母开头，因此其不能匹配为一个包路径。）
 * go doc encoding/json：显示encoding/json包的文档。
 * go doc json：encoding/json的简写。
@@ -198,6 +199,7 @@ go doc <pkg> <sym>[.<methodOrField>]
 * -all：显示包的所有文档。
 * -c：匹配符号时区分大小写。
 * -cmd：将命令（main包）当作普通包看待。否则当显示包的顶层文档时，main包的导出符号将被隐藏。
+* -http：在HTTP上提供HTML文档。
 * -short：每个符号一行表示。
 * -src：显示符号的完整源代码。这将显示其声明和定义的完整Go代码，如函数定义（包括函数体），类型声明或闭包引用的常量块。输出可能因此包含未导出的细节。
 * -u：像导出符号、方法、字段一样显示未导出的符号、方法、字段的文档。
@@ -687,7 +689,7 @@ golang.org/x/net/html
 	list -m的参数会被解析为模块的列表，而不是包的列表。主模块是包含当前目录的模块。活跃的（active）模块为主模块及其依赖。不带参数，list -m显示主模块。带参数，list -m显示参数指定的模块。任何活跃的模块都可以通过其模块路径指定。特殊的模式“all”指定所有活跃的模块，首先是主模块，然后是使用模块路径排序的依赖。包含“...”的模式指定其模块路径匹配该模式的活跃模块。path@version形式的查询指定该查询的结果，不限于活跃的模块。关于模块查询的更多信息，参阅“go help modules”。
 	
 	模板函数“module”使用单个字符串参数，必须为模块路径或查询，并以Module结构体的形式返回指定的模块。如果发生错误，结果将是带有非nil的Error字段的Module结构体。
-* -retracted：报告关于被撤回的模块版本的信息。当-retracted与-f或-json一起使用，Retracted字段将被设置为一个字符串用以解释为什么版本被撤回。该字符串从模块的go.mod文件中的retract指令的注释中提取。当-retracted和-versions一起使用时，被撤回的版本和未被撤回的版本一起列出。-retracted标志可与或者不与-m一起使用。
+* -retracted：报告关于被撤回的模块版本的信息。当-retracted与-f或-json一起使用时，Retracted字段解释为什么版本被撤回。字符串从模块的go.mod文件中的retract指令的注释中提取。当-retracted和-versions一起使用时，被撤回的版本和未被撤回的版本一起列出。-retracted标志可与或者不与-m一起使用。
 * -reuse：当使用-m时，-reuse=old.json标志接受包含前一次以相同的修饰标志（例如-r、-retracted和-versions）集合进行的“go list -m -json”调用的JSON输出的文件名。go命令可使用此文件来决定自前一次调用以来模块没有变化，并避免重新下载关于它的信息。未被重新下载的模块将通过设置Reuse字段为true来在新输出中标记。通常模块缓存自动地提供这种重用；-reuse标志在不保存模块缓存的系统上是有用的。
 * -test：不只是报告指定名字的包，也报告它们的测试二进制文件（对带有测试的包），从而将测试二进制文件是怎样构建的准确地传递给源代码分析工具。测试二进制文件的报告的导入路径为包的导入路径添加“.test”后缀，如“math/rand.test”。当构建测试时，有时候需要重新构建测试特定的某些依赖（最常见的是被测试的包本身）。为特定的测试二进制文件重新编译的包的报告的导入路径，会添加一个空格和以括号括起的测试二进制文件的名字，如“math/rand [math/rand.test]”或“regexp [sort.test]”。ForTest也会设置为正在被测试的包名（在此前的例子中为“math/rand”或“sort”）。
 * -u：添加关于可用升级的信息。当给定模块的最新版本比当前模块较新时，list -u设置Module的Update字段为关于较新模块的信息。如果当前版本被撤回，-u也会设置Module的Retracted字段。通过在当前版本号后面格式化以括号括起的较新版本，Module的String方法表示一个可获得的升级。如果版本被撤回，其后跟字符串“(retracted)”。例如，“go list -m -u all”可能打印：
@@ -783,14 +785,16 @@ edit为编辑go.mod提供一个命令行接口，主要被工具或脚本使用�
 
 * -dropexclude=path@version：删除给定模块路径和版本的排除。
 * -dropgodebug=key：删除任何带有给定key的现存的godebug行。
+* -dropignore=path：为给定路径删除忽略声明。
 * -dropreplace=old[@v]：删除给定模块路径和版本号对的替代。如果@v被省略，左侧不带有版本号的替代被删除。
 * -droprequire=path：删除给定的模块路径依赖的模块。这些标志主要用于那些理解模块图的工具。用户应更喜欢“go get path@none”，可令其它go.mod根据需要调整来满足其它模块施加的限制。
 * -dropretract=version：删除对给定版本的撤回。version可能是类似“v1.2.3”的单个版本或类似“[v1.1.0,v1.1.9]”的闭区间。
-* -droptool=path：为给定的路径删除tool声明。
+* -droptool=path：为给定路径删除工具声明。
 * -exclude=path@version：添加给定模块路径和版本的排除。注意如果排除已经存在-exclude=path@version是无操作的。
 * -fmt：重新格式化go.mod文件，不作其他改变。这种重新格式化也被使用或重写go.mod文件的任何其他修改所隐含。此标志被需要的唯一时机是如果没有其它标志被指定，如同“go mod edit -fmt”。
 * -go=version：设置期望的Go语言版本号。此标志主要用于那些理解Go版本依赖的工具。用户应更喜欢“go get go@version”。
 * -godebug=key=value：添加godebug key=value行，替换任何带有给定key的现存的godebug行。
+* -ignore=path：为给定路径添加忽略声明。
 * -json：以JSON格式打印最终的go.mod文件，而不是将其写回至go.mod。JSON输出对应于这些Go类型：
 
 	```go
@@ -840,6 +844,10 @@ edit为编辑go.mod提供一个命令行接口，主要被工具或脚本使用�
 	type Tool struct {
 		Path string
 	}
+	
+	type Ignore struct {
+		Path string
+	}
 	```
 	表示单个版本（不是一个区间）的Retract条目将有设置为相同值的“Low”和“High”字段。
 * -module：修改模块的路径（go.mod文件的module行）。
@@ -847,10 +855,10 @@ edit为编辑go.mod提供一个命令行接口，主要被工具或脚本使用�
 * -replace=old[@v]=new[@v]：添加给定模块路径和版本号对的替代。如果old@v中的@v被省略，则左侧不带版本号的替代将被添加，其应用于old模块路径的所有版本号。如果new@v中的@v被省略，新路径应为本地模块根目录，而不是模块路径。注意-replace为old[@v]覆盖任何冗余的替代，因此省略@v将删除对具体版本号的现有替代。
 * -require=path@version：添加给定的模块路径和版本依赖的模块。注意-require覆盖该路径上任何现存的依赖的模块。这些标志主要用于那些理解模块图的工具。用户应首选“go get path@version”，其令其它go.mod根据需要调整来满足被其它模块施加的限制。
 * -retract=version：添加对给定版本号的撤回。version可能是类似“v1.2.3”的单个版本号或类似“[v1.1.0,v1.1.9]”的闭区间。注意如果撤回已经存在-retract=version是无操作的。
-* -tool=path：为给定的路径添加tool声明。
+* -tool=path：为给定路径添加工具声明。
 * -toolchain=name：设置要使用的Go工具链。此标志主要用于那些理解Go版本依赖的工具。用户应首选“go get toolchain@version”。
 
--godebug、-dropgodebug、-require、-droprequire、-exclude、-dropexclude、-replace、-dropreplace、-retract、-dropretract、-tool、-droptool编辑标志可以重复，根据给定的顺序应用修改。
+-godebug、-dropgodebug、-require、-droprequire、-exclude、-dropexclude、-replace、-dropreplace、-retract、-dropretract、-tool、-droptool、-ignore、-dropignore编辑标志可以重复，根据给定的顺序应用修改。
 
 也提供-C、-n、-x构建标志。
 
@@ -868,7 +876,7 @@ go mod graph [-go=version] [-x]
 
 标志：
 
-* -go：令其报告如同被指定的Go版本加载的模块图，而不是被在go.mod文件中的“go”指令标示的版本。
+* -go：令其如同被给定的Go版本加载那样来报告模块图，而非被go.mod文件中的“go”指令表明的版本。
 * -x：令其打印执行的命令。
 
 关于“go mod graph”的更多信息参阅[https://golang.org/ref/mod#go-mod-graph](https://golang.org/ref/mod#go-mod-graph)。
@@ -881,7 +889,7 @@ go mod init [module-path]
 
 初始化并写入一个新的go.mod文件至当前目录中，实际上是创建一个以当前目录为根的新模块。文件go.mod必须不存在。
 
-接受一个可选参数，即新模块的模块路径。如果模块路径参数省略，将使用.go文件中的import注释、vendoring工具配置文件（类似Gopkg.lock）和当前目录（如果在GOPATH中）尝试推断模块路径。
+接受一个可选参数，即新模块的模块路径。如果模块路径参数省略，将使用.go文件中的import注释和当前目录（如果在GOPATH中）尝试推断模块路径。
 
 关于“go mod init”的更多信息参阅[https://golang.org/ref/mod#go-mod-init](https://golang.org/ref/mod#go-mod-init)。
 
@@ -1046,7 +1054,7 @@ go test以两种不同的模式运行：
 
 只在包列表模式，go test缓存成功的包测试结果来避免不必要的测试重复运行。当测试的结果可以从缓存恢复时，go test将重新展示之前的输出而不是再次运行测试二进制文件。当这种情况发生时，go test在概要行中打印“(cached)”取代消耗的时间。
 
-缓存匹配的规则为，运行只涉及相同的测试二进制文件，且命令行中的标志完全来自一个受限的“可缓存”测试标志集合，定义为-benchtime、-cpu、-list、-parallel、-run、-short、-timeout、-failfast、-fullpath和-v。如果go test的运行有任何不在这个集合中的测试或非测试标志，结果是不被缓存的。要禁用测试缓存，使用可缓存标志以外的测试标志或参数。显式禁用测试缓存的惯用方式为使用-count=1。在包的模块中打开文件或查询环境变量的测试只匹配文件和环境变量未改变的将来的运行。缓存的测试结果被视为立即执行的，因此一个成功的包测试结果将被缓存且重用，忽略-timeout设置。
+缓存匹配的规则为，运行只涉及相同的测试二进制文件，且命令行中的标志完全来自一个受限的“可缓存”测试标志集合，定义为-benchtime、-coverprofile、-cpu、-failfast、-fullpath、-list、-outputdir、-parallel、-run、-short、-skip、-timeout和-v。如果go test的运行有任何不在这个集合中的测试或非测试标志，结果是不被缓存的。要禁用测试缓存，使用可缓存标志以外的测试标志或参数。显式禁用测试缓存的惯用方式为使用-count=1。在包的模块中打开文件或查询环境变量的测试只匹配文件和环境变量未改变的将来的运行。缓存的测试结果被视为立即执行的，因此一个成功的包测试结果将被缓存且重用，忽略-timeout设置。
 
 除了构建标志，“go test”自身处理的标志还有：
 
@@ -1076,14 +1084,20 @@ Go附带许多内置工具，额外的工具可以在当前模块的go.mod中被
 
 标志：
 
+* -C dir：也提供此构建标志。
+* -modcacherw：也提供此构建标志。
+* -modfile=file.mod：使用其他的文件而非模块根目录中的go.mod。
 * -n：将实际需执行的命令打印出来但不运行。
+* -overlay file：也提供此构建标志。
+
+关于构建标志的更多信息，参阅“go help build”。
 
 关于每个内置tool命令的更多信息，参阅“go doc cmd/<command>”。
 
 # go version——打印Go版本
 
 ```shell
-go version [-m] [-v] [file ...]
+go version [-m] [-v] [-json] [file ...]
 ```
 
 为Go二进制文件打印的构建信息。
@@ -1094,6 +1108,7 @@ go version报告用来构建每个指定名字的文件的Go版本。
 
 标志：
 
+* -json：类似于-m但以JSON格式输出runtime/debug.BuildInfo。如果-json不带-m指定，go version报告错误。
 * -m：当可以获得的时候，令go version打印每个文件的内嵌的模块版本信息。在输出中，模块信息包含跟在版本行之后的多行，每行由前导制表符缩进。
 * -v：如果指定一个目录，go version递归地遍历该目录，查找可以识别的Go二进制文件并报告它们的版本。默认情况下，go version不报告在目录扫描期间发现的无法识别的文件。-v标志令其报告无法识别的文件。
 
@@ -1354,7 +1369,7 @@ beta或次版本（译注：不是修订版本？）的发布版本没有单独�
 * 对GOARCH=mips或mipsle，GOMIPS=hardfloat和softfloat对应于mips.hardfloat和mips.softfloat（或mipsle.hardfloat和mipsle.softfloat）特性构建标记。
 * 对GOARCH=mips64或mips64le，GOMIPS64=hardfloat和softfloat对应于mips64.hardfloat和mips64.softfloat（或mips64le.hardfloat或mips64le.softfloat）特性构建标记。
 * 对GOARCH=ppc64或ppc64le，GOPPC64=power8、power9和power10对应于ppc64.power8、ppc64.power9和ppc64.power10（或ppc64le.power8、ppc64le.power9和ppc64le.power10）特性构建标记。
-* 对GOARCH=riscv64，GORISCV64=rva20u64和rva22u64对应于riscv64.rva20u64和riscv64.rva22u64构建标记。
+* 对GOARCH=riscv64，GORISCV64=rva20u64、rva22u64和rva23u64对应于riscv64.rva20u64、riscv64.rva22u64和riscv64.rva23u64构建标记。
 * 对GOARCH=wasm，GOWASM=satconv和signext对应wasm.satconv和wasm.signext特性构建标记。
 
 对GOARCH=amd64、arm、ppc64、ppc64le和riscv64，一个特定的特性等级也为所有之前的等级设置特性构建标记。例如，GOAMD64=v2设置amd64.v1和amd64.v2特性标记。这保证使用v2特性的代码在引入GOAMD64=v4时能继续编译。处理特定特性等级缺失的代码应使用否定：
@@ -1439,7 +1454,7 @@ Output字段为Action == "build-output"设置，且是构建的输出的一部�
 
 第一种方式是cgo工具，它是Go发行版的一部分。关于如何使用它的信息参阅cgo文档（go doc cmd/cgo）。
 
-第二种是SWIG程序，它是语言之间通过接口连接的通用工具。关于SWIG的信息参阅[https://swig.org/](https://swig.org/)。当运行go build时，任何带有.swig扩展名的文件将传递给SWIG。任何带.swigcxx扩展名的文件将使用-c++选项传递给SWIG。
+第二种是SWIG程序，它是语言之间通过接口连接的通用工具。关于SWIG的信息参阅[https://swig.org/](https://swig.org/)。当运行go build时，任何带有.swig扩展名的文件将传递给SWIG。任何带.swigcxx扩展名的文件将使用-c++选项传递给SWIG。包不能只有.swig或.swigcxx文件；必需有至少一个.go文件，即使它只有一个package语句。
 
 当cgo或SWIG任一种被使用时，go build将传递所有.c、.m、.s或.S文件至C编译器，以及所有.cc、.cpp、.cxx文件至C++编译器。可以设置CC或CXX环境变量来依次决定要使用的C或C++编译器。
 
@@ -1472,7 +1487,7 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 * GOARCH：要为之编译代码的体系结构或处理器。例如amd64、386、arm、ppc64。
 * GOAUTH：控制对go导入和HTTPS模块镜像交互的身份验证。参阅“go help goauth”。
 * GOBIN：“go install”安装命令使用的目录。
-* GOCACHE：go命令存储缓存信息用以在将来的构建中重用的目录。
+* GOCACHE：go命令存储用以在将来的构建中重用的缓存信息的目录。必需为绝对路径。
 * GOCACHEPROG：实现外部go命令构建缓存的命令（带有可选的以空格分隔的标志）。参阅“go doc cmd/go/internal/cacheprog”。
 * GODEBUG：为以Go构建的程序，包括go命令，启用多种调试能力。不可使用“go env -w”设置。详情参阅https://go.dev/doc/godebug。
 * GOENV：Go环境变量配置文件位置。不能使用“go env -w”设置。在环境变量中设置GOENV=off禁止默认配置文件的使用。
@@ -1525,12 +1540,12 @@ go命令及其调用的工具查询环境变量以进行配置。如果环境变
 * GOMIPS：对GOARCH=mips{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
 * GOMIPS64：对GOARCH=mips64{,le}，是否使用浮点指令。有效值为hardfloat（默认）、softfloat。
 * GOPPC64：对GOARCH=ppc64{,le}，目标ISA（指令集架构，Instruction Set Architecture）。有效值为power8（默认）、power9、power10。
-* GORISCV64：对GOARCH=riscv64，要为之编译的RISC-V用户模式应用程序配置。有效值为rva20u64（默认）、rva22u64。参阅https://github.com/riscv/riscv-profiles/blob/main/src/profiles.adoc。
+* GORISCV64：对GOARCH=riscv64，要为之编译的RISC-V用户模式应用程序配置。有效值为rva20u64（默认）、rva22u64、rva23u64。参阅https://github.com/riscv/riscv-profiles/blob/main/src/rva23-profile.adoc。
 * GOWASM：对GOARCH=wasm，要使用的实验性WebAssembly特性的逗号分隔的列表。有效值为satconv、signext。
 
 与代码覆盖率一起使用的环境变量：
 
-* GOCOVERDIR：写入由运行“go build -cover”二进制程序而生成的代码覆盖率数据文件的目录。需要启用GOEXPERIMENT=coverageredesign。
+* GOCOVERDIR：写入由运行“go build -cover”二进制程序而生成的代码覆盖率数据文件的目录。
 
 特殊用途的环境变量：
 
@@ -1598,7 +1613,7 @@ GOAUTH是为go-import和HTTPS模块镜像交互的身份验证命令的分号分
 	示例：
 	
 	```
-	https://example.com/
+	https://example.com
 	https://example.net/api/
 	
 	Authorization: Basic <token>
@@ -1824,7 +1839,7 @@ Mercurial   .hg
 Subversion  .svn
 ```
 
-例如，`import "example.org/user/foo.hg"`表示在example.org/user/foo或foo.hg的Mercurial仓库的根目录，`import "example.org/repo.git/foo/bar"`表示在example.org/repo或repo.git的Git仓库的foo/bar目录。
+例如，`import "example.org/user/foo.hg"`表示在example.org/user/foo的Mercurial仓库的根目录，`import "example.org/repo.git/foo/bar"`表示在example.org/repo的Git仓库的foo/bar目录。
 
 当版本控制系统支持多种协议时，在下载时每一种会轮流尝试。例如，Git下载尝试https://，然后git+ssh://。
 
@@ -1838,6 +1853,12 @@ meta标签有如下格式（译注：标签中name="go-import"是固定的）：
 <meta name="go-import" content="import-prefix vcs repo-root">
 ```
 
+从Go 1.25开始，可选的子目录将通过go命令被识别：
+
+```html
+<meta name="go-import" content="import-prefix vcs repo-root subdir">
+```
+
 import-prefix是和仓库根对应的导入路径。其必须为用“go get”抓取的包的前缀或完全匹配。如果其不是完全匹配，会对前缀生成另一个http请求来验证<meta>标签是匹配的。
 
 meta标签应该尽可能早地在文件中出现。特别地，其应该在任何原始的JavaScript或CSS之前出现，以避免迷惑go命令的受限的解析器。
@@ -1846,6 +1867,8 @@ vcs是“bzr”、“fossil”、“git”、“hg”、“svn”之一。
 
 repo-root是包含方案但不包含.vcs限定符的版本控制系统的根。
 
+subdir指定repo-root中的目录——其为Go模块的根（包含其go.mod文件）所在。它允许你用子目录中而非直接在仓库的根的Go模块代码来组织你的仓库。如果设置，所有vcs标签（tag）必需以"subdir"（译注：meta标签中的subdir字段值）为前缀。亦即，"subdir/v1.2.3"。
+
 例如，`import "example.org/pkg/foo"`将导致以下请求：
 
 ```
@@ -1853,7 +1876,9 @@ https://example.org/pkg/foo?go-get=1 （首选的）
 http://example.org/pkg/foo?go-get=1  （备选的，只与正确地设置GOINSECURE的使用一起）
 ```
 
-（译注：假设该页面的请求为https://example.org/exproj?go-get=1）如果该页面包含meta标签`<meta name="go-import" content="example.org git https://code.org/r/p/exproj">`，go工具将验证https://example.org/?go-get=1包含相同的meta标签，并然后git clone https://code.org/r/p/exproj进GOPATH/src/example.org。
+如果该页面包含meta标签`<meta name="go-import" content="example.org git https://code.org/r/p/exproj">`，go工具将验证https://example.org/?go-get=1包含相同的meta标签，并然后从位于https://code.org/r/p/exproj的Git仓库下载代码。
+
+如果该页面包含meta标签`<meta name="go-import" content="example.org git https://code.org/r/p/exproj foo/subdir">`，go工具将验证https://example.org/?go-get=1包含相同的meta标签，并然后从位于https://code.org/r/p/exproj的Git仓库中的"foo/subdir"子目录下载代码。
 
 下载的包存储在模块缓存中。参阅[https://golang.org/ref/mod#module-cache](https://golang.org/ref/mod#module-cache)。
 

@@ -1,4 +1,4 @@
-本文更新于2025-02-18。
+本文更新于2025-06-09。
 
 [TOC]
 
@@ -2660,8 +2660,11 @@ ldconfig -v
 打印二进制文件依赖的共享库。
 
 ```shell
+ldd --version
 ldd FILENAME
 ```
+
+* --version：打印版本号，包含glibc版本号。
 
 ## nm
 
