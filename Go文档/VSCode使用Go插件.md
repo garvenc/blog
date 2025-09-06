@@ -24,14 +24,10 @@
 
 使用“文件->打开文件夹...”（Ctrl+K Ctrl+O）打开目录。即可对目录树中的Go代码使用代码补全、代码跳转等功能。
 
-VSCode在加载代码时，因国内无法访问proxy.golang.org，当未自行配置模块代理时，会导致加载代码所需的时间较长，此时的错误可于输出面板选择“gopls(server)”进行查看。故需自行配置模块代理，可使用两种方法：
+VSCode在加载代码时，如有未下载的模块依赖，会自动下载。因国内无法访问proxy.golang.org，当未自行配置模块代理时，会导致加载代码所需的时间较长，此时的错误可于输出面板选择“gopls(server)”进行查看。故如有未下载的模块依赖，需自行配置模块代理，可使用两种方法：
 
 * 在Windows系统中设置GOPROXY环境变量为https://goproxy.cn（详细步骤略），然后启动VSCode。
-* 运行bat脚本启动VSCode，脚本内容如下：
-	```bat
-	set GOPROXY=https://goproxy.cn
-	code
-	```
+* 在cmd中运行`set GOPROXY=https://goproxy.cn && code`来启动VSCode。
 
 # 调试
 

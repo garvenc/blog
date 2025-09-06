@@ -96,7 +96,17 @@ uname [-a]
 
 * -a：列出所有信息。
 
-# 系统设置
+# 系统管理
+
+## journalctl
+
+管理systemd日志，日志位于/var/log/journal。
+
+```shell
+journalctl --vacuum-time=DURATION
+```
+
+* --vacuum-time：保留时长。可使用d（天）、w（周）、m（月）为单位。
 
 ## shutdown
 
@@ -1896,9 +1906,9 @@ top [-bH -d SECONDS -n TIMES -p PID[,...]]
 
 界面上部为系统整体资源使用状态:
 
-* 第一行：当前的时间，系统开机至今的时长，当前登录的用户数，最近1/5/15分钟的平均工作负载（即在特定的时间间隔内队列中运行的平均进程数）。
+* 第一行：当前的时间，系统开机至今的时长，当前登录的用户数，最近1/5/15分钟的平均工作负载（即在特定的时间间隔内队列中等待处理器执行的平均进程数）。
 * 第二行：进程的总数，运行、睡眠、停止、僵尸进程的数量。
-* 第三行：CPU负载。
+* 第三行：CPU使用率。
 	* us：不改变优先级的用户时间（time running un-niced user processes）。
 	* sy：内核时间（time running kernel processes）。
 	* ni：改变优先级的用户时间（time running niced user processes）。
@@ -2093,7 +2103,7 @@ nc -l [-tuv] -p PORT
 nc [-tuv] HOST PORT
 ```
 
-* -l：服务器模式。不使用此参数则为客户端模式，会要求输入传输内容。
+* -l：服务器模式，只接受一个连接，断开后退出。不使用此参数则为客户端模式，会要求输入传输内容。
 * -p PORT：监听的端口。
 * -t：使用TCP。如不指定-t和-u，则默认为TCP。
 * -u：使用UDP。如不指定-t和-u，则默认为TCP。
@@ -2303,8 +2313,8 @@ curl URL [-iILOv -o FILENAME]
 curl URL -X METHOD -H HEADER -d BODY [-iv]
 ```
 
-* -d|--data BODY：指定请求实体。会转换换行符。同时默认-X为POST。
-* --data-binary BODY：指定二进制请求实体。不会转换换行符。可使用@FILENAME指定文件名。
+* -d|--data BODY|@-：指定请求实体，如为@-则从标准输入读取。会转换换行符。同时默认-X为POST。
+* --data-binary BODY：指定二进制请求实体，如为@-则从标准输入读取。不会转换换行符。可使用@FILENAME指定文件名。
 * -H HEADER：指定请求首部。格式为“KEY: VALUE”。
 * -i：响应打印包含首部信息。
 * -I：提交HEAD请求，只返回首部信息。
@@ -2358,61 +2368,82 @@ URL可放在参数的前面。
 
 # 证书
 
+## keytool
+
+Java自带的证书工具。
+
+1. 生成CA密钥对：
+
+	```shell
+	keytool -genkeypair -keyalg RSA -keysize 2048 -keystore CAP12.p12 -storetype PKCS12 -storepass CASTOREPASSWORD -keypass CAKEYPASSWORD -alias CAALIAS -dname "K=V" -ext bc=ca:true -validity DAYS
+	```
+
+	-dname最重要的是Common Name（即CN），要么是从DNS解析后的完全限定域名（fully qualified domain name/FQDN），要么带*的通配符域名。
+1. 使用CA密钥对导出CA证书：
+
+	```shell
+	keytool -export -file CACRT.crt -keystore CAP12.p12 -storetype PKCS12 -storepass CASTOREPASSWORD -alias CAALIAS -rfc
+	```
+1. 生成私钥：
+
+	```shell
+	keytool -genkey -keyalg RSA -keysize 2048 -keystore P12.p12 -storepass STOREPASSWORD -keypass KEYPASSWORD -alias ALIAS -storetype PKCS12 -dname "K=V" -validity DAYS
+	```
+1. 使用私钥生成CSR（证书签名请求）：
+
+	```shell
+	keytool -certreq -file CSR.csr -keystore P12.p12 -storetype PKCS12 -storepass STOREPASSWORD -keypass KEYPASSWORD -alias ALIAS
+	```
+1. 使用CA证书对CSR进行签名生成证书：
+
+	```shell
+	keytool -gencert -infile CSR.csr -outfile CRT.crt -keystore CAP12.p12 -storetype PKCS12 -storepass CASTOREPASSWORD -alias CAALIAS -ext SAN=DNS:DOMAIN -validity DAYS
+	```
+1. 将证书链导入到密钥存储中：
+
+	```shell
+	cat CRT.crt CACRT.crt > CHAINCRT.crt
+	keytool -importcert -file CHAINCRT.crt -keystore P12.p12 -storepass STOREPASSWORD -keypass KEYPASSWORD -alias ALIAS -storetype PKCS12 -noprompt
+	```
+1. 用CA证书生成信任存储：
+
+	```shell
+	keytool -import -file CACRT.crt -keystore TSP12.p12 -storetype PKCS12 -storepass TSSTOREPASSWORD -alias ALIAS -noprompt
+	```
+
 ## openssl
 
-1. 生成CA私钥，期间会要求设置密码：
+1. 生成CA密钥对，期间会要求设置密码：
 
 	```shell
-	openssl genrsa -des3 -out CAKEYFILENAME
+	openssl genrsa -des3 -out CAP12.p12
 	```
-1. 使用CA私钥生成CA证书，期间会要求输入CA私钥的密码：
+1. 使用CA密钥对导出CA证书，期间会要求输入CA密钥对的密码：
 
 	```shell
-	openssl req -new -x509 -days N -key CAKEYFILENAME -out CACERTFILENAME
+	openssl req -new -x509 -days DAYS -key CAP12.p12 -out CACRT.crt
 	```
-1. 生成服务器私钥，期间会要求设置密码：
+1. 生成私钥，期间会要求设置密码：
 
 	```shell
-	openssl genrsa -des3 -out SERVERKEYFILENAME
+	openssl genrsa -des3 -out P12.p12
 	```
-1. 使用服务器私钥生成服务端CSR（证书签名请求），期间会要求输入服务器私钥的密码：
+1. 使用私钥生成CSR（证书签名请求），期间会要求输入私钥的密码：
 
 	```shell
-	openssl req -new -key SERVERKEYFILENAME -out SERVERCSRFILENAME
-	```
-
-	输入的选项中最重要的是Common Name（即CN），要么是从DNS解析后的完全限定域名（fully qualified domain name/FQDN），要么是*即可在任何服务器使用。
-1. 使用CA证书对服务端CSR进行签名生成服务器证书，期间会要求输入CA私钥的密码，并需存在文件内容为一个整数的ca.srl文件：
-
-	```shell
-	openssl x509 -req -days N -CA CACERTFILENAME -CAkey CAKEYFILENAME -in SERVERCSRFILENAME -out SERVERCERTFILENAME
-	```
-1. 清除服务器私钥的密码，便于服务器使用，期间会要求输入服务器私钥的密码：
-
-	```shell
-	openssl rsa -in SERVERKEYFILENAME -out SERVERKEYFILENAME
-	```
-1. 生成客户端私钥，期间会要求设置密码：
-
-	```shell
-	openssl genrsa -des3 -out CLIENTKEYFILENAME
-	```
-1. 使用客户端私钥生成客户端CSR（证书签名请求），期间会要求输入客户端私钥的密码：
-
-	```shell
-	openssl req -new -key CLIENTKEYFILENAME -out CLIENTCSRFILENAME
-	```
-1. 使用CA证书对客户端CSR进行签名生成客户端证书，期间会要求输入CA私钥的密码，并需存在文件内容为一个整数的ca.srl文件：
-
-	```shell
-	openssl x509 -req -days N -CA CACERTFILENAME -CAkey CAKEYFILENAME -in CLIENTCSRFILENAME -out CLIENTCERTFILENAME -extfile CLIENTEXTFILENAME
+	openssl req -new -key P12.p12 -out CSR.csr
 	```
 
-	CLIENTEXTFILENAME用来添加扩展的SSL属性，格式为“KEY = VALUE”。
-1. 清除客户端私钥的密码，便于客户端使用，期间会要求输入客户端私钥的密码：
+	输入的选项中最重要的是Common Name（即CN），要么是从DNS解析后的完全限定域名（fully qualified domain name/FQDN），要么带*的通配符域名。
+1. 使用CA证书对CSR进行签名生成证书，期间会要求输入CA密钥对的密码，并需存在文件内容为一个整数的ca.srl文件：
 
 	```shell
-	openssl rsa -in CLIENTKEYFILENAME -out CLIENTKEYFILENAME
+	openssl x509 -req -days DAYS -CA CACRT.crt -CAkey CAP12.p12 -in CSR.csr -out CRT.crt
+	```
+1. 清除私钥的密码，便于服务器使用，期间会要求输入私钥的密码：
+
+	```shell
+	openssl rsa -in P12.p12 -out P12.p12
 	```
 
 # 软件包
